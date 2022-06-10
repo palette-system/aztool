@@ -76,3 +76,14 @@ aztool.on_url = function(url) {
     // それ以外はOK
     return true;
 };
+
+// ブラウザがChromeかどうか
+aztool.is_chrome = function() {
+    var ua = window.navigator.userAgent.toLowerCase();
+    return Boolean(ua.indexOf("chrome") >= 0);
+};
+
+// スマートフォンかどうか
+aztool.is_mobile = function isSmartPhone() {
+    return Boolean(navigator.userAgent.match(/iPhone|Android.+Mobile/));
+};

@@ -87,6 +87,8 @@ webhid.init = function(opt) {
     }
     // crcテーブル作成
     webhid.crc_table = webhid.get_crctable();
+    // hid 対応していなければ何もしない
+    if (!navigator.hid) return;
     // 接続イベント登録
     navigator.hid.addEventListener("connect", webhid.handle_connect);
     // 接続終了イベント登録

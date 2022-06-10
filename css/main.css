@@ -172,6 +172,24 @@ li {
     border: solid 1px #aaa;
 }
 
+/* スタートページのキーボード接続ボタン */
+.conn_bbutton {
+    width: 300px;
+    height: 50px;
+    font-size: 18px;
+    background-color: #f1f1f1;
+    color: #222;
+    text-align: center;
+    line-height: 50px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: solid 1px #222;
+    display: inline-block;
+}
+
+.conn_bbutton:hover {
+    background-color: #acdbfd;
+}
 
 /* IOエキスパンダアイコン */
 .icon_ioxp {
@@ -367,3 +385,41 @@ li {
     line-height: 50px;
     font-size: 16px;
 }
+
+/* トップメニュー キーボード情報表 */
+.keystatus th {
+    border: solid 1px #DDD;
+    background-color: #DDD;
+    padding: 5px 10px 5px 30px;
+    text-align: right;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.keystatus td {
+    border: solid 1px #DDD;
+    padding: 5px 50px 5px 10px;
+    font-size: 14px;
+}
+
+/* トップメニュー メニューボタン */
+.topmenu_btn {
+    width: 150px;
+    height: 110px;
+    background-color: #f1f1f1;
+    color: #2c2c2c;
+    font-size: 18px;
+    text-align: center;
+    border-radius: 20px;
+    cursor: pointer;
+    display: inline-block;
+    margin: 10px 10px;
+    vertical-align: top;
+    padding: 20px 0;
+}
+
+.topmenu_btn:hover {
+    background-color: #acdbfd;
+}
+
+

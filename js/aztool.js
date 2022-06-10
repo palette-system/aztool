@@ -119,10 +119,20 @@ aztool.view_load_page = function() {
 // コネクションページ表示
 aztool.view_connect_top = function(msg) {
     let h = "";
-    h += "<input type='button' value='キーボードに接続' onClick='javascript:aztool.connect();'>";
-    if (msg) {
-        h += "<br>" + msg;
+    h += "<div style='text-align: center; margin: 100px 0;'>";
+    h += "<h2 style='font-size: 80px; margin: 40px 0 100px 0;'>⌨ AZTOOL</h2>"
+    if (aztool.is_mobile() || !aztool.is_chrome()) {
+        h += "<div style='font-size: 20px;'>※ PC Chrome で開いて下さい。</div>";
+
+    } else {
+        h += "<div class='conn_bbutton' onClick='javascript:aztool.connect();'>キーボードに接続</div>";
+        h += "<br>";
+        if (msg) h += "<br>" + msg;
     }
+    h += "<div style='margin: 140px 0 0 0; height: 80px; line-height: 80px;'>";
+    h += "<img src='./img/palette_system_logo.png' alt='パレットシステム'>"
+    h += "</div>";
+    h += "</div>";
     $("#main_box").html(h);
 };
 
@@ -131,23 +141,30 @@ aztool.view_top_menu = function() {
     let k = aztool.setting_json_data;
     let h = "";
     let d, x;
-    h += "<table><tr>";
-    h += "<td>";
-    h += "vendorId / productId： " + k.vendorId + " / " + k.productId + "<br>";
-    h += "キーボード名：" + k.keyboard_name + "<br>";
-    x = (k.keyboard_pin.ioxp)? k.keyboard_pin.ioxp.join(","): "";
-    d = (k.keyboard_pin.direct)? k.keyboard_pin.direct.join(","): "";
-    h += "キーピン： direct="+d+"　ioxp="+x+"<br>";
+    let kname = (k.keyboard_name)? k.keyboard_name: "<font style='color: #888;'>設定なし</font>";
+    h += "<center>";
+    h += "<h2 style='font-size: 50px; margin: 40px 0;'>⌨ AZTOOL</h2>";
+    h += "<div style='text-align: left; display: inline-block; margin: 0 0 80px 0;'>";
+    h += "キーボード情報<br>";
+    h += "<table cellpadding='4' cellspacing='0' border='0' class='keystatus'>";
+    h += "<tr><th>VendorId / ProductId</th><td>" + k.vendorId + " / " + k.productId + "</td></tr>";
+    h += "<tr><th>キーボード名</th><td>" + kname + "</td></tr>";
+    x = [];
+    if (k.keyboard_pin.ioxp && k.keyboard_pin.ioxp.length) x.push("ioxp = " + k.keyboard_pin.ioxp.join(","));
+    if (k.keyboard_pin.direct && k.keyboard_pin.direct.length) x.push("direct = " + k.keyboard_pin.direct.join(","));
+    h += "<tr><th>キーピン</th><td>"+x.join("　")+"</td></tr>";
     console.log(k);
     if (k.i2c_set && k.i2c_set.length == 3) {
-        h += "I2Cピン：  SDA= " + k.i2c_set[0] + " / SCL= " + k.i2c_set[1] + " / " + k.i2c_set[1] + " Hz<br>";
+        h += "<tr><th>I2Cピン</th><td>SDA= " + k.i2c_set[0] + " / SCL= " + k.i2c_set[1] + " / " + k.i2c_set[2] + " Hz</td></tr>";
     }
-    h += "</td></tr></table>";
-    // h += "<div id='key_layout_box' style='width: 1000px; height: 500px;overflow: hidden; border: solid 1px black; text-align: left;'></div>";
-    h += "<br><br>";
-    h += "<a href='#' onClick='javascript:aztool.view_setmap();'>キーマップ設定</a><br>";
-    h += "<a href='#' onClick='javascript:aztool.view_setopt();'>オプション設定</a><br>";
-    h += "<a href='#' onClick='javascript:aztool.edit_setting_json();'>設定JSON編集</a><br>";
+    h += "</table>";
+    h += "</div>";
+    h += "<div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setmap();'><font style='font-size: 50px;'>⌨</font><br>キーマップ</div>"
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font style='font-size: 50px;'>🖲</font><br>I2C オプション</div>"
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
+    h += "</div>";
+    h += "</center>";
     $("#main_box").html(h);
     // キー配列を表示
     // aztool.view_key_layout();
