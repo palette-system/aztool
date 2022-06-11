@@ -135,11 +135,19 @@ li {
     line-height: 36px;
 }
 
+/* 左メニュー 枠*/
+.leftmenu-box {
+    width: 200px;
+    background-color: #f1f1f1;
+    padding: 5px;
+    vertical-align: top;
+}
+
 /* 左メニュー用ボタン */
 .leftmenu-button {
-    width: 150px;
+    width: 176px;
     height: 36px;
-    background-color: #dddddd;
+    background-color: #f1f1f1;
     color: #141414;
     font-size: 16px;
     display: inline-block;
@@ -152,7 +160,7 @@ li {
 }
 
 .leftmenu-button:hover {
-    background-color: #dbebfb;
+    background-color: #acdbfd;
 }
 
 /* 左メニュー用決定ボタン */
@@ -279,6 +287,7 @@ li {
     box-shadow: 5px 3px 0px 0 rgb(201 201 201);
     line-height: 30px;
     font-size: 13px;
+    text-align: left;
 }
 
 .layer_title_name {

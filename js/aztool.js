@@ -52,6 +52,13 @@ aztool.connect = function() {
     });
 };
 
+// キーボード切断
+aztool.close = function() {
+    webhid.close(function() {
+        aztool.view_connect_top("切断しました");
+    });
+};
+
 // 接続が切れた時に呼び出される
 aztool.hid_disconn_func = function(e) {
     // 接続ページを表示
@@ -159,10 +166,19 @@ aztool.view_top_menu = function() {
     }
     h += "</table>";
     h += "</div>";
-    h += "<div>";
+    h += "<div style='width: 900px;'>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setmap();'><font style='font-size: 50px;'>⌨</font><br>キーマップ</div>"
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font style='font-size: 50px;'>🖲</font><br>I2C オプション</div>"
     h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
+    h += "</div>";
+    h += "<div style='margin: 100px 0 50px 0;'>";
+    h += "<div class='conn_bbutton' onClick='javascript:aztool.close();'>閉じる</div>";
     h += "</div>";
     h += "</center>";
     $("#main_box").html(h);

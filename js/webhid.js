@@ -461,6 +461,11 @@ webhid.connect = function(cb_func) {
     });
 };
 
+// HID機器切断
+webhid.close = function(cb_func) {
+    webhid.device.close().then(cb_func);
+};
+
 // rawデータを送受信するポートIDを取得する
 webhid.get_report_id = function(d) {
     let i;

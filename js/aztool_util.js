@@ -36,12 +36,18 @@ aztool.kle_json_parse = function(json_data) {
 
 // キーコード(JS)からキーコードデータを取得
 aztool.get_key_data = function(c, s) {
-    let i, k;
+    let i, k, t;
     for (i in aztool.keycode) {
         k = aztool.keycode[i];
         if (k[c] == s) {
+            // 
+            if (aztool.setmap_language == 0) { // 日本語
+                t = (k[1])? k[1]: k[0];
+            } else { // 一旦それ以外は英語
+                t = k[0];
+            }
             return {
-                "str": (k[1])? k[1]: k[0],
+                "str": t,
                 "hid": k[2],
                 "ascii": k[3]
             };

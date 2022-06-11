@@ -9,16 +9,19 @@ aztool.setmap_select_layer = "";
 // 設定操作中フラグ
 aztool.setmap_stat = 0; // 0=何もしてない / 1=一括設定中 / 2=1キー設定中 / 3=レイヤー設定
 
+// 表示キーの文字language 0=日本語 / 1=英語
+aztool.setmap_language = 0;
+
 // キーマップ設定画面表示
 aztool.view_setmap = function() {
     let h = `
     <div  style="width: 1400px;">
-    <table><tr><td valign="top" style="width: 200px; background-color: #f8f8f8; padding: 20px; overflow-y: scroll;">
+    <table><tr><td class="leftmenu-box">
     <a class="leftmenu-button" onClick="javascript:aztool.setmap_all_set(0);">一括設定</a><br>
     <a class="leftmenu-button" onClick="javascript:aztool.setmap_layer_set();">レイヤー設定</a><br>
     <a class="leftmenu-button" onClick="javascript:aztool.setmap_layer_copy();">コピーレイヤーを作成</a><br>
     <a class="leftmenu-button" onClick="javascript:aztool.setmap_save();">保存して再起動</a><br>
-    <a class="leftmenu-button" onClick="javascript:aztool.view_top_menu();">もどる</a><br>
+    <a class="leftmenu-button" onClick="javascript:aztool.view_top_menu();">戻る</a><br>
     </td><td valign="top" style="padding: 20px;">
     <div id='key_layout_box' style='width: 1000px; height: 400px;overflow: hidden; border: solid 1px black; text-align: left;'></div>
     <div id='key_set_list' style='width: 1000px; height: 350px;overflow-x: hidden; overflow-y: scroll; background-color: #e8e8f8; text-align: left;'></div>
@@ -151,8 +154,17 @@ aztool.view_key_layout = function() {
         if (!aztool.on_i2coption(o)) continue; // 有効でないオプションは無視
         h += "<div id='odiv_"+o.id+"' style='position: relative;'></div>"; // オプションのキー配列用
     }
+    h += "<table style='width: 970px;'><tr><td align='left' valign='top'>";
     h += "<div id='layer_title_info' class='layer_title'>レイヤー名</div>";
+    h += "</td><td align='right'  valign='top'>";
+    h += "<select id='lang_select' style='width: 170px; margin: 14px 0; font-size: 15px; padding: 6px 20px;' onChange='aztool.change_language();'>";
+    h += "<option value='0'>日本語</option>";
+    h += "<option value='1'>英語</option>";
+    h += "</select>";
+    h += "</td></tr></table>";
     $("#key_layout_box").html(h);
+    // 言語SELECTを選択
+    $("#lang_select").val(aztool.setmap_language);
     // キー配列を表示
     aztool.key_layout_data = [];
     // 本体のキー配列を表示
@@ -249,6 +261,16 @@ aztool.view_key_layout = function() {
     }, function(){
         $("#layer_menu_list").hide();
     });
+};
+
+// キーボードのlanguage変更
+aztool.change_language = function() {
+    // 言語を変更
+    aztool.setmap_language = parseInt($("#lang_select").val());
+    // ボタンに設定されている文字を表示
+    aztool.setmap_key_string_update();
+    // 設定用キーコードリスト表示
+    aztool.key_set_list_init();
 };
 
 // レイアウト設定を探して返す

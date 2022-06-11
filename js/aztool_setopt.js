@@ -11,11 +11,9 @@ aztool.view_setopt = function() {
     let h = `
     <div  style="width: 1400px;">
     <table style="min-height: 700px;">
-    <tr><td valign="top" style="width: 200px; background-color: #f8f8f8; padding: 10px; overflow-y: scroll;">
+    <tr><td class="leftmenu-box">
     <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\");'>オプション追加</a><br>
-    
     <div id="back_btn_box"></div>
-
     </td><td valign="top" style="padding: 20px;">
     <div id="opt_list"></div>
     <div id="setopt_info"></div>
@@ -63,6 +61,10 @@ aztool.setopt_optlist_view = function() {
         h += "</td></tr>";
         h += "</table>";
         h += "</div>";
+    }
+    // オプションが何もなければオプション追加ボタン表示
+    if (!h) {
+        h += "<div class='conn_bbutton' style='width: 500px; height: 300px; line-height: 300px; margin: 100px;' onClick='javascript:aztool.addopt_start(\"main_box\");'>オプション追加</div>";
     }
     $("#opt_list").html(h);
     for (i in aztool.setting_json_data.i2c_option) {
