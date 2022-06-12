@@ -75,6 +75,7 @@ webhid.command_id = {
     "restart": 0x38, // M5StackCore2の再起動
     "get_ioxp_key": 0x39, // IOエキスパンダからキー入力を取得
     "set_aztool_mode": 0x3A, // aztoolモードフラグ設定
+    "get_ap_list": 0x3B, // WIFIのアクセスポイントリスト取得
     "none": 0x00 // 空送信
 };
 
@@ -263,6 +264,13 @@ webhid.handle_input_report = function(e) {
         s = (get_data[1] << 24) + (get_data[2] << 16) + (get_data[3] << 8) + get_data[4];
         // 読み込み開始
         webhid.load_start_exec(s, webhid.file_list_cb_func);
+        
+    } else if (cmd_type == webhid.command_id.get_ap_list) {
+        // WIFIのアクセスポイント リスト取得開始
+        // リストのサイズ取得
+        s = (get_data[1] << 24) + (get_data[2] << 16) + (get_data[3] << 8) + get_data[4];
+        // 読み込み開始
+        webhid.load_start_exec(s, webhid.get_ap_cb_func);
 
     } else if (cmd_type == webhid.command_id.get_ioxp_key) {
         // IOエキスパンダからキーの入力データを取得
@@ -610,6 +618,18 @@ webhid.get_file_list = function(cb_func) {
     webhid.file_list_cb_func = cb_func;
     // ファイルリスト要求コマンド作成
     let cmd = [webhid.command_id.file_list];
+    // コマンド送信
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("loading ...");
+    });
+};
+
+// WIFI のアクセスポイントリストを取得する
+webhid.get_ap_list = function(cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.get_ap_cb_func = cb_func;
+    // ファイルリスト要求コマンド作成
+    let cmd = [webhid.command_id.get_ap_list];
     // コマンド送信
     webhid.send_command(cmd).then(() => {
         webhid.view_info("loading ...");

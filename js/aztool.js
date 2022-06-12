@@ -28,6 +28,8 @@ aztool.init = function() {
     webhid.init({"info_div": "console_div"});
     // ピン設定の初期化
     pinstp.init();
+    // 共通ライブラリの初期化
+    aztool.util_init();
     // キー設定ページの初期化
     aztool.setmap_init();
     // キー動作設定用のモーダル初期化
@@ -127,7 +129,7 @@ aztool.view_load_page = function() {
 aztool.view_connect_top = function(msg) {
     let h = "";
     h += "<div style='text-align: center; margin: 100px 0;'>";
-    h += "<h2 style='font-size: 80px; margin: 40px 0 100px 0;'>⌨ AZTOOL</h2>"
+    h += "<h2 style='font-size: 80px; margin: 40px 0 100px 0;'>⌨ AZTOOL</h2>";
     if (aztool.is_mobile() || !aztool.is_chrome()) {
         h += "<div style='font-size: 20px;'>※ PC Chrome で開いて下さい。</div>";
 
@@ -147,7 +149,7 @@ aztool.view_connect_top = function(msg) {
 aztool.view_top_menu = function() {
     let k = aztool.setting_json_data;
     let h = "";
-    let d, x;
+    let x;
     let kname = (k.keyboard_name)? k.keyboard_name: "<font style='color: #888;'>設定なし</font>";
     h += "<center>";
     h += "<h2 style='font-size: 50px; margin: 40px 0;'>⌨ AZTOOL</h2>";
@@ -167,18 +169,16 @@ aztool.view_top_menu = function() {
     h += "</table>";
     h += "</div>";
     h += "<div style='width: 900px;'>";
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setmap();'><font style='font-size: 50px;'>⌨</font><br>キーマップ</div>"
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font style='font-size: 50px;'>🖲</font><br>I2C オプション</div>"
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>🗒</font><br>設定JSON</div>"
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setmap();'><font style='font-size: 50px;'>⌨</font><br>キーマップ</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font style='font-size: 50px;'>🧩</font><br>I2C オプション</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>📗</font><br>設定JSON</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_wifi_top();'><font style='font-size: 50px;'>📶</font><br>Wifi</div>";
     h += "</div>";
     h += "<div style='margin: 100px 0 50px 0;'>";
     h += "<div class='conn_bbutton' onClick='javascript:aztool.close();'>閉じる</div>";
+    if (JSON.stringify(aztool.setting_json_data) != aztool.setting_json_txt) { // 設定内容が変更されていれば保存ボタン表示
+        h += "　　　　<div class='save_bbutton' onClick='javascript:aztool.save();'>保存して再起動</div>";
+    }
     h += "</div>";
     h += "</center>";
     $("#main_box").html(h);
@@ -194,7 +194,7 @@ aztool.keyboard_restart = function(boot_type) {
 
 // 設定JSON編集
 aztool.edit_setting_json = function() {
-    aztool.txtedit_open(aztool.setting_json_path, function(stat, save_flag) {
+    aztool.txtedit_setting_json_edit(function(stat, save_flag) {
         // 変更されていればキーボードを再起動
         if (save_flag) {
             aztool.keyboard_restart(0); // キーボードモードで再起動
@@ -207,11 +207,11 @@ aztool.edit_setting_json = function() {
 // 設定配列に反映した内容をJSONにして保存
 aztool.setting_json_save = function(cb_func) {
     // 設定JSONデータ作成
-    aztool.setting_json_txt = JSON.stringify(aztool.setting_json_data);
+    let save_data = JSON.stringify(aztool.setting_json_data);
     // 保存
     webhid.save_file(
         aztool.setting_json_path, // 保存先
-        aztool.setting_json_txt, // 保存データ
+        save_data, // 保存データ
         cb_func);
 };
 
@@ -230,3 +230,24 @@ aztool.update_step_box = function(step_num) {
     }
 };
 
+// 設定を保存して再起動
+aztool.save = function() {
+    // 設定を保存
+    let h = "";
+    h += "<div style='text-align: center; margin: 100px 0;'>";
+    h += "<h2 style='font-size: 80px; margin: 40px 0 100px 0;'>⌨ AZTOOL</h2>";
+    h += "<div id='save_info'>保存中<br><br><br><div id='console_div'></div></div>";
+    $("#main_box").html(h);
+    aztool.setting_json_save(function(stat) {
+        // 保存失敗
+        if (stat != 0) {
+            $("#save_info").html("設定JSONの保存に失敗しました。<br><br><br><br><div class='conn_bbutton' onClick='javascript:aztool.view_top_menu();'>戻る</div>");
+            return;
+        }
+        $("#save_info").html("保存完了。再起動します。");
+        // 2秒ほど待ってからキーボード再起動
+        setTimeout(function() {
+            aztool.keyboard_restart(0); // キーボードを再起動
+        }, 2000);
+    });
+};

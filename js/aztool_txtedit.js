@@ -45,15 +45,28 @@ aztool.txtedit_open = function(file_path, cb_func) {
 aztool.txtedit_editpage_view = function() {
     let h = "";
     h = `
-    ファイルパス： ${aztool.txtedit_file_path}　サイズ： ${aztool.txtedit_text_size}<br>
-    <textarea id='txtedit_txt' style='width: 900; height: 400px;'></textarea><br>
-    <div id='console_div'></div><br>
+    <center>
+    <div style='margin: 60px 0 0 0; text-align: left; display: inline-block;'>
+    ファイルパス： ${aztool.txtedit_file_path}　サイズ： ${aztool.txtedit_text_size}<br><br>
+    <textarea id='txtedit_txt' style='width: 900; height: 400px; font-size: 15px;'></textarea><br>
+    <div id='console_div'></div><br><br>
     <div style="text-align: right; width: 900px;">
     <a class="cancel-button" onClick="javascript:aztool.txtedit_cb(0, 0);">キャンセル</a>
     　<a class="exec-button" onClick="javascript:aztool.txtedit_save();">保存</a>
-    </div>`;
+    </div>
+    </div></center>`;
     $("#main_box").html(h);
     $("#txtedit_txt").html(aztool.txtedit_text_edit);
+};
+
+// 設定JSONの編集画面を表示
+aztool.txtedit_setting_json_edit = function(cb_func) {
+    aztool.txtedit_cb = cb_func; // コールバック関数
+    aztool.txtedit_file_path = aztool.setting_json_path; // ファイルのパスは設定ファイル
+    aztool.txtedit_text = aztool.setting_json_txt; // 編集前のデータは読み込んだ時の設定JSONデータ
+    aztool.txtedit_text_edit = JSON.stringify(aztool.setting_json_data); // データは編集中のデータをjson化
+    aztool.txtedit_text_size = aztool.txtedit_text.length; // ファイルサイズはjsonのサイズ
+    aztool.txtedit_editpage_view(); // 編集画面表示
 };
 
 // 編集したデータを保存

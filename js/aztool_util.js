@@ -93,3 +93,26 @@ aztool.is_chrome = function() {
 aztool.is_mobile = function isSmartPhone() {
     return Boolean(navigator.userAgent.match(/iPhone|Android.+Mobile/));
 };
+
+// util 用初期化
+aztool.util_init = function() {
+    // 共通のモーダル 初期化
+    aztool.util_remodal_init();
+
+};
+
+// モーダル用HTML登録
+aztool.util_remodal_init = function() {
+    // モーダル用HTML登録
+    let html = `
+        <!-- レイヤー設定用モーダル -->
+        <div id="util_remodal" class="remodal azmodal" data-remodal-id="util_remodal" 
+                data-remodal-options="hashTracking: false, closeOnOutsideClick: false"
+                style="max-width: 1200px; width: 1200px; min-height: 600px;">
+        </div>`;
+    $("body").append(html);
+    // モーダル登録
+    aztool.util_remodal = $('[data-remodal-id=util_remodal]').remodal();
+    aztool.util_remodal.settings.closeOnOutsideClick = false;
+    aztool.util_remodal.settings.hashTracking = false;
+};

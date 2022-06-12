@@ -20,7 +20,6 @@ aztool.view_setmap = function() {
     <a class="leftmenu-button" onClick="javascript:aztool.setmap_all_set(0);">一括設定</a><br>
     <a class="leftmenu-button" onClick="javascript:aztool.setmap_layer_set();">レイヤー設定</a><br>
     <a class="leftmenu-button" onClick="javascript:aztool.setmap_layer_copy();">コピーレイヤーを作成</a><br>
-    <a class="leftmenu-button" onClick="javascript:aztool.setmap_save();">保存して再起動</a><br>
     <a class="leftmenu-button" onClick="javascript:aztool.view_top_menu();">戻る</a><br>
     </td><td valign="top" style="padding: 20px;">
     <div id='key_layout_box' style='width: 1000px; height: 400px;overflow: hidden; border: solid 1px black; text-align: left;'></div>
@@ -70,9 +69,8 @@ aztool.setmap_init = function() {
             <div style="text-align: right; width: 1050px;margin: 0 0 20px 0;">
             <a id="pin_set_ok" class="exec-button" onClick="javascript:aztool.setmap_layer_edit_close(1);">決定</a>　
             <a id="pin_set_cancel" class="cancel-button" onClick="javascript:aztool.setmap_layer_edit_close(0);">キャンセル</a>
-        </div>
-
-    </div>`;
+            </div>
+        </div>`;
     $("body").append(html);
     // モーダル登録
     aztool.setmap_layer_mdl = $('[data-remodal-id=setmap_layer_modal]').remodal();
@@ -715,23 +713,4 @@ aztool.setmap_layer_edit_close = function(end_type) {
     aztool.setmap_layer_mdl.close();
     // キー配列の表示を描きなおす
     aztool.view_setmap();
-};
-
-// 設定を保存して再起動
-aztool.setmap_save = function() {
-    // 設定を保存
-    $("#main_box").html("保存中<br><div id='console_div'></div>");
-    aztool.setting_json_save(function(stat) {
-        // 保存失敗
-        if (stat != 0) {
-            aztool.view_setmap(); // キー設定ページ再表示
-            $("#setmap_info").html("設定JSONの保存に失敗しました。");
-            return;
-        }
-        $("#main_box").html("保存完了。再起動します。");
-        // 2秒ほど待ってからキーボード再起動
-        setTimeout(function() {
-            aztool.keyboard_restart(0); // キーボードを再起動
-        }, 2000);
-    });
 };
