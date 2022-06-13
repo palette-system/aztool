@@ -150,7 +150,7 @@ aztool.view_top_menu = function() {
     let k = aztool.setting_json_data;
     let h = "";
     let x;
-    let kname = (k.keyboard_name)? k.keyboard_name: "<font style='color: #888;'>設定なし</font>";
+    let kname = (k.keyboard_name)? k.keyboard_name: k.keyboard_type;
     h += "<center>";
     h += "<h2 style='font-size: 50px; margin: 40px 0;'>⌨ AZTOOL</h2>";
     h += "<div style='text-align: left; display: inline-block; margin: 0 0 80px 0;'>";
@@ -164,7 +164,7 @@ aztool.view_top_menu = function() {
     h += "<tr><th>キーピン</th><td>"+x.join("　")+"</td></tr>";
     console.log(k);
     if (k.i2c_set && k.i2c_set.length == 3) {
-        h += "<tr><th>I2Cピン</th><td>SDA= " + k.i2c_set[0] + " / SCL= " + k.i2c_set[1] + " / " + k.i2c_set[2] + " Hz</td></tr>";
+        h += "<tr><th>I2Cピン</th><td>SDA= " + k.i2c_set[0] + " / SCL= " + k.i2c_set[1] + " / " + k.i2c_set[2].toLocaleString() + " Hz</td></tr>";
     }
     h += "</table>";
     h += "</div>";
@@ -188,8 +188,12 @@ aztool.view_top_menu = function() {
 
 // キーボードを再起動
 aztool.keyboard_restart = function(boot_type) {
-    $("#main_box").html("キーボードを再起動します。");
-    webhid.m5_restart(0); // キーボードモードで再起動
+    let h = "";
+    h += "<div style='text-align: center; margin: 100px 0;'>";
+    h += "<h2 style='font-size: 80px; margin: 40px 0 100px 0;'>⌨ AZTOOL</h2>";
+    h += "再起動します。</div>";
+    $("#main_box").html(h);
+    webhid.m5_restart(boot_type); // キーボードモードで再起動
 };
 
 // 設定JSON編集
@@ -244,10 +248,9 @@ aztool.save = function() {
             $("#save_info").html("設定JSONの保存に失敗しました。<br><br><br><br><div class='conn_bbutton' onClick='javascript:aztool.view_top_menu();'>戻る</div>");
             return;
         }
-        $("#save_info").html("保存完了。再起動します。");
-        // 2秒ほど待ってからキーボード再起動
+        // ちょっと待ってからキーボード再起動
         setTimeout(function() {
-            aztool.keyboard_restart(0); // キーボードを再起動
-        }, 2000);
+            aztool.keyboard_restart(0); // キーボードモードで再起動
+        }, 500);
     });
 };
