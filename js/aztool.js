@@ -75,8 +75,8 @@ aztool.load_setting_json = function() {
         if (stat != 0) return;
         // 読み込み成功したらデータを受けとる
         let txt = webhid.arr2str(load_data);
-        aztool.setting_json_txt = txt; // 設定データテキスト
         aztool.setting_json_data = JSON.parse(txt); // 設定データパース
+        aztool.setting_json_txt = JSON.stringify(aztool.setting_json_data); // 設定データテキスト
         console.log(aztool.setting_json_txt);
         console.log(aztool.setting_json_data);
         // 別で読み込みが必要なi2cオプションのデータをロード
