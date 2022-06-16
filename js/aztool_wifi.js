@@ -44,9 +44,8 @@ aztool.open_wifi_addap = function() {
     h += "<h2>接続先 追加</h2>";
     h += "<div id='addap_main_box' style='margin: 50px 0;'></div>";
     h += "<div id='addap_btn_box' style='margin: 100px 0 0 0;'></div>";
-    $("#util_remodal").html(h);
+    aztool.remodal_open(h); // モーダルオープン
     $("#addap_main_box").html("アクセスポイント検索中 ...");
-    aztool.util_remodal.open();
     // アクセスポイントを取得
     webhid.get_ap_list(function(stat, res) {
         // 失敗
@@ -85,7 +84,7 @@ aztool.open_wifi_addap = function() {
 
 // モーダルを閉じる
 aztool.close_wifi_modal = function() {
-    aztool.util_remodal.close();
+    aztool.remodal_close();
 };
 
 // 接続先追加
@@ -93,7 +92,7 @@ aztool.wifi_addap_save = function() {
     // 入力したデータを追加
     aztool.setting_json_data.wifi.push({"ssid": $("#addap_ssid").val(), "pass": $("#addap_pass").val()});
     // モーダルを閉じる
-    aztool.util_remodal.close();
+    aztool.remodal_close();
     // 接続設定ページ表示
     aztool.view_wifi_aplist();
 };
@@ -118,18 +117,17 @@ aztool.wifi_editap_open = function(n) {
     h += "　　　　<a class='exec-button' onClick='javascript:aztool.wifi_editap_remove("+n+");'>削除</a>";
     h += "　　　　<a class='exec-button' onClick='javascript:aztool.wifi_editap_save("+n+");'>保存</a>";
     h += "</div>";
-    $("#util_remodal").html(h);
+    aztool.remodal_open(h); // モーダルオープン
     $("#editap_ssid").val(w.ssid);
     $("#editap_pass").val(w.pass);
-    aztool.util_remodal.open();
 };
 
 // 接続先保存
 aztool.wifi_editap_save = function(n) {
     // 入力したデータを保存
-    aztool.setting_json_data.wifi[n] = {"ssid": $("#addap_ssid").val(), "pass": $("#addap_pass").val()};
+    aztool.setting_json_data.wifi[n] = {"ssid": $("#editap_ssid").val(), "pass": $("#editap_pass").val()};
     // モーダルを閉じる
-    aztool.util_remodal.close();
+    aztool.remodal_close();
     // 接続設定ページ表示
     aztool.view_wifi_aplist();
 };
@@ -139,7 +137,7 @@ aztool.wifi_editap_remove = function(n) {
     // 指定した接続を削除
     aztool.setting_json_data.wifi.splice(n, 1);
     // モーダルを閉じる
-    aztool.util_remodal.close();
+    aztool.remodal_close();
     // 接続設定ページ表示
     aztool.view_wifi_aplist();
 };

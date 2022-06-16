@@ -91,7 +91,11 @@ aztool.load_i2c_data = function() {
     // i2cオプションのロード終わったらメニューを表示
     if (!aztool.setting_json_data.i2c_option || // i2cの設定が無い
         aztool.i2c_load_index >= aztool.setting_json_data.i2c_option.length) { // 全てロード完了
-            aztool.view_top_menu();
+            // ディスクの空き容量取得
+            webhid.get_disk_info(function(disk_data) {
+                aztool.disk_data = disk_data;
+                aztool.view_top_menu();
+            })
             return;
     }
     // i2cのデータをロード
@@ -149,7 +153,7 @@ aztool.view_connect_top = function(msg) {
 aztool.view_top_menu = function() {
     let k = aztool.setting_json_data;
     let h = "";
-    let x;
+    let x, t;
     let kname = (k.keyboard_name)? k.keyboard_name: k.keyboard_type;
     h += "<center>";
     h += "<h2 style='font-size: 50px; margin: 40px 0;'>⌨ AZTOOL</h2>";
@@ -166,13 +170,17 @@ aztool.view_top_menu = function() {
     if (k.i2c_set && k.i2c_set.length == 3) {
         h += "<tr><th>I2Cピン</th><td>SDA= " + k.i2c_set[0] + " / SCL= " + k.i2c_set[1] + " / " + k.i2c_set[2].toLocaleString() + " Hz</td></tr>";
     }
+    h += "<tr><th>ディスク使用量</th><td> " + aztool.disk_data.used.toLocaleString() + " / " + aztool.disk_data.total.toLocaleString() + " </td></tr>";
+    t = " style='font-size: 50px; margin: 0 0 16px 0; display: block; height: 70px; line-height: 70px;'";
     h += "</table>";
     h += "</div>";
     h += "<div style='width: 900px;'>";
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setmap();'><font style='font-size: 50px;'>⌨</font><br>キーマップ</div>";
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font style='font-size: 50px;'>🧩</font><br>I2C オプション</div>";
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font style='font-size: 50px;'>📗</font><br>設定JSON</div>";
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_wifi_top();'><font style='font-size: 50px;'>📶</font><br>Wifi</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setmap();'><font "+t+">⌨</font>キーマップ</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font "+t+">🧩</font>I2C オプション</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_wifi_top();'><font "+t+">📶</font>Wifi</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font "+t+">📗</font>設定JSON</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.setting_init();'><font "+t+">🧊</font>初期化</div>";
+    
     h += "</div>";
     h += "<div style='margin: 100px 0 50px 0;'>";
     h += "<div class='conn_bbutton' onClick='javascript:aztool.close();'>閉じる</div>";
@@ -186,13 +194,18 @@ aztool.view_top_menu = function() {
     // aztool.view_key_layout();
 };
 
-// キーボードを再起動
-aztool.keyboard_restart = function(boot_type) {
+// メッセージを表示
+aztool.view_message = function(msg) {
     let h = "";
     h += "<div style='text-align: center; margin: 100px 0;'>";
     h += "<h2 style='font-size: 80px; margin: 40px 0 100px 0;'>⌨ AZTOOL</h2>";
     h += "再起動します。</div>";
     $("#main_box").html(h);
+};
+
+// キーボードを再起動
+aztool.keyboard_restart = function(boot_type) {
+    aztool.view_message("再起動します。");
     webhid.m5_restart(boot_type); // キーボードモードで再起動
 };
 
@@ -237,11 +250,7 @@ aztool.update_step_box = function(step_num) {
 // 設定を保存して再起動
 aztool.save = function() {
     // 設定を保存
-    let h = "";
-    h += "<div style='text-align: center; margin: 100px 0;'>";
-    h += "<h2 style='font-size: 80px; margin: 40px 0 100px 0;'>⌨ AZTOOL</h2>";
-    h += "<div id='save_info'>保存中<br><br><br><div id='console_div'></div></div>";
-    $("#main_box").html(h);
+    aztool.view_message("<div id='save_info'>保存中</div><br><br><br><div id='console_div'></div>");
     aztool.setting_json_save(function(stat) {
         // 保存失敗
         if (stat != 0) {
@@ -253,4 +262,25 @@ aztool.save = function() {
             aztool.keyboard_restart(0); // キーボードモードで再起動
         }, 500);
     });
+};
+
+// 設定を初期化
+aztool.setting_init = function() {
+    // 確認ウィンドウ表示
+    aztool.confirm(
+        "全ての設定を初期値に戻します。",
+        function(stat) {
+            if (stat == 1) {
+                // はいを選ばれたら初期化
+                aztool.view_message("設定をリセットしています。");
+                webhid.all_remove(function() { // 全ファイル削除
+                    // ちょっと待ってからキーボード再起動
+                    setTimeout(function() {
+                        aztool.keyboard_restart(0); // キーボードモードで再起動
+                    }, 500);
+                });
+            }
+        },
+        {"yes": "初期化する", "no": "キャンセル"}
+    );
 };

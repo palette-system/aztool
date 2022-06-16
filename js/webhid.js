@@ -70,12 +70,14 @@ webhid.command_id = {
     "file_save_data": 0x33, // ファイル保存データ送信
     "file_save_complate": 0x34, // ファイル保存完了
     "file_remove": 0x35, // ファイル削除
-    "file_rename": 0x36, // ファイル名変更
-    "file_list": 0x37, // ファイルリストを取得する
-    "restart": 0x38, // M5StackCore2の再起動
-    "get_ioxp_key": 0x39, // IOエキスパンダからキー入力を取得
-    "set_aztool_mode": 0x3A, // aztoolモードフラグ設定
-    "get_ap_list": 0x3B, // WIFIのアクセスポイントリスト取得
+    "all_remove": 0x36, // 全ファイル削除
+    "file_rename": 0x37, // ファイル名変更
+    "file_list": 0x38, // ファイルリストを取得する
+    "disk_info": 0x39, // SPIFFSディスクの要領を取得
+    "restart": 0x3A, // M5StackCore2の再起動
+    "get_ioxp_key": 0x3B, // IOエキスパンダからキー入力を取得
+    "set_aztool_mode": 0x3C, // aztoolモードフラグ設定
+    "get_ap_list": 0x3D, // WIFIのアクセスポイントリスト取得
     "none": 0x00 // 空送信
 };
 
@@ -181,7 +183,7 @@ webhid.handle_input_report = function(e) {
     // console.log("get");
     let cmd_type = get_data[0];
     let cmd;
-    let l, i, j, h, p, s;
+    let h, p, u, s;
     if (cmd_type == webhid.command_id.file_load_start) {
         // ファイル読み込み開始(ファイル有無と容量が帰って来る)
         if (!get_data[1]) { // ファイルが無い
@@ -254,6 +256,10 @@ webhid.handle_input_report = function(e) {
         // ファイル削除の結果取得
         webhid.file_remove_cb_func(get_data[1]);
 
+    } else if (cmd_type == webhid.command_id.all_remove) {
+        // 全ファイル削除の結果取得
+        webhid.all_remove_cb_func(get_data[1]);
+
     } else if (cmd_type == webhid.command_id.file_rename) {
         // ファイル名変更の結果取得
         webhid.file_rename_cb_func(get_data[1]);
@@ -265,6 +271,13 @@ webhid.handle_input_report = function(e) {
         // 読み込み開始
         webhid.load_start_exec(s, webhid.file_list_cb_func);
         
+    } else if (cmd_type == webhid.command_id.disk_info) {
+        // ディスク容量取得
+        s = (get_data[1] << 24) + (get_data[2] << 16) + (get_data[3] << 8) + get_data[4]; // ディスク容量
+        u = (get_data[5] << 24) + (get_data[6] << 16) + (get_data[7] << 8) + get_data[8]; // 使用容量
+        // コールバック実行
+        webhid.disk_info_cb_func({"total": s, "used": u});
+
     } else if (cmd_type == webhid.command_id.get_ap_list) {
         // WIFIのアクセスポイント リスト取得開始
         // リストのサイズ取得
@@ -579,6 +592,17 @@ webhid.file_remove = function(file_path, cb_func) {
 
 };
 
+// 全ファイル削除
+webhid.all_remove = function(cb_func) {
+    let cmd = [webhid.command_id.all_remove];
+    if (!cb_func) cb_func = function() {};
+    webhid.all_remove_cb_func = cb_func;
+    // コマンド送信
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("removeing ...");
+    });
+};
+
 // ファイル名変更
 webhid.file_rename = function(file_path, rename_path, cb_func) {
     // コマンドを作成
@@ -623,6 +647,19 @@ webhid.get_file_list = function(cb_func) {
         webhid.view_info("loading ...");
     });
 };
+
+// SPIFFSの容量を取得する
+webhid.get_disk_info = function(cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.disk_info_cb_func = cb_func;
+    // ディスク容量要求コマンド作成
+    let cmd = [webhid.command_id.disk_info];
+    // コマンド送信
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("loading ...");
+    });
+};
+
 
 // WIFI のアクセスポイントリストを取得する
 webhid.get_ap_list = function(cb_func) {

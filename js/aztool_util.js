@@ -116,3 +116,55 @@ aztool.util_remodal_init = function() {
     aztool.util_remodal.settings.closeOnOutsideClick = false;
     aztool.util_remodal.settings.hashTracking = false;
 };
+
+// モーダルオープン
+aztool.remodal_open = function(html, opt) {
+    let i;
+    let optset = {"max-width": "1200px", "width": "1200px", "min-height": "600px", "height": ""};
+    if (!opt) opt = {};
+    for (i in opt) optset[i] = opt[i];
+    $("#util_remodal").css(optset);
+    $("#util_remodal").html(html);
+    aztool.util_remodal.open();
+};
+
+// モーダル閉じる
+aztool.remodal_close = function() {
+    aztool.util_remodal.close();
+    $("#util_remodal").html("");
+};
+
+// メッセージウィンドウを表示
+aztool.alert = function(msg, btn) {
+    if (!btn) btn = "閉じる";
+    let h = "";
+    h += "<center style='margin: 50px; 100px'>";
+    h += "<div style='margin: 50px;'>"+msg+"</div>";
+    h += "<a class='exec-button' onClick='javascript:aztool.remodal_close();'>"+btn+"</a>";
+    h += "</center>";
+    aztool.remodal_open(h, {"max-width": "", "width": "", "min-height": ""});
+};
+
+// はい、いいえのダイアログ
+aztool.confirm = function(msg, cb_func, btn) {
+    if (!cb_func) cb_func = function(s) { console.log(s); };
+    if (!btn) btn = {"yes": "はい", "no": "いいえ"};
+    let h = "";
+    h += "<center style='margin: 50px; 100px'>";
+    h += "<div style='margin: 50px;'>"+msg+"</div>";
+    h += "<a id='confirm_btn_n' class='cancel-button'>"+btn.no+"</a>";
+    h += "　　　　<a id='confirm_btn_y' class='exec-button'>"+btn.yes+"</a>";
+    h += "</center>";
+    aztool.remodal_open(h, {"max-width": "", "width": "", "min-height": ""});
+    // クリックイベント
+    $("#confirm_btn_n").click(function() {
+        aztool.remodal_close();
+        cb_func(0);
+    });
+    $("#confirm_btn_y").click(function() {
+        aztool.remodal_close();
+        cb_func(1);
+    });
+
+};
+
