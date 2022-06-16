@@ -41,6 +41,8 @@ aztool.init = function() {
 
 // キーボードに接続
 aztool.connect = function() {
+    // ロードステップ設定
+    webhid.load_step = $("#load_step_select").val();
     // コネクション開始
     webhid.connect(function(stat) {
         // コネクション失敗
@@ -131,6 +133,7 @@ aztool.view_load_page = function() {
 
 // コネクションページ表示
 aztool.view_connect_top = function(msg) {
+    let i;
     let h = "";
     h += "<div style='text-align: center; margin: 100px 0;'>";
     h += "<h2 style='font-size: 80px; margin: 40px 0 100px 0;'>⌨ AZTOOL</h2>";
@@ -138,6 +141,11 @@ aztool.view_connect_top = function(msg) {
         h += "<div style='font-size: 20px;'>※ PC Chrome で開いて下さい。</div>";
 
     } else {
+        h += "<font style='font-size: 16px;'>転送速度</font>　<select id='load_step_select' style='font-size: 16px; width: 100px; text-align: center; padding: 4px;'>";
+        for (i=1; i<=16; i++) {
+            h += "<option value='"+i+"'>"+i+"</option>";
+        }
+        h += "</select><br><br>";
         h += "<div class='conn_bbutton' onClick='javascript:aztool.connect();'>キーボードに接続</div>";
         h += "<br>";
         if (msg) h += "<br>" + msg;
@@ -147,6 +155,7 @@ aztool.view_connect_top = function(msg) {
     h += "</div>";
     h += "</div>";
     $("#main_box").html(h);
+    $("#load_step_select").val(webhid.load_step + "");
 };
 
 // トップメニューの表示
@@ -199,7 +208,7 @@ aztool.view_message = function(msg) {
     let h = "";
     h += "<div style='text-align: center; margin: 100px 0;'>";
     h += "<h2 style='font-size: 80px; margin: 40px 0 100px 0;'>⌨ AZTOOL</h2>";
-    h += "再起動します。</div>";
+    h += msg + "</div>";
     $("#main_box").html(h);
 };
 

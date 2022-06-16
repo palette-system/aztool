@@ -8,7 +8,7 @@ webhid.device = null;
 webhid.load_index = 0;
 
 // データをロードする時一気に何レコード受け取るか
-webhid.load_step = 16;
+webhid.load_step = 12;
 
 // データをロードする容量
 webhid.load_length = 0;
