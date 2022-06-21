@@ -96,7 +96,7 @@ aztool.keyact_open = function(key_id) {
     aztool.keyact_key_id = key_id;
     // 設定データを取得
     if (aztool.setting_json_data.layers[k].keys[aztool.keyact_key_id]) {
-        aztool.keyact_edit_key = aztool.crone(aztool.setting_json_data.layers[k].keys[aztool.keyact_key_id]);
+        aztool.keyact_edit_key = aztool.clone(aztool.setting_json_data.layers[k].keys[aztool.keyact_key_id]);
     } else {
         // データが無ければ空データを入れる
         aztool.keyact_edit_key = {"press": {"action_type": 0}};
@@ -203,7 +203,7 @@ aztool.keyact_form_normal_view = function() {
         if (!press.key[i]) continue; // 0は無視
         k.push(press.key[i]);
     }
-    press.key = aztool.crone(k);
+    press.key = aztool.clone(k);
     while (k.length < 5) k.push(0);
     for (i in k) {
         d = aztool.get_key_data(2, k[i]);

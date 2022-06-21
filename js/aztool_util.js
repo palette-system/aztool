@@ -57,7 +57,7 @@ aztool.get_key_data = function(c, s) {
 };
 
 // オブジェクトのクローンを作成(function などはクローンされないので注意)
-aztool.crone = function(obj) {
+aztool.clone = function(obj) {
     return JSON.parse(JSON.stringify(obj));
 };
 
@@ -168,3 +168,14 @@ aztool.confirm = function(msg, cb_func, btn) {
 
 };
 
+// データをダウンロードする
+aztool.data_download = function(fileName, data_arr, data_type) {
+    if (!data_type) data_type = "text/plain";
+    let blob_data = new Blob([data_arr], { "type": data_type });
+    let aobj = document.createElement("a");
+    aobj.href = URL.createObjectURL(blob_data);
+    aobj.target = "_blank";
+    aobj.download = fileName;
+    aobj.click();
+    URL.revokeObjectURL(aobj.href);
+}

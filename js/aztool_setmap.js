@@ -524,7 +524,7 @@ aztool.setmap_layer_copy = function() {
         k = "layer_" + i;
         if (!aztool.setting_json_data.layers[k]) {
             // 今のレイヤーをコピーする
-            aztool.setting_json_data.layers[k] = aztool.crone(aztool.setting_json_data.layers[aztool.setmap_select_layer]);
+            aztool.setting_json_data.layers[k] = aztool.clone(aztool.setting_json_data.layers[aztool.setmap_select_layer]);
             // 名前に[copy]を追加
             aztool.setting_json_data.layers[k].name += "copy";
             // 選択中のレイヤーを新しいレイヤーにする
@@ -539,7 +539,7 @@ aztool.setmap_layer_copy = function() {
 // レイヤー設定
 aztool.setmap_layer_set = function() {
     // レイヤー編集用のデータ用意
-    aztool.setmap_layer_edit_data = aztool.crone(aztool.setting_json_data.layers);
+    aztool.setmap_layer_edit_data = aztool.clone(aztool.setting_json_data.layers);
     // 選択中のレイヤー
     aztool.setmap_layer_edit_select = "";
     // デフォルトのレイヤー
