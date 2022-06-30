@@ -63,7 +63,7 @@ aztool.addopt_init_html = function() {
 
     </div>`;
     $("#" + aztool.addopt_div_id).html("");
-    webhid.set_eztool_mode(1, function() { // eztoolモードON
+    webhid.set_eztool_mode(1, function() { // eztoolモードI2C設定中
         $("#" + aztool.addopt_div_id).html(html);
         aztool.step_max = 7;
         aztool.step_index = 0;

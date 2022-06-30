@@ -1,22 +1,12 @@
-# 設定ツール
+# ⌨AZTOOL
 
 使い方
 
-- M5StackCore2のドライバ　CP2104 Driver　のインストール
+- キーボードとBluetoothのペアリングをする
 
-　　　　https://shop.m5stack.com/pages/download
+- Chrome で https://palette-system.github.io/aztool/ を開く
 
-- このリポジトリをクローンする
-
-- このディレクトリにある　writer.html　を Chrome で開いて　M5StackCore2　にツール対応のファームウェアを書き込む
-
-　　　※　M5StackCore2とはUSBで接続する
-
-- M5StackCore2とBluetoothのペアリングをする
-
-　　　※　ペアリング済みだった人はペアリング設定を削除してもう一度ペアリングしなおす
-
-- このディレクトリにある　index.html　を　Chrome　で開いて設定ツールを使う
+- 「キーボードに接続」をクリックする
 
 # オプションを追加する流れ
 
@@ -69,3 +59,9 @@ VID/PID、I2Cのピン、キーボードのピンなどキーボードで設定�
 | i2c_option[n].map_start | キー設定のIDとマッピング開始する番号 |
 | i2c_option[n].map | エキスパンダの入力データの何番目がキーになるかのマッピング |
 | layout | キーマップ設定でキー配列をドラッグで移動した表示位置 |
+
+# 使用ライブラリ
+
+■ keyboard-layout-editor<br>
+https://github.com/ijprest/keyboard-layout-editor
+

@@ -13,7 +13,7 @@ aztool.view_setopt = function() {
     <table style="min-height: 700px;">
     <tr><td class="leftmenu-box">
     <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\");'>オプション追加</a><br>
-    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\");'>エクスポート</a><br>
+    <!-- <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\");'>エクスポート</a><br> -->
     <div id="back_btn_box"></div>
     </td><td valign="top" style="padding: 20px;">
     <div id="opt_list"></div>

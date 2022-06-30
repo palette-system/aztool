@@ -78,6 +78,7 @@ webhid.command_id = {
     "get_ioxp_key": 0x3B, // IOエキスパンダからキー入力を取得
     "set_aztool_mode": 0x3C, // aztoolモードフラグ設定
     "get_ap_list": 0x3D, // WIFIのアクセスポイントリスト取得
+    "read_key": 0x3E, // WIFIのアクセスポイントリスト取得
     "none": 0x00 // 空送信
 };
 
@@ -284,6 +285,10 @@ webhid.handle_input_report = function(e) {
         s = (get_data[1] << 24) + (get_data[2] << 16) + (get_data[3] << 8) + get_data[4];
         // 読み込み開始
         webhid.load_start_exec(s, webhid.get_ap_cb_func);
+
+    } else if (cmd_type == webhid.command_id.read_key) {
+        // キーの入力状態取得
+        webhid.read_key_cb(get_data);
 
     } else if (cmd_type == webhid.command_id.get_ioxp_key) {
         // IOエキスパンダからキーの入力データを取得
@@ -684,7 +689,7 @@ webhid.m5_restart = function(boot_type) {
 
 };
 
-// キー入力取得
+// I2Cキー入力取得
 webhid.get_ioxp_key = function(ioxp_addr, rows, cb_func) {
     let i;
     if (!rows) rows = [];
@@ -696,6 +701,17 @@ webhid.get_ioxp_key = function(ioxp_addr, rows, cb_func) {
     // コマンド送信
     webhid.send_command(cmd).then(() => {
         webhid.view_info("get ioxp key ...");
+    });
+};
+
+// キーの入力状態取得
+webhid.read_key = function(cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.read_key_cb = cb_func;
+    // キー入力状態要求コマンド送信
+    let cmd = [webhid.command_id.read_key];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("get read key ...");
     });
 };
 
