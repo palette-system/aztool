@@ -78,7 +78,7 @@ webhid.command_id = {
     "get_ioxp_key": 0x3B, // IOエキスパンダからキー入力を取得
     "set_aztool_mode": 0x3C, // aztoolモードフラグ設定
     "get_ap_list": 0x3D, // WIFIのアクセスポイントリスト取得
-    "read_key": 0x3E, // WIFIのアクセスポイントリスト取得
+    "read_key": 0x3E, // キーの入力状態取得
     "none": 0x00 // 空送信
 };
 
@@ -270,7 +270,13 @@ webhid.handle_input_report = function(e) {
         // ファイルリストのサイズ取得
         s = (get_data[1] << 24) + (get_data[2] << 16) + (get_data[3] << 8) + get_data[4];
         // 読み込み開始
-        webhid.load_start_exec(s, webhid.file_list_cb_func);
+        webhid.load_start_exec(s, function(stat, res) {
+            if (stat == 0) {
+                webhid.file_list_cb_func(stat, JSON.parse(webhid.arr2str(res)));
+            } else {
+                webhid.file_list_cb_func(stat, res);
+            }
+        });
         
     } else if (cmd_type == webhid.command_id.disk_info) {
         // ディスク容量取得

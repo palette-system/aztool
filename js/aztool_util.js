@@ -178,4 +178,4 @@ aztool.data_download = function(fileName, data_arr, data_type) {
     aobj.download = fileName;
     aobj.click();
     URL.revokeObjectURL(aobj.href);
-}
+};

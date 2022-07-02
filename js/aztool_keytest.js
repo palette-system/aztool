@@ -14,7 +14,7 @@ aztool.view_keytest = function() {
     let h = `
     <div  style="width: 1400px;">
     <table><tr><td class="leftmenu-box">
-    <a class="leftmenu-button" onClick="javascript:aztool.view_keytest_layout();">入力テスト</a><br>
+    <!-- <a class="leftmenu-button" onClick="javascript:aztool.view_keytest_layout();">入力テスト</a><br> -->
     <a class="leftmenu-button" onClick="javascript:aztool.keytest_close();">戻る</a><br>
     </td><td valign="top" style="padding: 20px;">
     <div id='key_layout_box' style='width: 1000px; height: 400px;overflow: hidden; border: solid 1px black; text-align: left;'></div>

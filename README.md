@@ -64,4 +64,9 @@ VID/PID、I2Cのピン、キーボードのピンなどキーボードで設定�
 
 ■ keyboard-layout-editor<br>
 https://github.com/ijprest/keyboard-layout-editor
-
+<br>
+■ remodal<br>
+https://github.com/vodkabears/Remodal/
+<br>
+■ zlib.js<br>
+https://github.com/imaya/zlib.js/
