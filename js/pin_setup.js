@@ -241,7 +241,7 @@ pinstp.li_html = function(n) {
     if (n < 8) {
         return `<li id="gpio_` + s + `" class="ioxp_pin_box_a"><div class="ioxp_pin_box_div">A` + n + `</div></li>`;
     } else {
-        return `<li id="gpio_` + s + `" class="ioxp_pin_box_b"><div class="ioxp_pin_box_div">B` + n + `</div></li>`;
+        return `<li id="gpio_` + s + `" class="ioxp_pin_box_b"><div class="ioxp_pin_box_div">B` + (n - 8) + `</div></li>`;
     }
 };
 
