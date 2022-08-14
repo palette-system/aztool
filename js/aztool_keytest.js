@@ -47,7 +47,7 @@ aztool.keytest_close = function() {
 // キーレイアウトを表示
 aztool.view_keytest_layout = function() {
     let h = "";
-    let i, j, l, o, s;
+    let i, j, l, o, m;
     let cnf = 44;
     let pos = (aztool.setting_json_data.layout && aztool.setting_json_data.layout.position)? aztool.setting_json_data.layout.position: null;
     // キー配列を表示する枠を表示
@@ -62,10 +62,19 @@ aztool.view_keytest_layout = function() {
     aztool.key_layout_data = [];
     // 本体のキー配列を表示
     if (aztool.main_kle[aztool.setting_json_data.keyboard_type]) {
-        aztool.key_layout_data.push({
+        m = {
             "option": {"id": 0, "map_start": 0},
-            "kle": aztool.kle_view(aztool.main_kle[aztool.setting_json_data.keyboard_type], "#odiv_0", false, cnf, "sw_0_")
-        });
+            "kle": aztool.kle_view(aztool.main_kle[aztool.setting_json_data.keyboard_type], "#odiv_0", false, cnf, "sw_0_"),
+            "key_ids": []
+        };
+        for (i in m.kle.keys) {
+            if (m.kle.keys[i].labels.length && m.kle.keys[i].labels[0]) {
+                m.key_ids.push(parseInt(m.kle.keys[i].labels[0]));
+            } else {
+                m.key_ids.push(-1);
+            }
+        }
+        aztool.key_layout_data.push(m);
     }
     // オプションのキー配列を表示
     for (i in aztool.setting_json_data.i2c_option) {
@@ -108,7 +117,7 @@ aztool.view_keytest_layout = function() {
 aztool.keytest_read_loop = function() {
     // キー入力を取得
     webhid.read_key(function(read_data) {
-        let i, j, r, s, oid;
+        let i, j, p, r, s, oid;
         let key_len = read_data[1];
         // キー入力を配列にして取得
         let res = [];
@@ -128,7 +137,8 @@ aztool.keytest_read_loop = function() {
         for (i in aztool.key_layout_data) {
             oid = aztool.key_layout_data[i].option.id;
             for (j in aztool.key_layout_data[i].kle.keys) {
-                s = "#sw_" + oid + "_" + j;
+                p = (oid == 0)? aztool.key_layout_data[i].key_ids[j]: j; // 本体ならば本体のラベルにある番号を取得、それ以外のオプションは純粋にキーの連番を取得
+                s = "#sw_" + oid + "_" + p;
                 if (res[r]) {
                     $(s).css({"background-color": "red"});
                 } else {

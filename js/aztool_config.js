@@ -25,6 +25,13 @@ aztool.main_kle["az_core"] = `
     ["2", "3"]
 `;
 
+// AZ-Core Black kle
+aztool.main_kle["az_core_b"] = `
+	[{x:1},"0"],
+	["3","2","1"],
+	[{x:1},"4"]
+`;
+
 // レイヤー切り替えの種類
 // https://qiita.com/chesscommands/items/3e7e02d025f261bf6134
 aztool.layer_move_type_list = [
