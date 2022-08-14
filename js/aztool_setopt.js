@@ -12,7 +12,8 @@ aztool.view_setopt = function() {
     <div  style="width: 1400px;">
     <table style="min-height: 700px;">
     <tr><td class="leftmenu-box">
-    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\");'>オプション追加</a><br>
+    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 1);'>IOエキスパンダ追加</a><br>
+    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 2);'>ロータリエンコーダ追加</a><br>
     <!-- <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\");'>エクスポート</a><br> -->
     <div id="back_btn_box"></div>
     </td><td valign="top" style="padding: 20px;">
@@ -49,9 +50,18 @@ aztool.setopt_optlist_view = function() {
         h += "ID: " + o.id + "<br>";
         h += (o.enable)? "設定：有効<br>": "設定：無効<br>";
         h += "I2C： ";
-        for (j in o.ioxp) {
-            if (j > 0) h += " ,";
-            h += aztool.to_hex(o.ioxp[j].addr);
+        if (o.type == 1) {
+            // IOエキスパンダ
+            for (j in o.ioxp) {
+                if (j > 0) h += " ,";
+                h += aztool.to_hex(o.ioxp[j].addr);
+            }
+        } else if (o.type == 2) {
+            // I2Cロータリーエンコーダー
+            for (j in o.rotary) {
+                if (j > 0) h += " ,";
+                h += aztool.to_hex(o.rotary[j]);
+            }
         }
         h += "<br>";
         h += "map_start: " + o.map_start + "<br>";
@@ -65,7 +75,8 @@ aztool.setopt_optlist_view = function() {
     }
     // オプションが何もなければオプション追加ボタン表示
     if (!h) {
-        h += "<div class='conn_bbutton' style='width: 500px; height: 300px; line-height: 300px; margin: 100px;' onClick='javascript:aztool.addopt_start(\"main_box\");'>オプション追加</div>";
+        h += "<div class='conn_bbutton' style='width: 500px; height: 150px; line-height: 150px; margin: 20px 100px;' onClick='javascript:aztool.addopt_start(\"main_box\", 1);'>IOエキスパンダ追加</div>";
+        h += "<div class='conn_bbutton' style='width: 500px; height: 150px; line-height: 150px; margin: 20px 100px;' onClick='javascript:aztool.addopt_start(\"main_box\", 2);'>ロータリエンコーダ追加</div>";
     }
     $("#opt_list").html(h);
     for (i in aztool.setting_json_data.i2c_option) {

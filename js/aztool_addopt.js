@@ -19,9 +19,21 @@ aztool.enable_key_color = "#b6fbdb";
 // オプションを追加しているかどうかのフラグ
 aztool.option_add_added_flag = false;
 
+// 追加するオプションのタイプ
+aztool.option_add_type = 0;
+
+// 追加するオプションの名前
+aztool.option_add_name = "";
+
 // オプション追加ライブラリ用初期化処理
-aztool.addopt_start = function(div_id) {
+aztool.addopt_start = function(div_id, add_type) {
     aztool.addopt_div_id = div_id;
+    aztool.option_add_type = add_type;
+    if (aztool.option_add_type == 1) {
+        aztool.option_add_name = "IOエキスパンダ";
+    } else if (aztool.option_add_type == 2) {
+        aztool.option_add_name = "I2Cロータリー";
+    }
     // aztool オプション追加ライブラリ用のHTML追加
     aztool.addopt_init_html();
     // モーダル登録
@@ -35,9 +47,9 @@ aztool.addopt_init_html = function() {
     <table>
     <tr><td align="center"><div id="stepbox_1" class="option_step">レイアウト設定</div></td></tr>
     <tr><td align="center"><div class="triangle_down"></div></td></tr>
-    <tr><td align="center"><div id="stepbox_2" class="option_step">エキスパンダ設定</div></td></tr>
+    <tr><td align="center"><div id="stepbox_2" class="option_step">` + aztool.option_add_name + `設定</div></td></tr>
     <tr><td align="center"><div class="triangle_down"></div></td></tr>
-    <tr><td align="center"><div id="stepbox_3" class="option_step">エキスパンダ確認</div></td></tr>
+    <tr><td align="center"><div id="stepbox_3" class="option_step">` + aztool.option_add_name + `確認</div></td></tr>
     <tr><td align="center"><div class="triangle_down"></div></td></tr>
     <tr><td align="center"><div id="stepbox_4" class="option_step">ボタンのマッピング</div></td></tr>
     <tr><td align="center"><div class="triangle_down"></div></td></tr>
@@ -69,10 +81,11 @@ aztool.addopt_init_html = function() {
         aztool.step_index = 0;
         aztool.option_add = {
             "id": "000000", // オプションごとのユニークなID
-            "type": 1, // オプションのタイプ 1=IOエキスパンダ
+            "type": aztool.option_add_type, // オプションのタイプ 1=IOエキスパンダ / 2=I2Cロータリーエンコーダ
             "enable": 1, // 有効かどうか 1=有効
             "kle": "", // KLEのJSONデータ
             "ioxp": [], // 繋げているIOエキスパンダの設定
+            "rotary": [], // 繋げているI2Cロータリーエンコーダのリスト
             "map_start": 0, // キー設定の番号いくつからがこのオプションのキー設定か
             "map": [] // キーと読み込んだデータとのマッピング設定
         };
@@ -90,7 +103,7 @@ aztool.option_add_layout_view = function() {
         <br><br>
         <div style="text-align: right; width: 800px;">
         <div id="can_btn" style="display: inline-block"></div>
-        <div id="kle_json_btn" style="display: none;">　<a class="exec-button" onClick="javascript:aztool.option_add_expanda_view();">次へ</a></div>
+        <div id="kle_json_btn" style="display: none;">　<a class="exec-button" onClick="javascript:aztool.option_add_i2copt_view();">次へ</a></div>
         </div>`;
     $("#option_setting_form").html(h);
     $("#kle_json_txt").html(aztool.option_add.kle);
@@ -124,6 +137,17 @@ aztool.option_add_kle_change = function() {
 
 };
 
+// 接続するI2C機器を追加する画面を表示
+aztool.option_add_i2copt_view = function() {
+    if (aztool.option_add_type == 1) {
+        // IOエキスパンダ設定画面表示
+        aztool.option_add_expanda_view();
+    } else if (aztool.option_add_type == 2) {
+        // ロータリエンコーダ
+        aztool.option_add_rotary_view();
+    }
+};
+
 
 // エキスパンダ設定画面表示
 aztool.option_add_expanda_view = function() {
@@ -134,7 +158,7 @@ aztool.option_add_expanda_view = function() {
         <br><br>
         <div style="text-align: right; width: 800px;">
         <a class="cancel-button" onClick="javascript:aztool.option_add_layout_view();">戻る</a>　
-        <a class="exec-button" onClick="javascript:aztool.option_add_ioxp_check_view();">次へ</a>
+        <a class="exec-button" onClick="javascript:aztool.option_add_read_check_view();">次へ</a>
         </div>`;
     $("#option_setting_form").html(h);
     aztool.option_add_ioxp_update();
@@ -218,57 +242,158 @@ aztool.option_add_ioxp_click = function(ioxp_num) {
         });
 };
 
-// IOエキスパンダ確認
-aztool.option_add_ioxp_check_view = function() {
+// ロータリーエンコーダ設定画面表示
+aztool.option_add_rotary_view = function() {
+    let h = `
+        ■ 使用するロータリーエンコーダ<br>
+        <table><tr>
+        <td style="font-size: 26px;">0x</td>
+        <td><input id="rotary_addr_txt" type="text" style="width: 100px; height: 35px; font-size: 20px; padding 0 20px;">　</td>
+        <td><a class="exec-button" onClick="javascript:aztool.option_add_rotary_add();" style="width: 300px;">ロータリーエンコーダを追加する</a></td>
+        </tr></table>
+        <div id="rotary_list" style="height: 120px; margin: 10px 0;"></div>
+        <div id="rotary_info"></div>
+        <br><br>
+        <div style="text-align: right; width: 800px;">
+        <a class="cancel-button" onClick="javascript:aztool.option_add_layout_view();">戻る</a>　
+        <a class="exec-button" onClick="javascript:aztool.option_add_read_check_view();">次へ</a>
+        </div>`;
+    $("#option_setting_form").html(h);
+    aztool.option_add_rotary_update(); // I2Cロータリーエンコーダリストの更新
+    aztool.update_step_box(2);
+
+};
+
+// I2Cロータリーエンコーダの追加
+aztool.option_add_rotary_add = function() {
+    var add_addr = aztool.hex_to_int($("#rotary_addr_txt").val());
+    // アドレスが入力されているかチェック
+    if (!add_addr) {
+        $("#rotary_info").html("アドレスを入力して下さい。");
+        return;
+    }
+    // 既に登録されているアドレスで無いかチェック
+    for (i in aztool.option_add.rotary) {
+        if (aztool.option_add.rotary[i] == add_addr) {
+            $("#rotary_info").html("既に設定されているアドレスです。");
+            return;
+        }
+    }
+    // アドレスリストに追加
+    aztool.option_add.rotary.push(add_addr);
+    // I2Cロータリーエンコーダリストの更新
+    aztool.option_add_rotary_update();
+};
+
+// I2Cロータリーエンコーダリストの表示を更新
+aztool.option_add_rotary_update = function() {
+    let i, h = "", x;
+    for (i in aztool.option_add.rotary) {
+        x = aztool.option_add.rotary[i];
+        h += "<div class='icon_ioxp' onClick='javascript:aztool.option_add_rotary_remove("+i+");'>";
+        h += "<img src='./img/icon_ic.png'><br>";
+        h += "0x" + x.toString(16);
+        h += "</div>";
+    }
+    // IOエキスパンダが無い場合は追加して下さいメッセージ表示
+    if (!h) {
+        h = "<font style='color: #888;font-size: 12px;'>「I2Cロータリーエンコーダを追加する」を押してI2Cロータリーエンコーダを追加して下さい。</font>";
+    }
+    $("#rotary_list").html(h);
+};
+
+// I2Cロータリーエンコーダの設定を削除
+aztool.option_add_rotary_remove = function(num) {
+    // 削除していいか聞く
+    var del_addr = aztool.option_add.rotary[num].toString(16);
+    aztool.confirm("I2Cロータリーエンコーダ　0x"+del_addr+"　を削除しますか？",
+        function(state) {
+            if (state) { // はいを選ばれた
+                aztool.option_add.rotary.splice(num, 1);
+                aztool.option_add_rotary_update();
+            }
+        }
+    );
+};
+
+// I2C入力チェック確認
+aztool.option_add_read_check_view = function() {
     let h = `
         キースイッチを押すとDataが緑色になる事を確認して下さい。<br>
-        <div id="ioxp_check_info" style="height: 120px;"></div>
+        <div id="read_check_info" style="height: 120px;"></div>
         <div style="text-align: right; width: 800px;">
-        <a class="cancel-button" onClick="javascript:aztool.option_add_expanda_view();">戻る</a>
+        <a class="cancel-button" onClick="javascript:aztool.option_add_i2copt_view();">戻る</a>
         <div id="ioxp_check_comp_btn" style="display: none;">　<a class="exec-button" onClick="javascript:aztool.option_add_btnmap_view();">次へ</a></div>
         </div>`;
     $("#option_setting_form").html(h);
     aztool.update_step_box(3);
     setTimeout(function() {
-        aztool.ioxp_check_index = 0;
-        aztool.ioxp_data = [];
-        aztool.ioxp_lasttime = webhid.millis();
-        aztool.ioxp_check_update_func = aztool.option_add_ioxp_check_update; // 画面更新用関数
-        aztool.option_add_ioxp_health_check(3); // 入力取得が止まって無いか監視
-        aztool.option_add_ioxp_check_exec(3); // 入力取得開始
+        aztool.read_check_index = 0;
+        aztool.opt_read_data = [];
+        aztool.opt_read_lasttime = webhid.millis();
+        aztool.opt_read_check_update_func = aztool.option_add_ioxp_check_update; // 画面更新用関数
+        aztool.option_add_read_health_check(3); // 入力取得が止まって無いか監視
+        aztool.option_add_read_check_exec(3); // 入力取得開始
     }, 1000);
 };
 
+aztool.option_add_read_check_exec = function(step_no) {
+    if (aztool.option_add_type == 1) {
+        // IOエキスパンダの接続を確認する
+        aztool.option_add_read_check_exec_ioxp(step_no);
+    } else if (aztool.option_add_type == 2) {
+        // I2Cロータリーエンコーダの状態を確認する
+        aztool.option_add_read_check_exec_rotary(step_no);
+    }
+};
+
 // IOエキスパンダの接続を確認する
-aztool.option_add_ioxp_check_exec = function(step_no) {
-    let x = aztool.option_add.ioxp[aztool.ioxp_check_index];
+aztool.option_add_read_check_exec_ioxp = function(step_no) {
+    let x = aztool.option_add.ioxp[aztool.read_check_index];
     webhid.get_ioxp_key(x.addr - 32, x.row, function(d) {
-        aztool.ioxp_lasttime = webhid.millis();
-        aztool.ioxp_data[aztool.ioxp_check_index] = d;
-        aztool.ioxp_check_index++;
-        if (aztool.ioxp_check_index >= aztool.option_add.ioxp.length) aztool.ioxp_check_index = 0;
+        aztool.opt_read_lasttime = webhid.millis();
+        aztool.opt_read_data[aztool.read_check_index] = d;
+        aztool.read_check_index++;
+        if (aztool.read_check_index >= aztool.option_add.ioxp.length) aztool.read_check_index = 0;
         let t = 10;
-        if (aztool.ioxp_check_index == 0) {
+        if (aztool.read_check_index == 0) {
             // 全エキスパンダの情報を取得したら
-            aztool.ioxp_check_update_func(); // 画面の情報を更新
-            t = 10; // ちょっと待つ
+            aztool.opt_read_check_update_func(); // 画面の情報を更新
         }
         if (aztool.step_index != step_no) return; // 別のステップに移動したらチェックを止める
-        setTimeout(function() { aztool.option_add_ioxp_check_exec(step_no); }, t); // 次のIOエキスパンダの情報を取得
+        setTimeout(function() { aztool.option_add_read_check_exec(step_no); }, t); // 次のIOエキスパンダの情報を取得
+    });
+};
+
+// I2Cロータリーエンコーダの状態を確認する
+aztool.option_add_read_check_exec_rotary = function(step_no) {
+    let x = aztool.option_add.rotary[aztool.read_check_index];
+    webhid.get_rotary_key(x, function(d) {
+        aztool.opt_read_lasttime = webhid.millis();
+        aztool.opt_read_data[aztool.read_check_index] = d;
+        aztool.read_check_index++;
+        if (aztool.read_check_index >= aztool.option_add.rotary.length) aztool.read_check_index = 0;
+        let t = 10;
+        if (aztool.read_check_index == 0) {
+            // 全エキスパンダの情報を取得したら
+            aztool.opt_read_check_update_func(); // 画面の情報を更新
+        }
+        if (aztool.step_index != step_no) return; // 別のステップに移動したらチェックを止める
+        setTimeout(function() { aztool.option_add_read_check_exec(step_no); }, t); // 次のIOエキスパンダの情報を取得
     });
 };
 
 // IOエキスパンダチェックが止まって無いかチェック
-aztool.option_add_ioxp_health_check = function(step_no) {
+aztool.option_add_read_health_check = function(step_no) {
     let t = webhid.millis();
     // 最後に取得してから2秒以上経ってたら情報取得をもっかい実行
-    if ((aztool.ioxp_lasttime + 1000) < t ) {
-        aztool.ioxp_check_index = 0;
-        aztool.ioxp_lasttime = webhid.millis();
-        aztool.option_add_ioxp_check_exec(step_no); // 入力取得
+    if ((aztool.opt_read_lasttime + 1000) < t ) {
+        aztool.read_check_index = 0;
+        aztool.opt_read_lasttime = webhid.millis();
+        aztool.option_add_read_check_exec(step_no); // 入力取得
     }
     if (aztool.step_index != step_no) return; // 別のステップに移動したらチェックを止める
-    setTimeout(function () { aztool.option_add_ioxp_health_check(step_no); }, 1000); // 次のヘルスチェックを実行
+    setTimeout(function () { aztool.option_add_read_health_check(step_no); }, 1000); // 次のヘルスチェックを実行
 };
 
 // IOエキスパンダの入力データからキー入力配列を取得する
@@ -321,6 +446,17 @@ aztool.ioxp_data_to_array = function(ioxp_setting, get_data) {
     return d;
 };
 
+// I2Cロータリーエンコーダの入力データからキー入力配列を取得する
+aztool.rotary_data_to_array = function(get_data) {
+    let i, r;
+    let d = []; // 返すデータ
+    r = get_data[2]; // I2Cロータリーエンコーダの入力データ
+    for (i=0; i<4; i++) {
+        d.push((get_data[2] & (0x01 << i))? 1: 0);
+    }
+    return d;
+};
+
 // 画面の情報を更新
 aztool.option_add_ioxp_check_update = function() {
     let m = aztool.option_add_key_stat_update();
@@ -340,9 +476,9 @@ aztool.option_add_ioxp_check_update = function() {
 aztool.option_add_btnmap_view = function() {
     let h = `
         <div id="btnmap_info">赤色になったキースイッチを押して下さい。</div>
-        <div id="ioxp_check_info" style="height: 120px;"></div>
+        <div id="read_check_info" style="height: 120px;"></div>
         <div style="text-align: right; width: 800px;">
-        <a class="cancel-button" onClick="javascript:aztool.option_add_ioxp_check_view();">戻る</a>
+        <a class="cancel-button" onClick="javascript:aztool.option_add_read_check_view();">戻る</a>
         <div id="switch_comp_btn" style="display: none;">　<a class="exec-button" onClick="javascript:aztool.option_add_btncheck_view();">次へ</a></div>
         </div>`;
     $("#option_setting_form").html(h);
@@ -350,24 +486,35 @@ aztool.option_add_btnmap_view = function() {
     setTimeout(function(){
         aztool.switch_check_index = 0; // 今何番目のスイッチをチェックしているか
         aztool.switch_last_set = -1; // 最後に押したスイッチの番号
-        aztool.ioxp_check_index = 0;
-        aztool.ioxp_data = [];
+        aztool.read_check_index = 0;
+        aztool.opt_read_data = [];
         aztool.map_data = []; // マッピングしたデータ
-        aztool.ioxp_lasttime = webhid.millis();
-        aztool.ioxp_check_update_func = aztool.option_add_keymap_update_func; // 画面更新用関数
-        aztool.option_add_ioxp_health_check(4); // 入力取得が止まって無いか監視
-        aztool.option_add_ioxp_check_exec(4); // 入力取得開始
+        aztool.opt_read_lasttime = webhid.millis();
+        aztool.opt_read_check_update_func = aztool.option_add_keymap_update_func; // 画面更新用関数
+        aztool.option_add_read_health_check(4); // 入力取得が止まって無いか監視
+        aztool.option_add_read_check_exec(4); // 入力取得開始
     }, 700);
 };
 
 // キーの入力状態の表示を更新
 aztool.option_add_key_stat_update = function() {
+    if (aztool.option_add_type == 1) {
+        // IOエキスパンダ
+        return aztool.option_add_key_stat_update_ioxp();
+    } else if (aztool.option_add_type == 2) {
+        // I2Cロータリーエンコーダ
+        return aztool.option_add_key_stat_update_rotary();
+    }
+};
+
+// キーの入力状態の表示を更新 IOエキスパンダ
+aztool.option_add_key_stat_update_ioxp = function() {
     let d, i, j, m, o, r, x;
     let h = "";
     m = {"status": [], "input": []};
     h += "<table>";
-    for (i in aztool.ioxp_data) {
-        d = aztool.ioxp_data[i]; // 受け取った情報
+    for (i in aztool.opt_read_data) {
+        d = aztool.opt_read_data[i]; // 受け取った情報
         x = aztool.option_add.ioxp[i]; // IOエキスパンダ設定
         r = d[2]; // rowの数
         if (r == 0) r = 1; // row無しの場合は1つ分だけデータを取る
@@ -393,10 +540,36 @@ aztool.option_add_key_stat_update = function() {
         h += "</td></tr>";
     }
     h += "</table>";
-    $("#ioxp_check_info").html(h);
+    $("#read_check_info").html(h);
     return m;
 };
 
+// キーの入力状態の表示を更新 I2Cロータリーエンコーダ
+aztool.option_add_key_stat_update_rotary = function() {
+    let d, i, j, m, o, r, x;
+    let h = "";
+    m = {"status": [], "input": []};
+    h += "<table>";
+    for (i in aztool.opt_read_data) {
+        d = aztool.opt_read_data[i]; // 受け取った情報
+        x = aztool.option_add.rotary[i]; // I2Cロータリーエンコーダアドレス
+        h += "<tr><td>";
+        h += "Addr: 0x" + x.toString(16) + "　";
+        m.status.push(0);
+        h += "<b style='color: #7bdf48;'>接続</b>";
+        o = aztool.rotary_data_to_array(d);
+        h += "　Data: ";
+        h += "</td><td>";
+        for (j=0; j<o.length; j++) {
+            m.input.push(o[j]);
+            h += (o[j])? "<div class='check_on'></div>": "<div class='check_off'></div>";
+        }
+        h += "</td></tr>";
+    }
+    h += "</table>";
+    $("#read_check_info").html(h);
+    return m;
+};
 
 // キーの入力状態を取得
 aztool.option_add_keymap_update_func = function() {
@@ -422,7 +595,7 @@ aztool.option_add_keymap_update_func = function() {
             aztool.option_add.map = aztool.map_data;
         }
     }
-    if (f < 0) aztool.switch_last_set = -1;
+    // if (f < 0) aztool.switch_last_set = -1;
     aztool.option_add_key_color_update();
 };
 
@@ -444,7 +617,7 @@ aztool.option_add_key_color_update = function() {
 aztool.option_add_btncheck_view = function() {
     let h = `
         <div id="btncheck_info">キースイッチを押して該当のスイッチの色が変わるのを確認して下さい。</div>
-        <div id="ioxp_check_info" style="height: 120px;"></div>
+        <div id="read_check_info" style="height: 120px;"></div>
         <div style="text-align: right; width: 800px;">
         <a class="cancel-button" onClick="javascript:aztool.option_add_btnmap_view();">戻る</a>
         　<a class="exec-button" onClick="javascript:aztool.option_add_save();">次へ</a>
@@ -452,12 +625,12 @@ aztool.option_add_btncheck_view = function() {
     $("#option_setting_form").html(h);
     aztool.update_step_box(5);
     setTimeout(function(){
-        aztool.ioxp_check_index = 0;
-        aztool.ioxp_data = [];
-        aztool.ioxp_lasttime = webhid.millis();
-        aztool.ioxp_check_update_func = aztool.option_add_map_check_update; // 画面更新用関数
-        aztool.option_add_ioxp_health_check(5); // 入力取得が止まって無いか監視
-        aztool.option_add_ioxp_check_exec(5); // 入力取得開始
+        aztool.read_check_index = 0;
+        aztool.opt_read_data = [];
+        aztool.opt_read_lasttime = webhid.millis();
+        aztool.opt_read_check_update_func = aztool.option_add_map_check_update; // 画面更新用関数
+        aztool.option_add_read_health_check(5); // 入力取得が止まって無いか監視
+        aztool.option_add_read_check_exec(5); // 入力取得開始
     }, 700);
 };
 
@@ -511,14 +684,7 @@ aztool.option_add_save = function() {
                 return;
             }
             // 保存成功したら配列に追加
-            let set_data = {
-                "id": aztool.option_add.id, // オプションごとのユニークなID
-                "type": aztool.option_add.type, // オプションのタイプ
-                "enable": 1, // 有効かどうか
-                "ioxp": aztool.option_add.ioxp, // 繋げているIOエキスパンダの設定
-                "map_start": aztool.get_map_start_next(), // キー設定番号の開始位置
-                "map": aztool.option_add.map // キーと読み込んだデータとのマッピング設定
-            };
+            let set_data = aztool.option_add_get_save_data();
             // オプション配列が無ければオプション配列作成
             if (!aztool.setting_json_data.i2c_option) aztool.setting_json_data.i2c_option = [];
             aztool.setting_json_data.i2c_option.push(set_data); // オプションにデータを追加
@@ -536,6 +702,41 @@ aztool.option_add_save = function() {
     );
 };
 
+// I2Cオプションに追加するデータを取得する
+aztool.option_add_get_save_data = function() {
+    if (aztool.option_add_type == 1) {
+        // IOエキスパンダ
+        return aztool.option_add_get_save_data_ioxp();
+    } else if (aztool.option_add_type == 2) {
+        // I2Cロータリーエンコーダ
+        return aztool.option_add_get_save_data_rotary();
+    }
+};
+
+// I2Cオプションに追加するデータを取得する IOエキスパンダ
+aztool.option_add_get_save_data_ioxp = function() {
+    return {
+        "id": aztool.option_add.id, // オプションごとのユニークなID
+        "type": 1, // オプションのタイプ IOエキスパンダ
+        "enable": 1, // 有効かどうか
+        "ioxp": aztool.option_add.ioxp, // 繋げているIOエキスパンダの設定
+        "map_start": aztool.get_map_start_next(), // キー設定番号の開始位置
+        "map": aztool.option_add.map // キーと読み込んだデータとのマッピング設定
+    };
+};
+
+// I2Cオプションに追加するデータを取得する I2Cロータリーエンコーダ
+aztool.option_add_get_save_data_rotary = function() {
+    return {
+        "id": aztool.option_add.id, // オプションごとのユニークなID
+        "type": 2, // オプションのタイプ I2Cロータリーエンコーダ
+        "enable": 1, // 有効かどうか
+        "rotary": aztool.option_add.rotary, // 繋げているIOエキスパンダの設定
+        "map_start": aztool.get_map_start_next(), // キー設定番号の開始位置
+        "map": aztool.option_add.map // キーと読み込んだデータとのマッピング設定
+    };
+};
+
 // オプション追加完了ページ
 aztool.option_add_complate = function() {
     let h = `
@@ -543,7 +744,7 @@ aztool.option_add_complate = function() {
         <div id="ioxp_complate_info" style="height: 120px;"></div>
         <div style="text-align: right; width: 800px;">
         <a class="exec-button" onClick="javascript:aztool.option_add_restart();" style="width: 280px;">再起動してオプションを反映する</a>
-        　<a class="exec-button" onClick="javascript:aztool.addopt_start(aztool.addopt_div_id);" style="width: 280px;">続けてオプションを追加する</a>
+        　<a class="exec-button" onClick="javascript:aztool.addopt_start(aztool.addopt_div_id, aztool.option_add_type);" style="width: 280px;">続けて` + aztool.option_add_name + `を追加する</a>
         </div>`;
     $("#option_setting_form").html(h);
     aztool.update_step_box(7);

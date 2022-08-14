@@ -22,6 +22,11 @@ aztool.to_hex = function(n, len=2) {
     return "0x" + n.toString(16).padStart(len, "0");
 };
 
+// 16進数の文字を数字にする
+aztool.hex_to_int = function(hex_str) {
+    return parseInt(hex_str, 16);
+};
+
 // ミリ秒の時間を取得
 aztool.millis = function() {
     let d = new Date();

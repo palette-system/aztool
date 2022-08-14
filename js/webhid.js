@@ -79,6 +79,7 @@ webhid.command_id = {
     "set_aztool_mode": 0x3C, // aztoolモードフラグ設定
     "get_ap_list": 0x3D, // WIFIのアクセスポイントリスト取得
     "read_key": 0x3E, // キーの入力状態取得
+    "get_rotary_key": 0x3F, // I2Cロータリーエンコーダの入力状態取得
     "none": 0x00 // 空送信
 };
 
@@ -295,6 +296,10 @@ webhid.handle_input_report = function(e) {
     } else if (cmd_type == webhid.command_id.read_key) {
         // キーの入力状態取得
         webhid.read_key_cb(get_data);
+
+    } else if (cmd_type == webhid.command_id.get_rotary_key) {
+        // I2Cロータリーエンコーダの入力状態取得
+        webhid.get_rotary_key_cb(get_data);
 
     } else if (cmd_type == webhid.command_id.get_ioxp_key) {
         // IOエキスパンダからキーの入力データを取得
@@ -718,6 +723,17 @@ webhid.read_key = function(cb_func) {
     let cmd = [webhid.command_id.read_key];
     webhid.send_command(cmd).then(() => {
         webhid.view_info("get read key ...");
+    });
+};
+
+// I2Cロータリーエンコーダの入力取得
+webhid.get_rotary_key = function(rotary_addr, cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.get_rotary_key_cb = cb_func;
+    // I2Cロータリーエンコーダの入力要求コマンド送信
+    let cmd = [webhid.command_id.get_rotary_key, rotary_addr];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("get rotary key ...");
     });
 };
 
