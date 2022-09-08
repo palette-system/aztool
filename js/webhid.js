@@ -80,6 +80,7 @@ webhid.command_id = {
     "get_ap_list": 0x3D, // WIFIのアクセスポイントリスト取得
     "read_key": 0x3E, // キーの入力状態取得
     "get_rotary_key": 0x3F, // I2Cロータリーエンコーダの入力状態取得
+    "get_pim_key": 0x40, // PIM447から入力情報を取得する
     "none": 0x00 // 空送信
 };
 
@@ -300,6 +301,10 @@ webhid.handle_input_report = function(e) {
     } else if (cmd_type == webhid.command_id.get_rotary_key) {
         // I2Cロータリーエンコーダの入力状態取得
         webhid.get_rotary_key_cb(get_data);
+
+    } else if (cmd_type == webhid.command_id.get_pim_key) {
+        // I2C PIM447 の入力状態取得
+        webhid.get_pim_key_cb(get_data);
 
     } else if (cmd_type == webhid.command_id.get_ioxp_key) {
         // IOエキスパンダからキーの入力データを取得
@@ -734,6 +739,17 @@ webhid.get_rotary_key = function(rotary_addr, cb_func) {
     let cmd = [webhid.command_id.get_rotary_key, rotary_addr];
     webhid.send_command(cmd).then(() => {
         webhid.view_info("get rotary key ...");
+    });
+};
+
+// I2C PIM447 の入力取得
+webhid.get_pim_key = function(pim_addr, cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.get_pim_key_cb = cb_func;
+    // I2C PIM447 の入力要求コマンド送信
+    let cmd = [webhid.command_id.get_pim_key, pim_addr];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("get pim key ...");
     });
 };
 

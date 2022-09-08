@@ -29,15 +29,44 @@ aztool.option_add_name = "";
 aztool.addopt_start = function(div_id, add_type) {
     aztool.addopt_div_id = div_id;
     aztool.option_add_type = add_type;
-    if (aztool.option_add_type == 1) {
-        aztool.option_add_name = "IOエキスパンダ";
-    } else if (aztool.option_add_type == 2) {
-        aztool.option_add_name = "I2Cロータリー";
-    }
+    aztool.option_add_name = "";
+    // eztoolモードI2C設定中にする(このモードの間キーボードとしての動作を止める(I2Cの処理が同時で動くとESP32が落ちるから))
+    $("#" + aztool.addopt_div_id).html("");
+    webhid.set_eztool_mode(1, function() {
+        if (aztool.option_add_type == 1) {
+            // IOエキスパンダ(MCP23017)
+            aztool.option_add_name = "IOエキスパンダ";
+            aztool.addopt_expd_rotary_start();
+        } else if (aztool.option_add_type == 2) {
+            // ATTiny202 ロータリエンコーダ
+            aztool.option_add_name = "I2Cロータリー";
+            aztool.addopt_expd_rotary_start();
+        } else if (aztool.option_add_type == 3) {
+            // PIM447 1Uトラックボール 
+            aztool.addpim447tb_start();
+        }
+    });
+};
+
+// IOエキスパンダ or ロータリエンコーダ追加画面
+aztool.addopt_expd_rotary_start = function() {
     // aztool オプション追加ライブラリ用のHTML追加
     aztool.addopt_init_html();
-    // モーダル登録
-    aztool.klemdl = $('[data-remodal-id=kletxt_modal]').remodal();
+    // データの準備
+    aztool.step_max = 7;
+    aztool.step_index = 0;
+    aztool.option_add = {
+        "id": "000000", // オプションごとのユニークなID
+        "type": aztool.option_add_type, // オプションのタイプ 1=IOエキスパンダ / 2=I2Cロータリーエンコーダ
+        "enable": 1, // 有効かどうか 1=有効
+        "kle": "", // KLEのJSONデータ
+        "ioxp": [], // 繋げているIOエキスパンダの設定
+        "rotary": [], // 繋げているI2Cロータリーエンコーダのリスト
+        "map_start": 0, // キー設定の番号いくつからがこのオプションのキー設定か
+        "map": [] // キーと読み込んだデータとのマッピング設定
+    };
+    // キーレイアウト設定画面表示
+    aztool.option_add_layout_view();
 };
 
 aztool.addopt_init_html = function() {
@@ -74,23 +103,7 @@ aztool.addopt_init_html = function() {
     </td></tr></table>
 
     </div>`;
-    $("#" + aztool.addopt_div_id).html("");
-    webhid.set_eztool_mode(1, function() { // eztoolモードI2C設定中
-        $("#" + aztool.addopt_div_id).html(html);
-        aztool.step_max = 7;
-        aztool.step_index = 0;
-        aztool.option_add = {
-            "id": "000000", // オプションごとのユニークなID
-            "type": aztool.option_add_type, // オプションのタイプ 1=IOエキスパンダ / 2=I2Cロータリーエンコーダ
-            "enable": 1, // 有効かどうか 1=有効
-            "kle": "", // KLEのJSONデータ
-            "ioxp": [], // 繋げているIOエキスパンダの設定
-            "rotary": [], // 繋げているI2Cロータリーエンコーダのリスト
-            "map_start": 0, // キー設定の番号いくつからがこのオプションのキー設定か
-            "map": [] // キーと読み込んだデータとのマッピング設定
-        };
-        aztool.option_add_layout_view();
-    });
+    $("#" + aztool.addopt_div_id).html(html);
 };
 
 // レイアウト設定画面表示
@@ -344,6 +357,9 @@ aztool.option_add_read_check_exec = function(step_no) {
     } else if (aztool.option_add_type == 2) {
         // I2Cロータリーエンコーダの状態を確認する
         aztool.option_add_read_check_exec_rotary(step_no);
+    } else if (aztool.option_add_type == 3) {
+        // I2C PIM447 の状態を確認する
+        aztool.option_add_read_check_exec_pim447(step_no);
     }
 };
 

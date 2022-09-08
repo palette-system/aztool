@@ -18,8 +18,8 @@ aztool.random_num = function(n) {
 };
 
 // 16進数で表示
-aztool.to_hex = function(n, len=2) {
-    return "0x" + n.toString(16).padStart(len, "0");
+aztool.to_hex = function(n, len=2, px="0x") {
+    return px + n.toString(16).padStart(len, "0");
 };
 
 // 16進数の文字を数字にする

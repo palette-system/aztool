@@ -120,6 +120,8 @@ aztool.load_i2c_data = function() {
             aztool.load_i2c_data();
         });
         return;
+    } else if (o.type == 3) {
+        aztool.i2c_option_data[ "o" + o.id ] = "[\"\"]";
     }
     // 不明なオプションタイプ
     aztool.i2c_load_index++;
