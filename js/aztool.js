@@ -190,7 +190,7 @@ aztool.view_top_menu = function() {
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_keytest();'><font "+t+">🩺</font>入力テスト</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font "+t+">🧩</font>I2C オプション</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_wifi_top();'><font "+t+">📶</font>Wifi</div>";
-    h += "<br>";
+    h += "<div class='topmenu_btn azcore' onClick='javascript:aztool.power_saving_setting_open();'><font "+t+">🔋</font>省電力</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font "+t+">📝</font>設定JSON</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.file_export_all();'><font "+t+">📤</font>エクスポート</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.file_import_modal_open();'><font "+t+">📥</font>インポート</div>";
@@ -205,6 +205,8 @@ aztool.view_top_menu = function() {
     h += "</div>";
     h += "</center>";
     $("#main_box").html(h);
+    if (!aztool.is_azcore()) $(".azcore").css({"display": "none"}); // azcore専用の機能は他の機器の場合非表示
+
     // キー配列を表示
     // aztool.view_key_layout();
 };

@@ -184,3 +184,11 @@ aztool.data_download = function(fileName, data_arr, data_type) {
     aobj.click();
     URL.revokeObjectURL(aobj.href);
 };
+
+// 接続しているキーボードがAZ-COREかどうか
+aztool.is_azcore = function() {
+    if (!aztool.setting_json_data || !aztool.setting_json_data.keyboard_type) return false;
+    let t = aztool.setting_json_data.keyboard_type;
+    if (t == "az_core" || t == "az_core_b") return true;
+    return false;
+}
