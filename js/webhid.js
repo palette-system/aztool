@@ -4,9 +4,6 @@ var webhid = {};
 // 接続したHIDデバイス
 webhid.device = null;
 
-// 最後に実行したコマンド
-webhid.last_exec_cmd = 0x00;
-
 // データをロードする時のstep計算用
 webhid.load_index = 0;
 
@@ -62,9 +59,6 @@ webhid.hid_request_prm = {filters: [{"usagePage": webhid.hid_usage_page, "usage"
 // 送受信するポートの番号
 webhid.raw_report_id = 0;
 
-// 受信したデータのステータス
-webhid.input_report_stat = 0;
-
 // インフォを表示するDIV
 webhid.info_div = "";
 
@@ -87,8 +81,6 @@ webhid.command_id = {
     "read_key": 0x3E, // キーの入力状態取得
     "get_rotary_key": 0x3F, // I2Cロータリーエンコーダの入力状態取得
     "get_pim_key": 0x40, // PIM447から入力情報を取得する
-    "get_firmware_status": 0x60, // ファームウェアのバージョン情報を取得する
-    "id_unhandled": 0xFF, // コマンドが無かった場合
     "none": 0x00 // 空送信
 };
 
@@ -112,7 +104,6 @@ webhid.init = function(opt) {
 // コマンドを送信
 webhid.send_command = function(arr) {
     while (arr.length < webhid.raw_report_id.out_size) arr.push(0x00); // 0詰め
-    webhid.last_exec_cmd = arr[0]; // 最後に送信したコマンドを保持
     let cmd = new Uint8Array(arr);
     // console.log("send_command: " + arr.join(","));
     return webhid.device.sendReport(webhid.raw_report_id.out, cmd);
@@ -187,14 +178,12 @@ webhid.handle_disconnect = function(e) {
 };
 
 // データを受け取った時のイベント
-webhid.handle_input_report = function(e, stat) {
+webhid.handle_input_report = function(e) {
     // 全てのポートのインプットでこのイベントが発生するのでraw以外のポートのイベントは無視
     if (e.reportId != webhid.raw_report_id.in) return;
-    // ステータスの取得
-    webhid.input_report_stat = stat;
     // データをUint8Arrayにする
     let get_data = new Uint8Array(e.data.buffer);
-    // console.log(get_data);
+    // console.log("get");
     let cmd_type = get_data[0];
     let cmd;
     let h, p, u, s;
@@ -327,19 +316,6 @@ webhid.handle_input_report = function(e, stat) {
         // aztool モードのフラグ設定
         // コールバックを実行
         webhid.set_eztool_mode_cb();
-
-    } else if (cmd_type == webhid.command_id.get_firmware_status) {
-        // ファームウェアのステータス取得
-        webhid.get_firmware_status_cb(get_data);
-
-
-    } else if (cmd_type == webhid.command_id.id_unhandled) {
-        // 該当コマンドが無かった
-        // 中身空のダミー結果作成
-        p = {"reportId": webhid.raw_report_id.in, "data": {"buffer": [webhid.last_exec_cmd]}};
-        while (p.data.buffer.length < 32) p.data.buffer.push(0x00);
-        webhid.handle_input_report(p, 1);
-        return;
 
     }
     
@@ -521,7 +497,7 @@ webhid.connect = function(cb_func) {
             // 接続完了
             webhid.device = devices[0];
             // データを受け取った時のイベント登録
-            webhid.device.addEventListener("inputreport", function(e) { webhid.handle_input_report(e, 0); });
+            webhid.device.addEventListener("inputreport", webhid.handle_input_report);
             cb_func(0);
         });
     });
@@ -786,15 +762,5 @@ webhid.set_eztool_mode = function(set_flag, cb_func) {
     webhid.send_command(cmd).then(() => {
         webhid.view_info("set eztool mode ...");
     });
-};
 
-// ファームウェアのバージョンデータ取得
-webhid.get_firmware_status = function(cb_func) {
-    if (!cb_func) cb_func = function() {};
-    webhid.get_firmware_status_cb = cb_func;
-    // キー入力状態要求コマンド送信
-    let cmd = [webhid.command_id.get_firmware_status];
-    webhid.send_command(cmd).then(() => {
-        webhid.view_info("get firmware status ...");
-    });
 };

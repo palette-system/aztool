@@ -10,9 +10,6 @@ if (!window.aztool) aztool = {};
 // 設定JSONファイルのパス
 aztool.setting_json_path = "/setting.json";
 
-// ファームウェアのバージョン
-aztool.firmware_version = [0, 0, 0];
-
 // 設定JSONのデータ
 aztool.setting_json_txt = ""; // テキスト
 aztool.setting_json_data = {}; // データ
@@ -54,11 +51,8 @@ aztool.connect = function() {
             return;
         }
         // aztool.addopt_start("main_box"); // オプション追加
-        // ファームウェアのバージョン情報読み込み
-        aztool.load_firmware_stat(function() {
-            // 接続成功したら設定JSON読み込み
-            aztool.load_setting_json();
-        });
+        // 接続成功したら設定JSON読み込み
+        aztool.load_setting_json();
     });
 };
 
@@ -73,19 +67,6 @@ aztool.close = function() {
 aztool.hid_disconn_func = function(e) {
     // 接続ページを表示
     aztool.view_connect_top("切断しました " + aztool.to_hex(e.device.productId, 4) + " : " + aztool.to_hex(e.device.vendorId, 4));
-};
-
-// ファームウェアのバージョン情報読み込み
-aztool.load_firmware_stat = function(cb_func) {
-    // バージョン情報読み込み
-    webhid.get_firmware_status(function(d) {
-        aztool.firmware_version = [
-            (d[1] && d[2])? parseInt(webhid.arr2str([d[1], d[2]]).replace(/\0/g, "")): 0,
-            (d[3] && d[4])? parseInt(webhid.arr2str([d[3], d[4]]).replace(/\0/g, "")): 0,
-            (d[5] && d[6])? parseInt(webhid.arr2str([d[5], d[6]]).replace(/\0/g, "")): 0
-        ];
-        cb_func(); // コールバック実行
-    });
 };
 
 // 設定JSONの読み込み
@@ -192,7 +173,6 @@ aztool.view_top_menu = function() {
     h += "<table cellpadding='4' cellspacing='0' border='0' class='keystatus'>";
     h += "<tr><th>VendorId / ProductId</th><td>" + k.vendorId + " / " + k.productId + "</td></tr>";
     h += "<tr><th>キーボード名</th><td>" + kname + "</td></tr>";
-    h += "<tr><th>ファームウェアバージョン</th><td>" + aztool.firmware_version[0] + " . " + aztool.firmware_version[1] + " . " + aztool.firmware_version[2] + "</td></tr>";
     x = [];
     if (k.keyboard_pin.ioxp && k.keyboard_pin.ioxp.length) x.push("ioxp = " + k.keyboard_pin.ioxp.join(","));
     if (k.keyboard_pin.direct && k.keyboard_pin.direct.length) x.push("direct = " + k.keyboard_pin.direct.join(","));
