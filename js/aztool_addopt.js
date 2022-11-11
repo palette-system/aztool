@@ -43,7 +43,10 @@ aztool.addopt_start = function(div_id, add_type) {
             aztool.addopt_expd_rotary_start();
         } else if (aztool.option_add_type == 3) {
             // PIM447 1Uトラックボール 
-            aztool.addpim447tb_start();
+            aztool.addpim447tb_start(3);
+        } else if (aztool.option_add_type == 4) {
+            // PIM447 1Uトスクロール
+            aztool.addpim447tb_start(4);
         }
     });
 };
@@ -357,7 +360,7 @@ aztool.option_add_read_check_exec = function(step_no) {
     } else if (aztool.option_add_type == 2) {
         // I2Cロータリーエンコーダの状態を確認する
         aztool.option_add_read_check_exec_rotary(step_no);
-    } else if (aztool.option_add_type == 3) {
+    } else if (aztool.option_add_type == 3 || aztool.option_add_type == 4) {
         // I2C PIM447 の状態を確認する
         aztool.option_add_read_check_exec_pim447(step_no);
     }

@@ -103,8 +103,8 @@ aztool.load_i2c_data = function() {
     // i2cのデータをロード
     let o = aztool.setting_json_data.i2c_option[ aztool.i2c_load_index ];
     let t;
-    // IOエキスパンダ || I2Cロータリーエンコーダ
     if (o.type == 1 || o.type == 2) {
+        // IOエキスパンダ || I2Cロータリーエンコーダ
         // kleのJSONロード
         console.log("get_file: /o" + o.id);
         webhid.get_file("/o" + o.id, function(stat, load_data) {
@@ -121,7 +121,11 @@ aztool.load_i2c_data = function() {
         });
         return;
     } else if (o.type == 3) {
+        // PIM447 トラックボール
         aztool.i2c_option_data[ "o" + o.id ] = "[\"\"]";
+    } else if (o.type == 4) {
+        // PIM447 ロータリー
+        aztool.i2c_option_data[ "o" + o.id ] = "[{x:1},\"\"],[\"\",\"\",\"\"],[{x:1},\"\"]";
     }
     // 不明なオプションタイプ
     aztool.i2c_load_index++;

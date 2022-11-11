@@ -14,7 +14,8 @@ aztool.view_setopt = function() {
     <tr><td class="leftmenu-box">
     <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 1);'>IOエキスパンダ追加</a><br>
     <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 2);'>ロータリエンコーダ追加</a><br>
-    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>PIM447(TB) 追加</a><br>
+    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>PIM447(トラックボール) 追加</a><br>
+    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 4);'>PIM447(スクロール) 追加</a><br>
     <!-- <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\");'>エクスポート</a><br> -->
     <div id="back_btn_box"></div>
     </td><td valign="top" style="padding: 20px;">
@@ -52,6 +53,7 @@ aztool.setopt_optlist_view = function() {
         if (o.type == 1) h += "IOエキスパンダ";
         if (o.type == 2) h += "ロータリエンコーダ";
         if (o.type == 3) h += "PIM447(TB)";
+        if (o.type == 4) h += "PIM447(SC)";
         h += "</b><br>"
         h += "ID: " + o.id + "<br>";
         h += (o.enable)? "設定：有効<br>": "設定：無効<br>";
@@ -68,7 +70,7 @@ aztool.setopt_optlist_view = function() {
                 if (j > 0) h += " ,";
                 h += aztool.to_hex(o.rotary[j]);
             }
-        } else if (o.type == 3) {
+        } else if (o.type == 3 || o.type == 4) {
             // 1U トラックボール PIM447
             h += aztool.to_hex(o.addr);
         }
@@ -77,7 +79,11 @@ aztool.setopt_optlist_view = function() {
             h += "キーID: " + o.map_start;
             if (o.map.length > 1) h += " - " + (o.map_start + o.map.length - 1);
         } else if (o.type == 3) {
+            // PIM447 トラックボール
             h += "スピード: " + o.speed + "<br>";
+            h += "向き: " + aztool.pim447_rotate_list[o.rotate];
+        } else if (o.type == 4) {
+            // PIM447 スクロール
             h += "向き: " + aztool.pim447_rotate_list[o.rotate];
         }
         h += "</td></tr>";

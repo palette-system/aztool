@@ -7,9 +7,9 @@ if (!window.aztool) aztool = {};
 aztool.pim447_rotate_list = ["上", "右", "下", "左"];
 
 // PIM447 1U トラックボールオプション追加開始
-aztool.addpim447tb_start = function() {
+aztool.addpim447tb_start = function(opt_type) {
     // オプション設定
-    aztool.option_add_type = 3;
+    aztool.option_add_type = opt_type;
     aztool.option_add_name = "";
     // HTML 作成
     aztool.addpim447tb_init_html();
@@ -64,7 +64,7 @@ aztool.addpim447tb_setiing_view = function() {
         <td style="`+st_th+`">アドレス</td>
         <td>0x <input type="text" id="pim447_addr" value="` + aztool.to_hex(aztool.option_add.addr, 2, "") + `" style="font-size: 26px; width: 80px;"></td>
     </tr>
-    <tr>
+    <tr id="tr_speed">
         <td style="`+st_th+`">スピード</td>
         <td><input type="text" id="pim447_speed" value="` + aztool.option_add.speed + `" style="font-size: 26px; width: 80px;"></td>
     </tr>
@@ -87,6 +87,7 @@ aztool.addpim447tb_setiing_view = function() {
     </div>
     `;
     $("#pim447tb_setting_form").html(html);
+    if (aztool.option_add_type == 4) $("#tr_speed").css({"display": "none"});
     $("#pim447_rotate").val(aztool.option_add.rotate);
     aztool.update_step_box(1);
 };
@@ -101,7 +102,7 @@ aztool.addpim447tb_setiing_exec = function() {
         $("#addpim447tb_info").html("アドレスが不正です");
         return;
     }
-    if (!set_speed || set_speed < 1 || set_speed > 999) {
+    if (aztool.option_add_type == 3 && (!set_speed || set_speed < 1 || set_speed > 999)) {
         $("#addpim447tb_info").html("スピードが不正です");
         return;
     }
@@ -117,7 +118,56 @@ aztool.addpim447tb_setiing_exec = function() {
     aztool.addpim447tb_check_view();
 };
 
-// PIM447 1U 動作チェック
+// PIM447 から受け取ったデータを元にカーソルを動かす トラックボール
+aztool.addpim447tb_check_update = function() { // 画面更新用関数
+    let d_left, d_right, d_up, d_down;
+    if (aztool.option_add.rotate == 1) { // 右
+        d_left = aztool.opt_read_data[4];
+        d_right = aztool.opt_read_data[5];
+        d_up = aztool.opt_read_data[3];
+        d_down = aztool.opt_read_data[2];
+    } else if (aztool.option_add.rotate == 2) { // 下
+        d_left = aztool.opt_read_data[3];
+        d_right = aztool.opt_read_data[2];
+        d_up = aztool.opt_read_data[5];
+        d_down = aztool.opt_read_data[4];
+    } else if (aztool.option_add.rotate == 3) { // 左
+        d_left = aztool.opt_read_data[5];
+        d_right = aztool.opt_read_data[4];
+        d_up = aztool.opt_read_data[2];
+        d_down = aztool.opt_read_data[3];
+    } else { // 上
+        d_left = aztool.opt_read_data[2];
+        d_right = aztool.opt_read_data[3];
+        d_up = aztool.opt_read_data[4];
+        d_down = aztool.opt_read_data[5];
+    }
+    let mx = d_right - d_left;
+    let my = d_down - d_up;
+    let x = 200 + (mx * aztool.option_add.speed / 30);
+    let y = 200 + (my * aztool.option_add.speed / 30);
+    if (aztool.option_add_type == 4) {
+        console.log("x = " + mx + "  y = " + my)
+        x = 200; y = 200;
+        if (mx < -2 && Math.abs(mx) > Math.abs(my)) {
+            x = 50; y = 200;
+        } else if (mx > 2 && Math.abs(mx) > Math.abs(my)) {
+            x = 350; y = 200;
+        } else if (my < -2 && Math.abs(mx) < Math.abs(my)) {
+            x = 200; y = 50;
+        } else if (my > 2 && Math.abs(mx) < Math.abs(my)) {
+            x = 200; y = 350;
+        }
+    }
+    $("#move_cursor").css({"top": y + "px", "left": x + "px"});
+    if (aztool.opt_read_data[6] & 0x80) {
+        $("#move_cursor").html("◆");
+    } else {
+        $("#move_cursor").html("◇");
+    }
+};
+
+// PIM447 1U 動作チェック スクロール
 aztool.addpim447tb_check_view = function() {
     let html = `
     <div style="font-size: 26px; color: black; background-color: #bde4ff; padding: 4px 20px;">PIM447 1U トラックボールの動作確認</div>
@@ -146,42 +196,6 @@ aztool.addpim447tb_check_view = function() {
     }, 1000);
 };
 
-// PIM447 から受け取ったデータを元にカーソルを動かす
-aztool.addpim447tb_check_update = function() { // 画面更新用関数
-    let d_left, d_right, d_up, d_down;
-    if (aztool.option_add.rotate == 1) { // 右
-        d_left = aztool.opt_read_data[4];
-        d_right = aztool.opt_read_data[5];
-        d_up = aztool.opt_read_data[3];
-        d_down = aztool.opt_read_data[2];
-    } else if (aztool.option_add.rotate == 2) { // 下
-        d_left = aztool.opt_read_data[3];
-        d_right = aztool.opt_read_data[2];
-        d_up = aztool.opt_read_data[5];
-        d_down = aztool.opt_read_data[4];
-    } else if (aztool.option_add.rotate == 3) { // 左
-        d_left = aztool.opt_read_data[5];
-        d_right = aztool.opt_read_data[4];
-        d_up = aztool.opt_read_data[2];
-        d_down = aztool.opt_read_data[3];
-    } else { // 上
-        d_left = aztool.opt_read_data[2];
-        d_right = aztool.opt_read_data[3];
-        d_up = aztool.opt_read_data[4];
-        d_down = aztool.opt_read_data[5];
-    }
-    let mx = d_right - d_left;
-    let my = d_down - d_up;
-    let x = 200 + (mx * aztool.option_add.speed / 30);
-    let y = 200 + (my * aztool.option_add.speed / 30);
-    $("#move_cursor").css({"top": y + "px", "left": x + "px"});
-    if (aztool.opt_read_data[6] & 0x80) {
-        $("#move_cursor").html("◆");
-    } else {
-        $("#move_cursor").html("◇");
-    }
-};
-
 // I2C PIM447 の状態を確認する
 aztool.option_add_read_check_exec_pim447 = function(step_no) {
     webhid.get_pim_key(aztool.option_add.addr, function(d) {
@@ -201,14 +215,18 @@ aztool.addpim447tb_save = function() {
     // オプションにデータを追加
     let set_data = {
         "id": aztool.random_num(6), // オプションごとのユニークなID
-        "type": 3, // オプションのタイプ 3=PIM447(トラックボール)
+        "type": aztool.option_add_type, // オプションのタイプ 3=PIM447(トラックボール) 4=PIM447(スクロール)
         "enable": 1, // 有効かどうか
         "addr": aztool.option_add.addr, // PIM447 のアドレス
-        "speed": aztool.option_add.speed, // カーソルの移動速度
         "rotate": aztool.option_add.rotate, // 移動する向き
-        "map_start": aztool.get_map_start_next(), // キー設定番号の開始位置
-        "map": [7] // キーと読み込んだデータとのマッピング設定(クリック)
+        "map_start": aztool.get_map_start_next() // キー設定番号の開始位置
     };
+    if (aztool.option_add_type == 3) { // トラックボール
+        set_data["speed"] = aztool.option_add.speed; // カーソルの移動速度
+        set_data["map"] = [7]; // キーと読み込んだデータとのマッピング設定(クリック)
+    } else if (aztool.option_add_type == 4) { // スクロール
+        set_data["map"] = [2,0,15,1,3]; // キーと読み込んだデータとのマッピング設定(スクロール＆クリック)
+    }
     aztool.setting_json_data.i2c_option.push(set_data);
     // 設定JSON保存
     $("#pim447tb_setting_form").html("保存中...");

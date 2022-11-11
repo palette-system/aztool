@@ -184,6 +184,7 @@ webhid.handle_input_report = function(e) {
     // データをUint8Arrayにする
     let get_data = new Uint8Array(e.data.buffer);
     // console.log("get");
+    console.log(get_data);
     let cmd_type = get_data[0];
     let cmd;
     let h, p, u, s;
