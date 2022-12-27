@@ -32,6 +32,11 @@ aztool.main_kle["az_core_b"] = `
 	[{x:1},"4"]
 `;
 
+// M5Stack AtomS3
+aztool.main_kle["atoms3"] = `
+	["0","1","2"]
+`;
+
 // レイヤー切り替えの種類
 // https://qiita.com/chesscommands/items/3e7e02d025f261bf6134
 aztool.layer_move_type_list = [
