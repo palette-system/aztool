@@ -44,7 +44,7 @@ aztool.power_saving_setting_set = function() {
     let s_def = {"mode": 0, "interval_normal": 35, "interval_saving": 120, "saving_time": 5};
     let s = (aztool.setting_json_data.power_saving)? aztool.clone(aztool.setting_json_data.power_saving): s_def;
     // 項目が無い場合はデフォルトを指定
-    for (k in s_def) if (!s[k]) s[k] = s_def[k];
+    for (k in s_def) if (!(k in s)) s[k] = s_def[k];
     // フォームに値を入れる
     $("#sv_mode").val(s.mode + "");
     $("#sv_interval_normal").val(s.interval_normal + "");
