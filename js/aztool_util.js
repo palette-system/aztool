@@ -191,4 +191,16 @@ aztool.is_azcore = function() {
     let t = aztool.setting_json_data.keyboard_type;
     if (t == "az_core" || t == "az_core_b") return true;
     return false;
-}
+};
+
+// 本体のKLEを取得
+aztool.get_main_kle = function() {
+    // ロードしたkle.json データがあればそれを返す
+    if (aztool.main_kle_data) return aztool.main_kle_data;
+    // キーボードのタイプが取得できてなければ空文字を返す
+    if (!aztool.setting_json_data ||
+        !aztool.setting_json_data.keyboard_type ||
+        !aztool.main_kle[aztool.setting_json_data.keyboard_type]) return "";
+    // キーボードのタイプに合うKLE文字を取得
+    return aztool.main_kle[aztool.setting_json_data.keyboard_type];
+};

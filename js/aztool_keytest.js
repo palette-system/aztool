@@ -47,6 +47,7 @@ aztool.keytest_close = function() {
 // キーレイアウトを表示
 aztool.view_keytest_layout = function() {
     let h = "";
+    let kle = "";
     let i, j, l, o, m;
     let cnf = 44;
     let pos = (aztool.setting_json_data.layout && aztool.setting_json_data.layout.position)? aztool.setting_json_data.layout.position: null;
@@ -61,10 +62,11 @@ aztool.view_keytest_layout = function() {
     // キー配列を表示
     aztool.key_layout_data = [];
     // 本体のキー配列を表示
-    if (aztool.main_kle[aztool.setting_json_data.keyboard_type]) {
+    kle = aztool.get_main_kle(); // 本体のKLE文字列取得
+    if (kle) {
         m = {
             "option": {"id": 0, "map_start": 0},
-            "kle": aztool.kle_view(aztool.main_kle[aztool.setting_json_data.keyboard_type], "#odiv_0", false, cnf, "sw_0_"),
+            "kle": aztool.kle_view(kle, "#odiv_0", false, cnf, "sw_0_"),
             "key_ids": []
         };
         for (i in m.kle.keys) {

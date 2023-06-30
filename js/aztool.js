@@ -7,6 +7,9 @@ window.REMODAL_GLOBALS = {
 
 if (!window.aztool) aztool = {};
 
+// KLEデータのファイルパス
+aztool.kle_json_path = "/kle.json";
+
 // 設定JSONファイルのパス
 aztool.setting_json_path = "/setting.json";
 
@@ -84,6 +87,7 @@ aztool.load_setting_json = function() {
         // 別で読み込みが必要なi2cオプションのデータをロード
         aztool.i2c_option_data = {};
         aztool.i2c_load_index = 0;
+        // 設定JSONの読み込みが終わったらi2cデータのロード
         aztool.load_i2c_data();
     });
 };
@@ -93,11 +97,8 @@ aztool.load_i2c_data = function() {
     // i2cオプションのロード終わったらメニューを表示
     if (!aztool.setting_json_data.i2c_option || // i2cの設定が無い
         aztool.i2c_load_index >= aztool.setting_json_data.i2c_option.length) { // 全てロード完了
-            // ディスクの空き容量取得
-            webhid.get_disk_info(function(disk_data) {
-                aztool.disk_data = disk_data;
-                aztool.view_top_menu();
-            })
+            // 本体に保存されているKLEのデータをロード
+            aztool.load_kle_data();
             return;
     }
     // i2cのデータをロード
@@ -130,6 +131,31 @@ aztool.load_i2c_data = function() {
     // 不明なオプションタイプ
     aztool.i2c_load_index++;
     aztool.load_i2c_data();
+};
+
+// 本体に保存されているKLEのデータをロード
+aztool.load_kle_data = function() {
+    console.log("load_kle_data: file " + aztool.kle_json_path);
+    webhid.get_file(aztool.kle_json_path, function(stat, load_data) {
+        console.log("load_kle_data: status " + stat);
+        // 読み込めていればファイルの内容を保持
+        aztool.main_kle_data = "";
+        if (stat == 0) { // 0 読み込み成功 1 何かしらのエラー 2 ファイルが無い
+            aztool.main_kle_data = webhid.arr2str(load_data);
+        }
+        // ディスク情報の取得へ
+        aztool.load_disk_info();
+    });
+};
+
+// ディスク情報の取得
+aztool.load_disk_info = function() {
+    // ディスクの空き容量取得
+    webhid.get_disk_info(function(disk_data) {
+        aztool.disk_data = disk_data;
+        // 読み込みが終わったらAZTOOLのメニューページを表示
+        aztool.view_top_menu();
+    });
 };
 
 // データのロードページ表示
