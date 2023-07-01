@@ -81,6 +81,7 @@ webhid.command_id = {
     "read_key": 0x3E, // キーの入力状態取得
     "get_rotary_key": 0x3F, // I2Cロータリーエンコーダの入力状態取得
     "get_pim_key": 0x40, // PIM447から入力情報を取得する
+    "set_pin_set": 0x41, // 本体の direct, touch, row, col ピン設定をする
     "none": 0x00 // 空送信
 };
 
@@ -306,6 +307,10 @@ webhid.handle_input_report = function(e) {
     } else if (cmd_type == webhid.command_id.get_pim_key) {
         // I2C PIM447 の入力状態取得
         webhid.get_pim_key_cb(get_data);
+
+    } else if (cmd_type == webhid.command_id.set_pin_set) {
+        // 本体の direct, touch, row, col ピン設定をする
+        webhid.set_pin_set_cb(0, get_data);
 
     } else if (cmd_type == webhid.command_id.get_ioxp_key) {
         // IOエキスパンダからキーの入力データを取得
@@ -751,6 +756,44 @@ webhid.get_pim_key = function(pim_addr, cb_func) {
     let cmd = [webhid.command_id.get_pim_key, pim_addr];
     webhid.send_command(cmd).then(() => {
         webhid.view_info("get pim key ...");
+    });
+};
+
+// 本体の direct, touch, row, col のピン設定をする(変更する)
+webhid.set_pin_set = function(pin_setting, cb_func) {
+    let i;
+    if (!cb_func) cb_func = function(stat, res) {};
+    webhid.set_pin_set_cb = cb_func;
+    // コマンド作成
+    let cmd = [webhid.command_id.set_pin_set];
+    // direct ピン
+    cmd.push(pin_setting.direct.length);
+    for (i in pin_setting.direct) {
+        cmd.push(pin_setting.direct[i]);
+    }
+    // touch ピン
+    cmd.push(pin_setting.touch.length);
+    for (i in pin_setting.touch) {
+        cmd.push(pin_setting.touch[i]);
+    }
+    // col ピン
+    cmd.push(pin_setting.col.length);
+    for (i in pin_setting.col) {
+        cmd.push(pin_setting.col[i]);
+    }
+    // row ピン
+    cmd.push(pin_setting.row.length);
+    for (i in pin_setting.row) {
+        cmd.push(pin_setting.row[i]);
+    }
+    // コマンドのサイズチェック
+    if (cmd.length > 32) {
+        webhid.set_pin_set_cb(1, null);
+        return;
+    }
+    // コマンド送信
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("set pin set ...");
     });
 };
 
