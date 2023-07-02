@@ -25,6 +25,21 @@ aztool.option_add_type = 0;
 // 追加するオプションの名前
 aztool.option_add_name = "";
 
+// オプションのステップ信仰の表示を更新する
+aztool.update_step_box = function(step_num) {
+    let i, c;
+    aztool.step_index = step_num;
+    for (i=1; i<=aztool.step_max; i++) {
+        c = "option_step";
+        if (step_num == i) {
+            c += " step_selected";
+        } else if (step_num > i) {
+            c += " step_ended";
+        }
+        $("#stepbox_" + i).attr("class", c);
+    }
+};
+
 // オプション追加ライブラリ用初期化処理
 aztool.addopt_start = function(div_id, add_type) {
     aztool.addopt_div_id = div_id;
@@ -32,7 +47,7 @@ aztool.addopt_start = function(div_id, add_type) {
     aztool.option_add_name = "";
     // eztoolモードI2C設定中にする(このモードの間キーボードとしての動作を止める(I2Cの処理が同時で動くとESP32が落ちるから))
     $("#" + aztool.addopt_div_id).html("");
-    webhid.set_eztool_mode(1, function() {
+    webhid.set_aztool_mode(1, function() {
         if (aztool.option_add_type == 1) {
             // IOエキスパンダ(MCP23017)
             aztool.option_add_name = "IOエキスパンダ";
@@ -47,6 +62,9 @@ aztool.addopt_start = function(div_id, add_type) {
         } else if (aztool.option_add_type == 4) {
             // PIM447 1Uトスクロール
             aztool.addpim447tb_start(4);
+        } else if (aztool.option_add_type == 100) {
+            // カスタムレイアウト設定
+            aztool.addcustam_start();
         }
     });
 };
@@ -136,7 +154,7 @@ aztool.option_add_layout_view = function() {
 
 // オプション追加終了
 aztool.option_add_end = function(cb_func) {
-    webhid.set_eztool_mode(0, function() { // eztoolモードOFF
+    webhid.set_aztool_mode(0, function() { // eztoolモードOFF
         cb_func();
     });
 }
@@ -363,6 +381,9 @@ aztool.option_add_read_check_exec = function(step_no) {
     } else if (aztool.option_add_type == 3 || aztool.option_add_type == 4) {
         // I2C PIM447 の状態を確認する
         aztool.option_add_read_check_exec_pim447(step_no);
+    } else if (aztool.option_add_type == 100) {
+        // カスタムレイアウト 本体の入力チェック
+        aztool.option_add_read_check_exec_iopin(step_no);
     }
 };
 

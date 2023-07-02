@@ -3,9 +3,6 @@
 
 if (!window.aztool) aztool = {};
 
-// 入力読み込み用
-aztool.read_bit = [0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01];
-
 // キー入力テスト中かどうかのフラグ
 aztool.keytest_flag = 0;
 
@@ -23,7 +20,7 @@ aztool.view_keytest = function() {
     `;
     $("#main_box").html(h);
     // eztoolモード設定
-    webhid.set_eztool_mode(2, function() { // eztoolモード入力テスト中
+    webhid.set_aztool_mode(2, function() { // eztoolモード入力テスト中
         // キーのレイアウト表示
         aztool.view_keytest_layout();
         // キー入力テスト中にする
@@ -38,7 +35,7 @@ aztool.keytest_close = function() {
     // キー入力テスト終了
     aztool.keytest_flag = 0;
     // eztoolモード設定
-    webhid.set_eztool_mode(0, function() { // eztoolモード終了
+    webhid.set_aztool_mode(0, function() { // eztoolモード終了
         // メインメニュー表示
         aztool.view_top_menu();
     });
@@ -120,20 +117,9 @@ aztool.keytest_read_loop = function() {
     // キー入力を取得
     webhid.read_key(function(read_data) {
         let i, j, p, r, s, oid;
-        let key_len = read_data[1];
+        let parse_data = webhid.read_key_parce(read_data);
         // キー入力を配列にして取得
-        let res = [];
-        r = 2;
-        for (i=0; i<key_len; i++) {
-            j = i % 8;
-            if (read_data[r] & aztool.read_bit[j]) {
-                res.push(1);
-            } else {
-                res.push(0);
-            }
-            if (j == 7) r++;
-            if (r > 31) break;
-        }
+        let res = parse_data.data;
         // 入力があったキーに色を付ける
         r = 0;
         for (i in aztool.key_layout_data) {

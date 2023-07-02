@@ -53,7 +53,6 @@ aztool.connect = function() {
             aztool.view_connect_top("接続できませんでした。"); // 接続ページを表示
             return;
         }
-        // aztool.addopt_start("main_box"); // オプション追加
         // 接続成功したら設定JSON読み込み
         aztool.load_setting_json();
     });
@@ -70,92 +69,6 @@ aztool.close = function() {
 aztool.hid_disconn_func = function(e) {
     // 接続ページを表示
     aztool.view_connect_top("切断しました " + aztool.to_hex(e.device.productId, 4) + " : " + aztool.to_hex(e.device.vendorId, 4));
-};
-
-// 設定JSONの読み込み
-aztool.load_setting_json = function() {
-    aztool.view_load_page(); // ロード画面表示
-    webhid.get_file(aztool.setting_json_path, function(stat, load_data) {
-        // 読み込み失敗
-        if (stat != 0) return;
-        // 読み込み成功したらデータを受けとる
-        let txt = webhid.arr2str(load_data);
-        aztool.setting_json_data = JSON.parse(txt); // 設定データパース
-        aztool.setting_json_txt = JSON.stringify(aztool.setting_json_data); // 設定データテキスト
-        console.log(aztool.setting_json_txt);
-        console.log(aztool.setting_json_data);
-        // 別で読み込みが必要なi2cオプションのデータをロード
-        aztool.i2c_option_data = {};
-        aztool.i2c_load_index = 0;
-        // 設定JSONの読み込みが終わったらi2cデータのロード
-        aztool.load_i2c_data();
-    });
-};
-
-// i2cデータのロード
-aztool.load_i2c_data = function() {
-    // i2cオプションのロード終わったらメニューを表示
-    if (!aztool.setting_json_data.i2c_option || // i2cの設定が無い
-        aztool.i2c_load_index >= aztool.setting_json_data.i2c_option.length) { // 全てロード完了
-            // 本体に保存されているKLEのデータをロード
-            aztool.load_kle_data();
-            return;
-    }
-    // i2cのデータをロード
-    let o = aztool.setting_json_data.i2c_option[ aztool.i2c_load_index ];
-    let t;
-    if (o.type == 1 || o.type == 2) {
-        // IOエキスパンダ || I2Cロータリーエンコーダ
-        // kleのJSONロード
-        console.log("get_file: /o" + o.id);
-        webhid.get_file("/o" + o.id, function(stat, load_data) {
-            if (stat != 0) {
-                // 読み込み失敗 空のデータを入れる
-                aztool.i2c_option_data[ "o" + o.id ] = "[]";
-            } else {
-                // kleJSON取得
-                aztool.i2c_option_data[ "o" + o.id ] = webhid.arr2str(load_data);
-            }
-            // 次のオプションを取得
-            aztool.i2c_load_index++;
-            aztool.load_i2c_data();
-        });
-        return;
-    } else if (o.type == 3) {
-        // PIM447 トラックボール
-        aztool.i2c_option_data[ "o" + o.id ] = "[\"\"]";
-    } else if (o.type == 4) {
-        // PIM447 ロータリー
-        aztool.i2c_option_data[ "o" + o.id ] = "[{x:1},\"\"],[\"\",\"\",\"\"],[{x:1},\"\"]";
-    }
-    // 不明なオプションタイプ
-    aztool.i2c_load_index++;
-    aztool.load_i2c_data();
-};
-
-// 本体に保存されているKLEのデータをロード
-aztool.load_kle_data = function() {
-    console.log("load_kle_data: file " + aztool.kle_json_path);
-    webhid.get_file(aztool.kle_json_path, function(stat, load_data) {
-        console.log("load_kle_data: status " + stat);
-        // 読み込めていればファイルの内容を保持
-        aztool.main_kle_data = "";
-        if (stat == 0) { // 0 読み込み成功 1 何かしらのエラー 2 ファイルが無い
-            aztool.main_kle_data = webhid.arr2str(load_data);
-        }
-        // ディスク情報の取得へ
-        aztool.load_disk_info();
-    });
-};
-
-// ディスク情報の取得
-aztool.load_disk_info = function() {
-    // ディスクの空き容量取得
-    webhid.get_disk_info(function(disk_data) {
-        aztool.disk_data = disk_data;
-        // 読み込みが終わったらAZTOOLのメニューページを表示
-        aztool.view_top_menu();
-    });
 };
 
 // データのロードページ表示
@@ -194,7 +107,7 @@ aztool.view_connect_top = function(msg) {
 aztool.view_top_menu = function() {
     let k = aztool.setting_json_data;
     let h = "";
-    let x, t;
+    let x, t, tm;
     let kname = (k.keyboard_name)? k.keyboard_name: k.keyboard_type;
     h += "<center>";
     h += "<h2 style='font-size: 50px; margin: 40px 0;'>⌨ AZTOOL</h2>";
@@ -213,6 +126,7 @@ aztool.view_top_menu = function() {
     }
     h += "<tr><th>ディスク使用量</th><td> " + aztool.disk_data.used.toLocaleString() + " / " + aztool.disk_data.total.toLocaleString() + " </td></tr>";
     t = " style='font-size: 40px; margin: 0 0 16px 0; display: block; height: 70px; line-height: 70px;'";
+    tm = " style='font-size: 40px; margin: 0 0 16px 0; display: block; height: 50px; line-height: 70px;'";
     h += "</table>";
     h += "</div>";
     h += "<div style='width: 900px;'>";
@@ -222,6 +136,7 @@ aztool.view_top_menu = function() {
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_wifi_top();'><font "+t+">📶</font>Wifi</div>";
     h += "<div class='topmenu_btn azcore' onClick='javascript:aztool.power_saving_setting_open();'><font "+t+">🔋</font>省電力</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.param_setting_open();'><font "+t+">🎛️</font>パラメータ</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.addopt_start(\"main_box\", 100);'><font "+tm+">🛠️</font>カスタム<br>レイアウト</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font "+t+">📝</font>設定JSON</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.file_export_all();'><font "+t+">📤</font>エクスポート</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.file_import_modal_open();'><font "+t+">📥</font>インポート</div>";
@@ -278,21 +193,6 @@ aztool.setting_json_save = function(cb_func) {
         aztool.setting_json_path, // 保存先
         save_data, // 保存データ
         cb_func);
-};
-
-// オプションのステップ信仰の表示を更新する
-aztool.update_step_box = function(step_num) {
-    let i, c;
-    aztool.step_index = step_num;
-    for (i=1; i<=aztool.step_max; i++) {
-        c = "option_step";
-        if (step_num == i) {
-            c += " step_selected";
-        } else if (step_num > i) {
-            c += " step_ended";
-        }
-        $("#stepbox_" + i).attr("class", c);
-    }
 };
 
 // 設定を保存して再起動

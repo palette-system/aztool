@@ -82,11 +82,11 @@ var $serial = (typeof(exports) !== 'undefined') ? exports : {};
 			return '{'+res.join(',')+'}';
 		}
 		if(typeof obj === 'number') {
-			return Math.round10(obj,-4);
+			return Math.round(obj,-4);
 		}
-		return angular.toJson(obj);
+		return JSON.stringify(obj);
 	};
-	$serial.fromJsonL = function(json) { return jsonl.parse(json); };
+	$serial.fromJsonL = function(json) { return JSON.parse(json); };
 
 	// function to sort the key array
 	$serial.sortKeys = function(keys) {
@@ -122,7 +122,7 @@ var $serial = (typeof(exports) !== 'undefined') ? exports : {};
 		// remove impossible flag combinations
 		for(var i = 0; i < key.labels.length; ++i) {
 			if(key.labels[i]) {
-				align.remove.apply(align, disallowedAlignmentForLabels[i]);
+				align = align.filter(function(v) { return ! disallowedAlignmentForLabels[i].includes(v); });
 			}
 		}
 

@@ -85,6 +85,9 @@ webhid.command_id = {
     "none": 0x00 // 空送信
 };
 
+// 入力読み込み用
+webhid.read_bit = [0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01];
+
 // 初期化
 webhid.init = function(opt) {
     // オプションを受け取る
@@ -321,7 +324,7 @@ webhid.handle_input_report = function(e) {
     } else if (cmd_type == webhid.command_id.set_aztool_mode) {
         // aztool モードのフラグ設定
         // コールバックを実行
-        webhid.set_eztool_mode_cb();
+        webhid.set_aztool_mode_cb();
 
     }
     
@@ -737,6 +740,25 @@ webhid.read_key = function(cb_func) {
     });
 };
 
+webhid.read_key_parce = function(read_data) {
+    let i, j, r;
+    let key_len = read_data[1];
+    // キー入力を配列にして取得
+    let res = [];
+    r = 2;
+    for (i=0; i<key_len; i++) {
+        j = i % 8;
+        if (read_data[r] & webhid.read_bit[j]) {
+            res.push(1);
+        } else {
+            res.push(0);
+        }
+        if (j == 7) r++;
+        if (r > 31) break;
+    }
+    return {"len": key_len, "data": res};
+};
+
 // I2Cロータリーエンコーダの入力取得
 webhid.get_rotary_key = function(rotary_addr, cb_func) {
     if (!cb_func) cb_func = function() {};
@@ -798,9 +820,9 @@ webhid.set_pin_set = function(pin_setting, cb_func) {
 };
 
 // eztoolモードのフラグ設定
-webhid.set_eztool_mode = function(set_flag, cb_func) {
+webhid.set_aztool_mode = function(set_flag, cb_func) {
     if (!cb_func) cb_func = function() {};
-    webhid.set_eztool_mode_cb = cb_func;
+    webhid.set_aztool_mode_cb = cb_func;
     let cmd = [webhid.command_id.set_aztool_mode, set_flag];
     // コマンド送信
     webhid.send_command(cmd).then(() => {
