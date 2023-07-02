@@ -125,9 +125,9 @@ aztool.keytest_read_loop = function() {
         for (i in aztool.key_layout_data) {
             oid = aztool.key_layout_data[i].option.id;
             for (j in aztool.key_layout_data[i].kle.keys) {
-                p = (oid == 0)? aztool.key_layout_data[i].key_ids[j]: j; // 本体ならば本体のラベルにある番号を取得、それ以外のオプションは純粋にキーの連番を取得
-                s = "#sw_" + oid + "_" + p;
-                if (res[r]) {
+                p = (oid == 0)? aztool.key_layout_data[i].key_ids[j]: r; // 本体ならば本体のラベルにある番号を取得、それ以外のオプションは純粋にキーの連番を取得
+                s = "#sw_" + oid + "_" + j;
+                if (res[p]) {
                     $(s).css({"background-color": "red"});
                 } else {
                     $(s).css({"background-color": "white"});
