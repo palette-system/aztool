@@ -46,7 +46,8 @@ aztool.addcustam_layout_view = function() {
 aztool.addcustam_ioset_view = function() {
     let st_th = "width: 150px;text-align: right; padding: 15px 20px;";
     let h = `
-        <b>■ IOピンの設定</b><br>
+        <div style="color: #000; font-size: 18px;font-weight: bold;">■ IOピンの設定</div>
+        <br><br>
         <table>
         <tr>
             <td style="`+st_th+`">ダイレクトピン</td>
@@ -72,10 +73,18 @@ aztool.addcustam_ioset_view = function() {
             </td>
         </tr>
         </table>
-        <div style="color: #888; font-size: 12px;">
-        ※ ピン番号をカンマ区切りで入力して下さい
+        <br><br>
+        <div id="pin_error" style="color: #ff5656; font-size: 15px;"></div>
+        <br><br>
+        <div style="color: #888; font-size: 14px;">
+        ※ ピン番号をカンマ区切りで入力して下さい。<br>
+        ※ EN、SD0、SD1、SD2、SD3、CMD、CLK はIOピンとして使用できません。<br>
+        ※ 0、1(TX)、3(RX) はIOピンですがファームウェア書込み時に使用するので非推薦です。<br>
+        ※ 34、35、36(VP)、39(VN)は入力専用のためダイレクトピン、rowピンでのみ使用できます。<br>　　(内部プルアップが無いので使用時はプルアップして下さい)<br>
+        ※ タッチは 0、2、4、12、13、4、15、27、32、33 のみ指定できます。<br>
+        ※ ESP32-WROVER で 16、17 は使用できないので注意です。<br>
         </div>
-        <div id="pin_error" style="color: #ff5656; font-size: 13px;"></div>
+        <br><br>
         <div style="text-align: right; width: 800px;">
         <a class="cancel-button" onClick="javascript:aztool.addcustam_layout_view();">戻る</a>　
         <a class="exec-button" onClick="javascript:aztool.addcustam_ioset_set();">次へ</a>
@@ -88,17 +97,77 @@ aztool.addcustam_ioset_view = function() {
     $("#pin_row").val(d.row.join(", "));
     $("#pin_sda").val(aztool.option_add.i2c_set[0]);
     $("#pin_scl").val(aztool.option_add.i2c_set[1]);
+    $("#kle_view_box").hide();
+    $("#kle_view_box_info").hide();
     aztool.update_step_box(2);
+};
+
+// 入力されたピン内容をチェック
+aztool.addcustam_ioset_check = function(check_data) {
+    // 同じピンが複数個所で使用されていないかチェック
+    let ks = ["direct", "touch", "col", "row"];
+    let ts = [0, 2, 4, 12, 13, 14, 15, 27, 32, 33]; // タッチで使用できるピン
+    let as = [0, 1, 2, 3, 4, 5, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33, 34, 35, 36, 39]; // 使用できるピン全て
+    let rs = [34, 35, 36, 39]; // 読み込み専用ピン
+    let c, i, j, x;
+    // 指定したすべての番号の配列を作成
+    c = [];
+    for (i in ks) {
+        c = c.concat(check_data.keyboard_pin[ks[i]]);
+    }
+    c.push(check_data.i2c_set[0]);
+    c.push(check_data.i2c_set[1]);
+    // 入力されたピンを全てチェック
+    for (i in c) {
+        x = c[i];
+        // マイナス指定のピンは無視
+        if (x < 0) continue;
+        // 同じ番号が使われていないかチェック
+        if (c.indexOf(x) != i) {
+            return "ピン "+x+" が複数個所で指定されています";
+        }
+        // 使用できないピンが入っていないかチェック
+        if (as.indexOf(x) < 0) {
+            return "ピン "+x+" は使用できません";
+        }
+    }
+    // タッチピンチェック
+    for (i in check_data.keyboard_pin.touch) {
+        x = check_data.keyboard_pin.touch[i];
+        if (ts.indexOf(x) < 0) {
+            return "ピン " + x + " はタッチピンに指定できません";
+        }
+    }
+    // 入力専用ピンが row 以外に使用されていないかチェック
+    for (i in ks) {
+        if (ks[i] == "direct" || ks[i] == "row") continue; // direct, row は無視
+        x = check_data.keyboard_pin[ks[i]];
+        for (j in x) {
+            if (rs.indexOf(x[j]) >= 0) {
+                return "ピン " + x[j] + " はダイレクトピンかROWピンでのみ使用できます";
+            }
+        }
+    }
+    // col か row かどちらかしか入力してない
+    if (check_data.keyboard_pin.row.length && !check_data.keyboard_pin.col.length) return "col ピンが指定されていません";
+    if (!check_data.keyboard_pin.row.length && check_data.keyboard_pin.col.length) return "row ピンが指定されていません";
+    // 全てのチェック完了したらエラーなし
+    return "";
 };
 
 // 入力されたIOをチェックして変数へ格納
 aztool.addcustam_ioset_set = function() {
-    let c, i, j, m, s, v;
+    let c, i, j, m, n, s, v, x;
     let check_data = {"keyboard_pin": {"direct":[], "touch":[], "col":[], "row":[]}, "i2c_set": [-1, -1, -1]};
     let ks = ["direct", "touch", "col", "row"];
     // 入力データを配列にして取得
     for (i in ks) {
-        s = $("#pin_" + ks[i]).val().split(",");
+        n = $("#pin_" + ks[i]).val();
+        if (!aztool.is_pin_num(n)) { // 半角数字とカンマ以外の文字が入って無いかチェック
+            $("#pin_error").html("半角数字をカンマ区切りで入力して下さい [ " + ks[i] + " ]");
+            return;
+        }
+        s = n.split(",");
         v = [];
         for (j in s) {
             c = s[j].trim();
@@ -106,13 +175,19 @@ aztool.addcustam_ioset_set = function() {
             m = parseInt(c);
             v.push(m);
         }
-        check_data.keyboard_pin[ks[i]] = v;
+        check_data.keyboard_pin[ks[i]] = aztool.array_uniq(v); // 重複分を削除して保持
     }
-    check_data.i2c_set[0] = parseInt($("#pin_sda").val());
-    check_data.i2c_set[1] = parseInt($("#pin_scl").val());
+    x = $("#pin_sda").val();
+    check_data.i2c_set[0] = (x.length)? parseInt(x): -1;
+    x = $("#pin_scl").val();
+    check_data.i2c_set[1] = (x.length)? parseInt(x): -1;
     console.log(check_data);
     // 入力チェック
-    // $("#pin_error").html();
+    c = aztool.addcustam_ioset_check(check_data);
+    if (c.length) {
+        $("#pin_error").html(c);
+        return;
+    }
     // 編集中の変数へ入力内容を格納
     aztool.option_add.keyboard_pin = check_data.keyboard_pin;
     aztool.option_add.i2c_set[0] = check_data.i2c_set[0];
@@ -150,6 +225,8 @@ aztool.addcustam_iocheck_view = function() {
         　<a class="exec-button" onClick="javascript:aztool.addcustam_keymap_view();">次へ</a>
         </div>`;
     $("#option_setting_form").html(h);
+    $("#kle_view_box").show();
+    $("#kle_view_box_info").show();
     aztool.update_step_box(3);
     setTimeout(function() {
         aztool.read_check_index = 0;

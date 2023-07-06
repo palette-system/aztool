@@ -66,9 +66,20 @@ aztool.clone = function(obj) {
     return JSON.parse(JSON.stringify(obj));
 };
 
+// 配列の中から重複分を削除
+aztool.array_uniq = function(a) {
+    let x = new Set(a); // Setに変換して重複分を削除
+    return Array.from(x);
+};
+
 // 渡された文字列が数字のみかどうか
 aztool.is_num = function(str) {
     return (str.match(/[^0-9]+/))? false: true;
+};
+
+// 渡された文字列が数字とカンマのみか(ピン入力の内容チェック用)
+aztool.is_pin_num = function(str) {
+    return (str.match(/[^0-9, -]+/))? false: true;
 };
 
 // 渡された半角文字のみかどうか

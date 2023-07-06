@@ -112,7 +112,7 @@ aztool.addopt_init_html = function() {
 
     </td><td valign="top" style="padding: 20px;">
     <div id='kle_view_box' style="border: solid 1px #888; width: 800px;height: 400px;overflow: hidden; background-color: #888;"></div>
-    <div style="text-align: right; width: 800px;">
+    <div id='kle_view_box_info' style="text-align: right; width: 800px;">
     <b style="font-size: 15px;">－</b>
     <input id="coef_input" type="range" name="speed" min="20" max="60" onChange="javascript:aztool.kle_view(aztool.option_add.kle, '#kle_view_box');">
     <b style="font-size: 15px;">＋</b>
