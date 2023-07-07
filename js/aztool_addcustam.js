@@ -34,6 +34,8 @@ aztool.addcustam_layout_view = function() {
         <div id="can_btn" style="display: inline-block"></div>
         <div id="kle_json_btn" style="display: none;">　<a class="exec-button" onClick="javascript:aztool.addcustam_ioset_view();">次へ</a></div>
         </div>`;
+    $("#kle_view_box").show();
+    $("#kle_view_box_info").show();
     $("#option_setting_form").html(h);
     $("#kle_json_txt").html(aztool.option_add.kle);
     // キャンセルするとトップメニューに戻る
