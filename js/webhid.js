@@ -82,6 +82,9 @@ webhid.command_id = {
     "get_rotary_key": 0x3F, // I2Cロータリーエンコーダの入力状態取得
     "get_pim_key": 0x40, // PIM447から入力情報を取得する
     "set_pin_set": 0x41, // 本体の direct, touch, row, col ピン設定をする
+    "i2c_read": 0x42, // i2c からデータ読み込み
+    "i2c_write": 0x43, // i2c へデータ書込み
+    "azex_key_read": 0x44, // AZエクスパンダのキー入力情報を取得
     "none": 0x00 // 空送信
 };
 
@@ -191,7 +194,7 @@ webhid.handle_input_report = function(e) {
     console.log(get_data);
     let cmd_type = get_data[0];
     let cmd;
-    let h, p, u, s;
+    let i, h, p, r, u, s;
     if (cmd_type == webhid.command_id.file_load_start) {
         // ファイル読み込み開始(ファイル有無と容量が帰って来る)
         if (!get_data[1]) { // ファイルが無い
@@ -314,6 +317,18 @@ webhid.handle_input_report = function(e) {
     } else if (cmd_type == webhid.command_id.set_pin_set) {
         // 本体の direct, touch, row, col ピン設定をする
         webhid.set_pin_set_cb(0, get_data);
+
+    } else if (cmd_type == webhid.command_id.i2c_read) {
+        // i2c からデータ読み込み
+        s = get_data[2]; // i2c から読み込んだバイト数
+        r = [];
+        for (i=3; i<(3+s); i++) r.push(get_data[i]); // 読み込んだデータ作成
+        webhid.i2c_read_cb(s, r, get_data);
+
+    } else if (cmd_type == webhid.command_id.i2c_write) {
+        // i2c にデータ書込み
+        s = get_data[2]; // 読み込みステータス(endTransmission の戻り値) 0 = 成功/1=送信バッファ溢れ/2=アドレス送信時にNACKを受信/3=データ送信時にNACKを受信/4=その他エラー
+        webhid.i2c_write_cb(s, get_data);
 
     } else if (cmd_type == webhid.command_id.get_ioxp_key) {
         // IOエキスパンダからキーの入力データを取得
@@ -818,6 +833,30 @@ webhid.set_pin_set = function(pin_setting, cb_func) {
         webhid.view_info("set pin set ...");
     });
 };
+
+// I2C からデータ読み込み
+webhid.i2c_read = function(i2c_addr, read_length, cb_func) {
+    if (!cb_func) cb_func = function(read_length, read_data, raw_data) {};
+    webhid.i2c_read_cb = cb_func;
+    // コマンド送信
+    let cmd = [webhid.command_id.i2c_read, i2c_addr, read_length];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("i2c read ...");
+    });
+};
+
+// I2C にデータ書込み
+webhid.i2c_write = function(i2c_addr, write_data, cb_func) {
+    if (!cb_func) cb_func = function(stat, raw_data) {};
+    webhid.i2c_write_cb = cb_func;
+    // コマンド送信
+    let cmd = [webhid.command_id.i2c_write, i2c_addr, write_data.length];
+    cmd = cmd.concat(write_data); // コマンドの後ろに書込みデータをくっつける
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("i2c write ...");
+    });
+};
+
 
 // eztoolモードのフラグ設定
 webhid.set_aztool_mode = function(set_flag, cb_func) {
