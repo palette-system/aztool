@@ -147,11 +147,11 @@ aztool.view_key_layout = function() {
     let cnf = 44;
     let pos = (aztool.setting_json_data.layout && aztool.setting_json_data.layout.position)? aztool.setting_json_data.layout.position: null;
     // キー配列を表示する枠を表示
-    h += "<div id='odiv_0' style='position: relative; top: 250px;'></div>"; // 本体のキー配列用
+    h += "<div id='odiv_0' style='position: relative; top: 250px; display: inline-block;'></div>"; // 本体のキー配列用
     for (i in aztool.setting_json_data.i2c_option) {
         o = aztool.setting_json_data.i2c_option[i];
         if (!aztool.on_i2coption(o)) continue; // 有効でないオプションは無視
-        h += "<div id='odiv_"+o.id+"' style='position: relative;'></div>"; // オプションのキー配列用
+        h += "<div id='odiv_"+o.id+"' style='position: relative; display: inline-block;'></div>"; // オプションのキー配列用
     }
     h += "<table style='width: 970px;'><tr><td align='left' valign='top'>";
     h += "<div id='layer_title_info' class='layer_title'>レイヤー名</div>";
@@ -188,6 +188,8 @@ aztool.view_key_layout = function() {
         o = aztool.key_layout_data[i].option;
         $("#odiv_"+o.id).draggable({
             "distance": 10, // ドラッグ開始までの移動距離
+            "containment": "#key_layout_box", // 移動範囲指定用の親要素
+            "scroll": false, // 見えない所へは持って行けないようにする
             "stop": function(event, ui) { // ドラッグ終了
                 // ドラッグが終わった時間を記録(クリックイベントとかぶらないよう時間で判定するため)
                 aztool.setmap_dragg_last_time = aztool.millis();

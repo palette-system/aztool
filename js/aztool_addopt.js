@@ -828,7 +828,7 @@ aztool.kle_view = function(json_text, view_id, auto_resize, set_coef, set_prefix
       }
       // HTMLを生成
       aztool.switch_length = 0;
-      str += '<div style="position: relative;">\n';
+      str += '<div style="position: relative;display: inline-block;">\n';
       aztool.serial_data.keys.forEach(key => {
         let wrapperStyle = ''
         wrapperStyle += 'user-select: none; position: absolute;'
