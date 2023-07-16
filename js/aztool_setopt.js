@@ -6,6 +6,15 @@ if (!window.aztool) aztool = {};
 // 設定を変更したか
 aztool.setopt_changed = false;
 
+aztool.get_opt_name = function(opt_type) {
+    let r = "";
+    if (opt_type == 1) r = "IOエキスパンダ";
+    if (opt_type == 2) r = "ロータリエンコーダ";
+    if (opt_type == 3) r = "PIM447(TB)";
+    if (opt_type == 4) r = "PIM447(SC)";
+    return r;
+};
+
 // オプション設定メインページ表示
 aztool.view_setopt = function() {
     let h = `
@@ -49,12 +58,7 @@ aztool.setopt_optlist_view = function() {
         h += " onClick='javascript:aztool.setopt_opt_enable(\""+o.id+"\", "+n+");' >";
         h += "<table width='400'>";
         h += "<tr><td rowspan='2' width='200'><div id='ov_"+o.id+"' style='width: 170px; height: 200px; border: solid 1px #888'></div></td><td valign='top'>";
-        h += "<b>";
-        if (o.type == 1) h += "IOエキスパンダ";
-        if (o.type == 2) h += "ロータリエンコーダ";
-        if (o.type == 3) h += "PIM447(TB)";
-        if (o.type == 4) h += "PIM447(SC)";
-        h += "</b><br>"
+        h += "<b>" + aztool.get_opt_name(o.type) + "</b><br>";
         h += "ID: " + o.id + "<br>";
         h += (o.enable)? "設定：有効<br>": "設定：無効<br>";
         h += "アドレス： ";

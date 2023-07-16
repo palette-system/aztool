@@ -173,6 +173,7 @@ aztool.view_key_layout = function() {
             "option": {"id": 0, "map_start": 0},
             "kle": aztool.kle_view(kle, "#odiv_0", false, cnf, "sw_0_")
         });
+        $("#odiv_0_title").html("本体");
     }
     // オプションのキー配列を表示
     for (i in aztool.setting_json_data.i2c_option) {
@@ -182,6 +183,7 @@ aztool.view_key_layout = function() {
             "option": aztool.setting_json_data.i2c_option[i],
             "kle": aztool.kle_view(aztool.i2c_option_data["o"+o.id], "#odiv_"+o.id, false, cnf, "sw_" + o.id + "_")
         });
+        $("#odiv_"+o.id+"_title").html(aztool.get_opt_name(o.type) + " ["+o.id+"]");
     }
     // それぞれのオプションをドラッグで移動できるようにする
     for (i in aztool.key_layout_data) {

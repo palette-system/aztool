@@ -829,6 +829,11 @@ aztool.kle_view = function(json_text, view_id, auto_resize, set_coef, set_prefix
       // HTMLを生成
       aztool.switch_length = 0;
       str += '<div style="position: relative;display: inline-block;">\n';
+      let x_min = 999999;
+      let x_max = -999999;
+      let y_min = 999999;
+      let y_max = -999999;
+      // まず max,min を計算
       aztool.serial_data.keys.forEach(key => {
         let wrapperStyle = ''
         wrapperStyle += 'user-select: none; position: absolute;'
@@ -836,14 +841,22 @@ aztool.kle_view = function(json_text, view_id, auto_resize, set_coef, set_prefix
         wrapperStyle += `transform-origin: ${((key.rotation_x * coef) + sx)}px ${((key.rotation_y * coef) + sy)}px;`
     
         let innerStyle = '';
+        let leftpx = ((key.x * coef) + sx);
+        let toppx = ((key.y * coef) + sy);
+        let widthpx = key.width * coef - 4;
+        let heightpx = key.height * coef - 4;
         innerStyle += 'user-select: none; border-style: solid; border-radius: 3px;';
         innerStyle += 'border: solid 1px #444;';
         innerStyle += 'position: absolute;';
         innerStyle += 'background-color: '+aztool.key_color+';';
-        innerStyle += `left: ${((key.x * coef) + sx)}px;`
-        innerStyle += `top: ${((key.y * coef) + sy)}px;`
-        innerStyle += `width: ${key.width * coef - 4}px;`
-        innerStyle += `height: ${key.height * coef - 4}px;`
+        innerStyle += "left: "+leftpx+"px;";
+        innerStyle += "top: "+toppx+"px;";
+        innerStyle += "width: "+widthpx+"px;";
+        innerStyle += "height: "+heightpx+"px;";
+        if (leftpx < x_min) x_min = leftpx;
+        if ((leftpx + widthpx) > x_max) x_max = leftpx + widthpx;
+        if (toppx < y_min) y_min = toppx;
+        if ((toppx + heightpx) > y_max) y_max = toppx + heightpx;
   
         const label = key.labels[0] || '';
   
@@ -853,6 +866,10 @@ aztool.kle_view = function(json_text, view_id, auto_resize, set_coef, set_prefix
         str += "</div>\n";
         aztool.switch_length++;
       });
+      // 配列の上に表示するタイトル
+      let titlestyle = "user-select: none; position: absolute; white-space: nowrap; font-size: 15px; color: #888;";
+      titlestyle += "top: "+(y_min - 20)+"px; left: "+x_min+"px; width: "+(x_max - x_min)+"px;";
+      str +="<div id='"+view_id.slice(1)+"_title' style='"+titlestyle+"'></div>";
       str += "</div>\n";
   
       $(view_id).html(str);
