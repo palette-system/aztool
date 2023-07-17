@@ -1,6 +1,5 @@
 // カスタムレイアウト
 
-
 if (!window.aztool) aztool = {};
 
 // カスタムレイアウト

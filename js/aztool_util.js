@@ -4,7 +4,7 @@ if (!window.aztool) aztool = {};
 
 
 // 0詰め
-pinstp.zero = function(n, len){
+aztool.zero = function(n, len){
     return n.toString().padStart(len, "0");
 };
 

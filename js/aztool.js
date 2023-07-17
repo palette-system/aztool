@@ -29,8 +29,10 @@ aztool.init = function() {
     // webhidオブジェクト初期化
     webhid.disconnect_func = aztool.hid_disconn_func; // 接続が切れた時のイベント
     webhid.init({"info_div": "console_div"});
-    // ピン設定の初期化
+    // IOエキスパンダ ピン設定モーダルの初期化
     pinstp.init();
+    // I2Cアドレス設定モーダルの初期化
+    aztool.stpaddr.init();
     // 共通ライブラリの初期化
     aztool.util_init();
     // キー設定ページの初期化

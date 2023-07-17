@@ -84,7 +84,6 @@ webhid.command_id = {
     "set_pin_set": 0x41, // 本体の direct, touch, row, col ピン設定をする
     "i2c_read": 0x42, // i2c からデータ読み込み
     "i2c_write": 0x43, // i2c へデータ書込み
-    "azex_key_read": 0x44, // AZエクスパンダのキー入力情報を取得
     "none": 0x00 // 空送信
 };
 

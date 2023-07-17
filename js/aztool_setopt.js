@@ -10,8 +10,9 @@ aztool.get_opt_name = function(opt_type) {
     let r = "";
     if (opt_type == 1) r = "IOエキスパンダ";
     if (opt_type == 2) r = "ロータリエンコーダ";
-    if (opt_type == 3) r = "PIM447(TB)";
-    if (opt_type == 4) r = "PIM447(SC)";
+    if (opt_type == 3) r = "AZ1UBALL(TB)";
+    if (opt_type == 4) r = "AZ1UBALL(SC)";
+    if (opt_type == 5) r = "AZエキスパンダ";
     return r;
 };
 
@@ -22,9 +23,10 @@ aztool.view_setopt = function() {
     <table style="min-height: 700px;">
     <tr><td class="leftmenu-box">
     <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 1);'>IOエキスパンダ追加</a><br>
+    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 5);'>AZエキスパンダ追加</a><br>
     <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 2);'>ロータリエンコーダ追加</a><br>
-    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>PIM447(トラックボール) 追加</a><br>
-    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 4);'>PIM447(スクロール) 追加</a><br>
+    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>AZ1UBALL(トラックボール) 追加</a><br>
+    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 4);'>AZ1UBALL(スクロール) 追加</a><br>
     <!-- <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\");'>エクスポート</a><br> -->
     <div id="back_btn_box"></div>
     </td><td valign="top" style="padding: 20px;">
@@ -77,9 +79,12 @@ aztool.setopt_optlist_view = function() {
         } else if (o.type == 3 || o.type == 4) {
             // 1U トラックボール PIM447
             h += aztool.to_hex(o.addr);
+        } else if (o.type == 5) {
+            // AZエキスパンダ
+            h += aztool.to_hex(o.setting[0]);
         }
         h += "<br>";
-        if (o.type == 1 || o.type == 2) {
+        if (o.type == 1 || o.type == 2 || o.type == 5) {
             h += "キーID: " + o.map_start;
             if (o.map.length > 1) h += " - " + (o.map_start + o.map.length - 1);
         } else if (o.type == 3) {
@@ -100,8 +105,9 @@ aztool.setopt_optlist_view = function() {
     // オプションが何もなければオプション追加ボタン表示
     if (!h) {
         h += "<div class='conn_bbutton' style='width: 500px; height: 150px; line-height: 150px; margin: 20px 100px;' onClick='javascript:aztool.addopt_start(\"main_box\", 1);'>IOエキスパンダ追加</div>";
+        h += "<div class='conn_bbutton' style='width: 500px; height: 150px; line-height: 150px; margin: 20px 100px;' onClick='javascript:aztool.addopt_start(\"main_box\", 5);'>AZエキスパンダ追加</div>";
         h += "<div class='conn_bbutton' style='width: 500px; height: 150px; line-height: 150px; margin: 20px 100px;' onClick='javascript:aztool.addopt_start(\"main_box\", 2);'>ロータリエンコーダ追加</div>";
-        h += "<div class='conn_bbutton' style='width: 500px; height: 150px; line-height: 150px; margin: 20px 100px;' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>PIM447 トラックボール追加</div>";
+        h += "<div class='conn_bbutton' style='width: 500px; height: 150px; line-height: 150px; margin: 20px 100px;' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>AZ1UBALL トラックボール追加</div>";
     }
     $("#opt_list").html(h);
     for (i in aztool.setting_json_data.i2c_option) {
