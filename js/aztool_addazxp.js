@@ -2,7 +2,7 @@
 
 if (!window.aztool) aztool = {};
 
-aztool.azxp_pin_set_list = ["未使用", "ダイレクト", "COL", "ROW", "ロータリーA", "ロータリーB", "ロータリーC", "ロータリーD", "ロータリーE", "ロータリーF", "ロータリーG", "ロータリーH"];
+aztool.azxp_pin_set_list = ["未使用", "ダイレクト", "COL", "ROW", "ロータリーA", "ロータリーB", "ロータリーC", "ロータリーD", "ロータリーE", "ロータリーF", "ロータリーG", "ロータリーH", "RGB_LED"];
 
 // AZエキスパンダから設定を読み出す
 aztool.read_azxp_setting = function(addr, cb_func) {
@@ -14,10 +14,10 @@ aztool.read_azxp_setting = function(addr, cb_func) {
             cb_func(1, []);
             return;
         }
-        // コンフィグを取得(18バイト読み込み)
-        webhid.i2c_read(addr, 18, function(len, res) {
+        // コンフィグを取得(19バイト読み込み)
+        webhid.i2c_read(addr, 19, function(len, res) {
             // 読み込んだデータがおかしければエラー
-            if (len != 18 || res.length != 18 || res[0] != addr) {
+            if (len != 19 || res.length != 19 || res[0] != addr) {
                 cb_func(2, []);
                 return;
             }
@@ -107,7 +107,7 @@ aztool.addazxp_start = function() {
         "type": aztool.option_add_type, // オプションのタイプ 1=IOエキスパンダ / 2=I2Cロータリーエンコーダ
         "enable": 1, // 有効かどうか 1=有効
         "kle": "", // KLEのJSONデータ
-        "azxp": [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], // AZエキスパンダの設定
+        "azxp": [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], // AZエキスパンダの設定
         "azxp_info": {}, // キーの数やバイト数
         "map_start": 0, // キー設定の番号いくつからがこのオプションのキー設定か
         "map": [] // キーと読み込んだデータとのマッピング設定
@@ -160,6 +160,12 @@ aztool.addazxp_ioset_view = function() {
             <option value="0">通常マトリックス</option>
             <option value="1">倍マトリックス</option>
             </select>
+        </td>
+        </tr>
+        <tr>
+        <td style="width: 300px;text-align: right; padding: 15px 20px;">接続しているRGB_LEDの数</td>
+        <td>
+            <input id="azxp_led_count" type="text" style="font-size: 22px; width: 120px; text-align: right;" value="0">
         </td>
         </tr>
         </table>
@@ -236,10 +242,12 @@ aztool.addazxp_stpaddr_open = function() {
 // 入力をチェックしてAZエキスパンダの設定を保持
 aztool.addazxp_ioset_set = function() {
     let check_data = [];
+    let led_pin_count = 0;
     let c, i, r;
     // フォームの入力値取得
     check_data.push(aztool.option_add.azxp[0]); // アドレス
     check_data.push(parseInt($("#azxp_scan_type").val())); // スキャンのタイプ
+    check_data.push(parseInt($("#azxp_led_count").val())); // 接続しているLEDの数
     for (i=0; i<16; i++) {
         check_data.push(parseInt($("#azxp_pin_"+i).val())); // 各ピンの設定
     }
@@ -248,11 +256,21 @@ aztool.addazxp_ioset_set = function() {
         $("#pin_error").html("AZエキスパンダのアドレスを設定して下さい");
         return;
     }
+    // 接続しているRGB_LEDの数が未設定
+    if (isNaN(check_data[2])) {
+        $("#pin_error").html("RGB_LED の接続数を入力して下さい");
+        return;
+    }
+    // 接続しているRGB_LEDの数が未設定
+    if (check_data[2] < 0 || check_data[2] > 128) {
+        $("#pin_error").html("RGB_LED の接続数は 0 ～ 128 の間で入力して下さい");
+        return;
+    }
     // row, col どちらかしかない
     c = 0; r = 0;
     for (i=0; i<16; i++) {
-        c += (check_data[i+2] == 2)? 1: 0; // col
-        r += (check_data[i+2] == 3)? 1: 0; // row
+        c += (check_data[i+3] == 2)? 1: 0; // col
+        r += (check_data[i+3] == 3)? 1: 0; // row
     }
     if (c && !r) {
         $("#pin_error").html("ROWピンを設定して下さい");
@@ -266,14 +284,33 @@ aztool.addazxp_ioset_set = function() {
     for (i=4; i<=11; i++) { // ロータリーA ～ ロータリーI ループ
         // ピン0 ～ ピン15 にロータリーnの数を数える
         c = 0;
-        for (j=2; j<18; j++) {
-            c += (check_data[j] == i)? 1: 0;
+        for (j=0; j<16; j++) {
+            c += (check_data[j+3] == i)? 1: 0;
         }
         // 設定数が2ピン以外ならエラー
         if (c != 0 && c != 2) {
             $("#pin_error").html(aztool.azxp_pin_set_list[i]+" は2ピン設定して下さい");
             return;
         }
+    }
+    // LEDピンチェック
+    for (i=0; i<16; i++) {
+        if (check_data[i+3] == 12) led_pin_count++; // LED ピンに指定したピンの数を数える
+    }
+    // 設定数が2ピン以上あればエラー
+    if (led_pin_count > 1) {
+        $("#pin_error").html("RGB_LED ピンは1ピンだけ設定して下さい");
+        return;
+    }
+    // LEDピンが設定されているのにLED接続数が0
+    if (led_pin_count > 0 && check_data[2] == 0) {
+        $("#pin_error").html("「接続しているRGB_LEDの数」を設定して下さい");
+        return;
+    }
+    // LEDピンが設定されていないのにLED接続数がある
+    if (led_pin_count == 0 && check_data[2] > 0) {
+        $("#pin_error").html("RGB_LED の接続ピンが無いのにRGB_LEDの数が入力されています");
+        return;
     }
     // チェックOKならデータを更新
     aztool.option_add.azxp = check_data;
