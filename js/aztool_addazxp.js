@@ -214,7 +214,7 @@ aztool.addazxp_ioset_view = function() {
     for (i=0; i<16; i++) {
         h = "";
         for (j in aztool.azxp_pin_set_list) {
-            c = (d[i+2] == j)? " selected": "";
+            c = (d[i+3] == j)? " selected": "";
             h += "<option value='" + j + "'" + c + ">" + aztool.azxp_pin_set_list[j] + "</option>";
         }
         $("#azxp_pin_"+i).html(h);
