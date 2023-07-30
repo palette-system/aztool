@@ -84,7 +84,7 @@ aztool.addoled_setiing_view = function() {
     <br><br>
     <br><br>
     <div id="addoled_info"></div>
-    <div style="text-align: right; width: 800px;">
+    <div id="addoled_btn_box" style="text-align: right; width: 800px;">
     <a class='cancel-button' onClick='javascript:aztool.option_add_end(aztool.view_setopt);'>キャンセル</a>
     　<a class="exec-button" onClick="javascript:aztool.addoled_setiing_exec();">保存</a>
     </div>
@@ -96,7 +96,8 @@ aztool.addoled_setiing_view = function() {
 
 // 画像ファイルが選択された
 aztool.addoled_image_change = function() {
-    aztool.image_change("img_file", {"width": 128, "height": 32}, "img_canvas", function(img_data, save_data) {
+    let send_size = $("#oled_size").val().split("_");
+    aztool.image_change("img_file", {"width": parseInt(send_size[0]), "height": parseInt(send_size[1])}, "img_canvas", function(img_data, save_data) {
         let html = "";
         aztool.option_add.def_img = img_data;
         aztool.option_add.def_img_save = save_data;
@@ -284,11 +285,13 @@ aztool.addoled_setiing_exec = function() {
     aztool.setting_json_data.i2c_option.push(set_data);
     // 設定JSON保存
     $("#addoled_info").html("保存中...");
+    $("#addoled_btn_box").hide();
     aztool.update_step_box(2);
     aztool.setting_json_save(function(stat) {
         // 保存失敗
         if (stat != 0) {
             $("#addoled_info").html("保存失敗");
+            $("#addoled_btn_box").show();
             return;
         }
         $("#addoled_info").html("再起動中...");
