@@ -151,14 +151,20 @@ aztool.remodal_close = function() {
 };
 
 // メッセージウィンドウを表示
-aztool.alert = function(msg, btn) {
+aztool.alert = function(msg, btn, cb_func) {
+    if (!cb_func) cb_func = function() {};
     if (!btn) btn = "閉じる";
     let h = "";
     h += "<center style='margin: 50px; 100px'>";
     h += "<div style='margin: 50px;'>"+msg+"</div>";
-    h += "<a class='exec-button' onClick='javascript:aztool.remodal_close();'>"+btn+"</a>";
+    h += "<a id='alert_close_btn' class='exec-button'>"+btn+"</a>";
     h += "</center>";
     aztool.remodal_open(h, {"max-width": "", "width": "", "min-height": ""});
+    // クリックイベント
+    $("#alert_close_btn").click(function() {
+        aztool.remodal_close();
+        cb_func();
+    });
 };
 
 // はい、いいえのダイアログ

@@ -856,6 +856,35 @@ webhid.i2c_write = function(i2c_addr, write_data, cb_func) {
     });
 };
 
+// I2C にデータ書込み(複数コマンド)
+webhid.i2c_write_list = function(i2c_addr, write_data_list, cb_func) {
+    if (!cb_func) cb_func = function(stat, raw_data) {};
+    webhid.i2c_write_list_cb = cb_func;
+    webhid.i2c_write_list_addr = i2c_addr;
+    webhid.i2c_write_list_data = write_data_list;
+    webhid.i2c_write_list_func();
+};
+
+// I2C に複数データを書き込む（1回分）
+webhid.i2c_write_list_func = function() {
+    let wdata = webhid.i2c_write_list_data.shift(); // 先頭から1件データ取得
+    if (!wdata) return;
+    webhid.i2c_write(webhid.i2c_write_list_addr, wdata, function(stat, raw_data) {
+        if (stat == 0) {
+            // 送信成功
+            if (webhid.i2c_write_list_data.length) {
+                // まだ送信データがあれば次のデータを送信
+                webhid.i2c_write_list_func();
+            } else {
+                // 全てのデータ送信完了したらコールバック実行
+                webhid.i2c_write_list_cb(0);
+            }
+        } else {
+            // 送信失敗したらコールバック実行して終了
+            webhid.i2c_write_list_cb(1);
+        }
+    });
+};
 
 // eztoolモードのフラグ設定
 webhid.set_aztool_mode = function(set_flag, cb_func) {
@@ -866,5 +895,4 @@ webhid.set_aztool_mode = function(set_flag, cb_func) {
     webhid.send_command(cmd).then(() => {
         webhid.view_info("set eztool mode ...");
     });
-
 };

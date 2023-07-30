@@ -179,6 +179,7 @@ aztool.view_key_layout = function() {
     for (i in aztool.setting_json_data.i2c_option) {
         o = aztool.setting_json_data.i2c_option[i];
         if (!aztool.on_i2coption(o)) continue; // 有効でないオプションは無視
+        if (!aztool.i2c_option_data["o"+o.id]) continue; // KLEが無いオプションは無視
         aztool.key_layout_data.push({
             "option": aztool.setting_json_data.i2c_option[i],
             "kle": aztool.kle_view(aztool.i2c_option_data["o"+o.id], "#odiv_"+o.id, false, cnf, "sw_" + o.id + "_")

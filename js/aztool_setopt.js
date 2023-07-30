@@ -13,6 +13,7 @@ aztool.get_opt_name = function(opt_type) {
     if (opt_type == 3) r = "AZ1UBALL(TB)";
     if (opt_type == 4) r = "AZ1UBALL(SC)";
     if (opt_type == 5) r = "AZエキスパンダ";
+    if (opt_type == 6) r = "OLED(メイン)";
     return r;
 };
 
@@ -27,6 +28,7 @@ aztool.view_setopt = function() {
     <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 2);'>ロータリエンコーダ追加</a><br>
     <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>AZ1UBALL(トラックボール) 追加</a><br>
     <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 4);'>AZ1UBALL(スクロール) 追加</a><br>
+    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 6);'>OLED(メイン)追加</a><br>
     <!-- <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\");'>エクスポート</a><br> -->
     <div id="back_btn_box"></div>
     </td><td valign="top" style="padding: 20px;">
@@ -76,8 +78,8 @@ aztool.setopt_optlist_view = function() {
                 if (j > 0) h += " ,";
                 h += aztool.to_hex(o.rotary[j]);
             }
-        } else if (o.type == 3 || o.type == 4) {
-            // 1U トラックボール PIM447
+        } else if (o.type == 3 || o.type == 4 || o.type == 6) {
+            // 1U トラックボール PIM447 / OLED(メイン)
             h += aztool.to_hex(o.addr);
         } else if (o.type == 5) {
             // AZエキスパンダ
@@ -112,6 +114,10 @@ aztool.setopt_optlist_view = function() {
     $("#opt_list").html(h);
     for (i in aztool.setting_json_data.i2c_option) {
         o = aztool.setting_json_data.i2c_option[i];
+        if (!aztool.i2c_option_data["o"+o.id]) { // KLEが無ければグレーにして無視
+            $("#ov_"+o.id).css({"background-color": "#ddd"});
+            continue;
+        }
         aztool.kle_view(aztool.i2c_option_data["o"+o.id], "#ov_"+o.id, false, 20, "sw_" + o.id + "_");
     }
 };
@@ -146,6 +152,7 @@ aztool.setopt_opt_remove = function(option_id) {
                 if (o.id == option_id) { // 削除対象のオプション
                     aztool.setopt_keyset_remove(o); // キー設定を削除
                     aztool.setopt_layout_remove(o.id); // レイアウト情報削除
+                    // if (o.type == 6) OLEDに登録した画像ファイルも削除したい
                     continue; // 削除対象のオプションは新しいリストに追加しない
                 }
                 n.push(o); // 対象外のオプションは新しいリストに追加
@@ -163,6 +170,10 @@ aztool.setopt_opt_remove = function(option_id) {
 aztool.setopt_keyset_remove = function(option_set) {
     let i, k, l, kl, ms, me;
     let remove_list;
+    // map が無いオプションは何もしない
+    if (!option_set.map) {
+        return;
+    }
     // キー入力設定で削除する対象のリストを作成
     ms = option_set.map_start; // キー設定の開始ID
     me = ms + option_set.map.length; // キー設定の終わりのID

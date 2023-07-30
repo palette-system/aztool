@@ -65,6 +65,9 @@ aztool.addopt_start = function(div_id, add_type) {
         } else if (aztool.option_add_type == 5) {
             // AZエキスパンダ
             aztool.addazxp_start();
+        } else if (aztool.option_add_type == 6) {
+            // OLED (メイン)
+            aztool.addoled_start();
         } else if (aztool.option_add_type == 100) {
             // カスタムレイアウト設定
             aztool.addcustam_start();

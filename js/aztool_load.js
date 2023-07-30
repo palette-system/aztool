@@ -41,7 +41,7 @@ aztool.load_i2c_data = function() {
         webhid.get_file("/o" + o.id, function(stat, load_data) {
             if (stat != 0) {
                 // 読み込み失敗 空のデータを入れる
-                aztool.i2c_option_data[ "o" + o.id ] = "[]";
+                aztool.i2c_option_data[ "o" + o.id ] = "";
             } else {
                 // kleJSON取得
                 aztool.i2c_option_data[ "o" + o.id ] = webhid.arr2str(load_data);
@@ -57,6 +57,9 @@ aztool.load_i2c_data = function() {
     } else if (o.type == 4) {
         // PIM447 ロータリー
         aztool.i2c_option_data[ "o" + o.id ] = "[{x:1},\"\"],[\"\",\"\",\"\"],[{x:1},\"\"]";
+    } else if (o.type == 6) { // KLEが無いオプションは空を入れておく
+        // OLED メイン
+        aztool.i2c_option_data[ "o" + o.id ] = "";
     }
     // 不明なオプションタイプ
     aztool.i2c_load_index++;
