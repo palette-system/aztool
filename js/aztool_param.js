@@ -9,6 +9,17 @@ aztool.param_setting_open = function() {
     h += "<div style='text-align: left;'>";
     h += "<h2>パラメータ設定</h2>";
     h += "<div id='param_setting_main_box' style='margin: 0;'>";
+
+    // 基本設定
+    h += "<div style='margin: 0;font-size: 20px;font-weight: bold;'>基本 設定</div>";
+    h += "<table style='display: inline-block; font-size: 16px;'>";
+    h += "<tr><td style='font-size: 18px; text-align: right;'>キーボード名：</td><td>"
+    h += "<input id='general_name' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 400px; text-align: left;'>";
+    h += "</td></tr>";
+    h += "</table>";
+    h += "<br><br>";
+
+    // tap /hold
     h += "<div style='margin: 0;font-size: 20px;font-weight: bold;'>tap / hold 設定</div>";
     h += "<table style='display: inline-block; font-size: 16px;'>";
     h += "<tr><td style='font-size: 18px; text-align: right;'>ホールドタイプ：</td><td>"
@@ -21,6 +32,7 @@ aztool.param_setting_open = function() {
     h += "<input id='hold_time' type='number' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 200px; text-align: center;'>";
     h += "</td></tr>";
     h += "</table>";
+
     h += "</div>";
     h += "<div id='saving_info' style='color: #ff5959;'></div>";
     h += "<div id='addap_btn_box' style='margin: 80px 0 0 0;'>";
@@ -32,7 +44,7 @@ aztool.param_setting_open = function() {
     aztool.param_setting_set(); // 設定をフォームに反映
 };
 
-// 省電力モードの設定をフォームに入れる
+// 設定をフォームに入れる
 aztool.param_setting_set = function() {
     let k;
     let hold_def = {"type": 1, "time": 45};
@@ -42,12 +54,16 @@ aztool.param_setting_set = function() {
     // フォームに値を入れる
     $("#hold_type").val(hold_set.type + "");
     $("#hold_time").val(hold_set.time + "");
+    $("#general_name").val(aztool.setting_json_data.keyboard_name + "");
 };
 
 // 省電力モードの設定モーダルを閉じる
 aztool.param_saving_setting_close = function(save_flag) {
     // 決定が押された場合はフォームの入力内容を設定配列に反映
     if (save_flag) {
+        // 基本設定
+        aztool.setting_json_data.keyboard_name = $("#general_name").val();
+        // tap / hold
         let hold_type = parseInt($("#hold_type").val());
         let hold_time = parseInt($("#hold_time").val());
         if (hold_time < 1 || hold_time > 255) {

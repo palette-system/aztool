@@ -7,7 +7,7 @@ if (!window.aztool) aztool = {};
 aztool.setmap_select_layer = "";
 
 // 設定操作中フラグ
-aztool.setmap_stat = 0; // 0=何もしてない / 1=一括設定中 / 2=1キー設定中 / 3=レイヤー設定
+aztool.setmap_stat = 0; // 0=何もしてない / 1=一括設定中 / 2=1キー設定中 / 3=レイヤー設定 / 4=アクチュエーションポイント設定
 
 // 表示キーの文字language 0=日本語 / 1=英語
 aztool.setmap_language = 0;
@@ -20,7 +20,8 @@ aztool.view_setmap = function() {
     <a class="leftmenu-button" onClick="javascript:aztool.setmap_all_set(0);">一括設定</a><br>
     <a class="leftmenu-button" onClick="javascript:aztool.setmap_layer_set();">レイヤー設定</a><br>
     <a class="leftmenu-button" onClick="javascript:aztool.setmap_layer_copy();">コピーレイヤーを作成</a><br>
-    <a class="leftmenu-button" onClick="javascript:aztool.view_top_menu();">戻る</a><br>
+    <a class="leftmenu-button" onClick="javascript:aztool.actuation_setting();">アクチュエーション</a><br>
+    <a class="leftmenu-button" onClick="javascript:aztool.view_setmap_end();">戻る</a><br>
     </td><td valign="top" style="padding: 20px;">
     <div id='key_layout_box' style='width: 1000px; height: 400px;overflow: hidden; border: solid 1px black; text-align: left;'></div>
     <div id='key_set_list' style='width: 1000px; height: 350px;overflow-x: hidden; overflow-y: scroll; background-color: #e8e8f8; text-align: left;'></div>
@@ -28,6 +29,7 @@ aztool.view_setmap = function() {
     </td></tr></table>
     `;
     $("#main_box").html(h);
+    aztool.setmap_stat = 0;
     // 選択中のレイヤーをデフォルトにする
     aztool.setmap_select_layer = "layer_" + aztool.setting_json_data.default_layer;
     // キーのレイアウト表示
@@ -36,6 +38,12 @@ aztool.view_setmap = function() {
     aztool.setmap_key_string_update();
     // 設定用キーコードリスト表示
     aztool.key_set_list_init();
+};
+
+// キーマップ設定終了
+aztool.view_setmap_end = function() {
+    aztool.setmap_stat = 0;
+    aztool.view_top_menu();
 };
 
 // モーダル用HTML登録
@@ -139,6 +147,19 @@ aztool.on_i2coption = function(option_data) {
     return true;
 };
 
+// キーボタンをクリック
+aztool.key_btn_click = function(div_id) {
+    let key_id = aztool.get_key_id(div_id);
+    if (aztool.setmap_stat == 0) {
+        // キー設定モーダル表示
+        aztool.keyact_open(key_id);
+    } else if (aztool.setmap_stat == 4) {
+        // アクチュエーションポイント設定中
+        aztool.actuation_key_select(div_id, key_id);
+    }
+};
+
+
 // キーレイアウトを表示
 aztool.view_key_layout = function() {
     let h = "";
@@ -220,7 +241,7 @@ aztool.view_key_layout = function() {
                 // クリックされたdivのid取得
                 let t = (e.target.id)? e.target.id: e.currentTarget.id;
                 // クリックしたボタンのキー設定
-                aztool.keyact_open( aztool.get_key_id(t) );
+                aztool.key_btn_click(t);
             });
             // ボタンをドロップボックスにする(コードリストからドラッグしてきたコードを受け取る用)
             $("#sw_"+o.id+"_"+j).droppable({
@@ -396,6 +417,10 @@ aztool.setmap_get_key_string = function(key_data) {
         // マウス移動
         r = "mouse";
  
+    } else if (k.action_type == 10) {
+        // マウス移動
+        r = "analog<br>mouse";
+
     }
     return "<table cellpadding='0' cellspacing='0' style='user-select: none; width: 100%; height: 100%;font-size: 12px;'><tr><td align='center'>" + r + "</td></tr></table>";
 };

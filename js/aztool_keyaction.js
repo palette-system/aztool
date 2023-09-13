@@ -21,6 +21,7 @@ aztool.keyact_init = function() {
             <option value="3">レイヤー切り替え</option>
             <option value="4">WEBフック</option>
             <option value="5">マウス移動</option>
+            <option value="10">マウス移動(アナログ)</option>
             </select>
             </div>
             <div id="key_action_main_box" style="text-align: left; width: 870px; height: 400px; margin: 20px 0;overflow-x: hidden; overflow-y: auto;"></div>
@@ -76,7 +77,7 @@ aztool.keyact_acttype_change = function() {
             };
         }
     
-    } else if (aztool.keyact_edit_key.press.action_type == 5) {
+    } else if (aztool.keyact_edit_key.press.action_type == 5 || aztool.keyact_edit_key.press.action_type == 10) {
         // マウス移動
         if (!aztool.keyact_edit_key.press.move) {
             aztool.keyact_edit_key.press.move = {"x": "0", "y": "0", "wheel": "0", "hWheel": "0", "speed": "0"};
@@ -135,7 +136,7 @@ aztool.keyact_close = function(save_flag) {
                 "keyoutput": parseInt($("#webhook_keyoutput").val())
             };
 
-        } else if (aztool.keyact_edit_key.press.action_type == 5) {
+        } else if (aztool.keyact_edit_key.press.action_type == 5 || aztool.keyact_edit_key.press.action_type == 10) {
             // マウス移動
             aztool.keyact_edit_key.press.move = {
                 "x": $("#keyact_mouse_x").val(),
@@ -144,6 +145,12 @@ aztool.keyact_close = function(save_flag) {
                 "hWheel": $("#keyact_mouse_hWheel").val(),
                 "speed": $("#keyact_mouse_speed").val()
             };
+            // アナログ入力の時だけアクチュエーションポイント、ラピットトリガー指定
+            if (aztool.keyact_edit_key.press.action_type == 10) {
+                aztool.keyact_edit_key.press.act = 40;
+                aztool.keyact_edit_key.press.rap = 20;
+                
+            }
 
         }
         // 編集データを反映
@@ -180,9 +187,9 @@ aztool.keyact_form_view = function() {
         // WEBフック
         aztool.keyact_form_webhook_view();
 
-    } else if (press.action_type == 5) {
+    } else if (press.action_type == 5 || press.action_type == 10) {
         // マウス移動
-        aztool.keyact_form_mouse_view();
+        aztool.keyact_form_mouse_view(press.action_type);
 
     } else {
         // 不明な入力はフォームクリア
@@ -531,20 +538,26 @@ aztool.keyact_form_webheader_get_data = function() {
 };
 
 // マウス移動設定フォーム表示
-aztool.keyact_form_mouse_view = function() {
+aztool.keyact_form_mouse_view = function(act_type) {
     let h = "";
     let press = aztool.keyact_edit_key.press;
+    let xy_min = (act_type == 5)? -100: -10;
+    let xy_max = (act_type == 5)? 100: 10;
+    let wee_min = (act_type == 5)? -10: -10;
+    let wee_max = (act_type == 5)? 10: 10;
     h += "<div class='keyaction_form_title'>移動</div>";
     h += "<div style='margin: 20px 40px;'>";
-    h += "<b>Ｘ：</b><font id='keyact_mouse_x_val'>"+press.move.x+"</font><br><input type='range' id='keyact_mouse_x' min='-100' max='100' style='width: 400px;' value='"+press.move.x+"' onChange='javascript:aztool.keyact_mouse_move(\"x\");'><br><br>"
+    h += "<b>Ｘ：</b><font id='keyact_mouse_x_val'>"+press.move.x+"</font><br><input type='range' id='keyact_mouse_x' min='"+xy_min+"' max='"+xy_max+"' style='width: 400px;' value='"+press.move.x+"' onChange='javascript:aztool.keyact_mouse_move(\"x\");'><br><br>"
     h += "<br>";
-    h += "<b>Ｙ：</b><font id='keyact_mouse_y_val'>"+press.move.y+"</font><br><input type='range' id='keyact_mouse_y' min='-100' max='100' style='width: 400px;' value='"+press.move.y+"' onChange='javascript:aztool.keyact_mouse_move(\"y\");'><br><br>"
+    h += "<b>Ｙ：</b><font id='keyact_mouse_y_val'>"+press.move.y+"</font><br><input type='range' id='keyact_mouse_y' min='"+xy_min+"' max='"+xy_max+"' style='width: 400px;' value='"+press.move.y+"' onChange='javascript:aztool.keyact_mouse_move(\"y\");'><br><br>"
     h += "<br>";
-    h += "<b>縦スクロール：</b><font id='keyact_mouse_wheel_val'>"+press.move.wheel+"</font><br><input type='range' id='keyact_mouse_wheel' min='-10' max='10' style='width: 400px;' value='"+press.move.wheel+"' onChange='javascript:aztool.keyact_mouse_move(\"wheel\");'><br><br>"
+    h += "<b>縦スクロール：</b><font id='keyact_mouse_wheel_val'>"+press.move.wheel+"</font><br><input type='range' id='keyact_mouse_wheel' min='"+wee_min+"' max='"+wee_max+"' style='width: 400px;' value='"+press.move.wheel+"' onChange='javascript:aztool.keyact_mouse_move(\"wheel\");'><br><br>"
     h += "<br>";
-    h += "<b>横スクロール：</b><font id='keyact_mouse_hWheel_val'>"+press.move.hWheel+"</font><br><input type='range' id='keyact_mouse_hWheel' min='-10' max='10' style='width: 400px;' value='"+press.move.hWheel+"' onChange='javascript:aztool.keyact_mouse_move(\"hWheel\");'><br><br>"
+    h += "<b>横スクロール：</b><font id='keyact_mouse_hWheel_val'>"+press.move.hWheel+"</font><br><input type='range' id='keyact_mouse_hWheel' min='"+wee_min+"' max='"+wee_max+"' style='width: 400px;' value='"+press.move.hWheel+"' onChange='javascript:aztool.keyact_mouse_move(\"hWheel\");'><br><br>"
     h += "<br>";
+    if (act_type != 5) h += "<div style='display: none;'>";
     h += "<b>スピード：</b><font id='keyact_mouse_speed_val'>"+press.move.speed+"</font><br><input type='range' id='keyact_mouse_speed' min='0' max='100' style='width: 400px;' value='"+press.move.speed+"' onChange='javascript:aztool.keyact_mouse_move(\"speed\");'>"
+    if (act_type != 5) h += "</div>";
     h += "</div>";
     $("#key_action_main_box").html(h);
 };

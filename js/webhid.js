@@ -84,6 +84,8 @@ webhid.command_id = {
     "set_pin_set": 0x41, // 本体の direct, touch, row, col ピン設定をする
     "i2c_read": 0x42, // i2c からデータ読み込み
     "i2c_write": 0x43, // i2c へデータ書込み
+    "get_analog_switch": 0x44, // スイッチデータ読み込み
+    "set_analog_switch": 0x45, // アナログスイッチの設定をリアルタイム変更
     "none": 0x00 // 空送信
 };
 
@@ -338,7 +340,15 @@ webhid.handle_input_report = function(e) {
     } else if (cmd_type == webhid.command_id.set_aztool_mode) {
         // aztool モードのフラグ設定
         // コールバックを実行
-        webhid.set_aztool_mode_cb();
+        setTimeout(webhid.set_aztool_mode_cb, 100); // 設定が終わった後ちょっと待つ
+
+    } else if (cmd_type == webhid.command_id.get_analog_switch) {
+        // アナログスイッチの状態取得
+        webhid.get_analog_switch_cb(get_data);
+
+    } else if (cmd_type == webhid.command_id.set_analog_switch) {
+        // アナログスイッチの設定変更
+        webhid.set_analog_switch_cb(get_data);
 
     }
     
@@ -794,6 +804,26 @@ webhid.get_pim_key = function(pim_addr, cb_func) {
         webhid.view_info("get pim key ...");
     });
 };
+
+// アナログスイッチの状態を取得
+webhid.get_analog_switch = function(key_num, cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.get_analog_switch_cb = cb_func;
+    let cmd = [webhid.command_id.get_analog_switch, key_num];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("get_analog_switch ...");
+    });
+};
+
+// アナログスイッチの設定をリアルタイム変更
+webhid.set_analog_switch = function(key_num, actuation_type, actuation_point, rapid_trigger, cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.set_analog_switch_cb = cb_func;
+    let cmd = [webhid.command_id.set_analog_switch, key_num, actuation_type, actuation_point, rapid_trigger];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("set_analog_switch ...");
+    });
+}
 
 // 本体の direct, touch, row, col のピン設定をする(変更する)
 webhid.set_pin_set = function(pin_setting, cb_func) {
