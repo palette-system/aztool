@@ -112,10 +112,12 @@ aztool.file_drop_file_zip = function() {
     }
     // ファイルデータを取得
     let f = aztool.file_list.pop();
+    let fp = f.slice(f.indexOf("/"));
     let file_data = aztool.file_unzip.decompress(f);
-    console.log(f);
+    if (fp.slice(0,1) != "/") fp = "/" + fp;
+    console.log("file path : " + fp);
     console.log(file_data);
-    webhid.save_file("/" + f, file_data, function(stat) {
+    webhid.save_file(fp, file_data, function(stat) {
         // 失敗したらスキップして次のファイル
         if (stat != 0) {
             setTimeout(aztool.file_drop_file_zip, 200);
