@@ -147,7 +147,8 @@ aztool.keyact_close = function(save_flag) {
             };
             // アナログ入力の時だけアクチュエーションポイント、ラピットトリガー指定
             if (aztool.keyact_edit_key.press.action_type == 10) {
-                aztool.keyact_edit_key.press.act = 40;
+                aztool.keyact_edit_key.press.act = 0;
+                aztool.keyact_edit_key.press.acp = 30;
                 aztool.keyact_edit_key.press.rap = 20;
                 
             }
