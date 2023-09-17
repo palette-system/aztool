@@ -283,7 +283,15 @@ webhid.handle_input_report = function(e) {
         // 読み込み開始
         webhid.load_start_exec(s, function(stat, res) {
             if (stat == 0) {
-                webhid.file_list_cb_func(stat, JSON.parse(webhid.arr2str(res)));
+                r =  JSON.parse(webhid.arr2str(res));
+                for (i in r.list) {
+                    // ファイル名の最初の文字が/から始まってなかったら/を付ける
+                    // (arduino 1.8 系でコンパイルしたのには / から始まるが 2.0 以降でコンパイルすると / が入らない)
+                    if (r.list[i].name.slice(0, 1) != "/") {
+                        r.list[i].name = "/" + r.list[i].name;
+                    }
+                }
+                webhid.file_list_cb_func(stat, r);
             } else {
                 webhid.file_list_cb_func(stat, res);
             }

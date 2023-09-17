@@ -41,6 +41,7 @@ aztool.file_add_file_zip = function() {
     webhid.get_file(f.name, function(stat, res) {
         // 失敗したら諦めて次のファイル
         if (stat != 0) {
+            console.log("error: get_file status " + stat);
             setTimeout(aztool.file_add_file_zip, 200);
             return;
         }
