@@ -5,6 +5,9 @@ if (!window.aztool) aztool = {};
 // 何番目のキーを選んでいるか
 aztool.keyact_key_list_num = -1;
 
+// キー設定のどのキーに設定するか(press or sub)
+aztool.keyact_seting_key = "press";
+
 // モーダル用のHTML生成
 aztool.keyact_init = function() {
     // モーダル用HTML登録
@@ -13,24 +16,27 @@ aztool.keyact_init = function() {
         <div class="remodal azmodal" data-remodal-id="keyact_modal" 
                 data-remodal-options="hashTracking: false, closeOnOutsideClick: false"
                 style="max-width: 1200px; width: 1200px; min-height: 600px;padding: 50px 180px;">
-            <div style="text-align: left;margin: 0 0 20px 0;">
-            <select id="key_action_type_select" style='width: 300px; padding: 10px; font-size: 20px;' onChange='javascript:aztool.keyact_acttype_change();'>
-            <option value="0">動作無し</option>
-            <option value="1">通常キー入力</option>
-            <option value="2">テキスト入力</option>
-            <option value="3">レイヤー切り替え</option>
-            <option value="4">WEBフック</option>
-            <option value="5">マウス移動</option>
-            <option value="10">マウス移動(アナログ)</option>
-            </select>
+            <div id="keyact_html" style='margin: 0; padding: 0;'><!-- 拡張仕様用 --></div>
+            <div id="keyact_form">
+                <!-- キー設定フォーム -->
+                <div style="text-align: left;margin: 0 0 20px 0;">
+                <select id="key_action_type_select" style='width: 300px; padding: 10px; font-size: 20px;' onChange='javascript:aztool.keyact_acttype_change();'>
+                <option value="0">動作無し</option>
+                <option value="1">通常キー入力</option>
+                <option value="2">テキスト入力</option>
+                <option value="3">レイヤー切り替え</option>
+                <option value="4">WEBフック</option>
+                <option value="5">マウス移動</option>
+                <option value="10">マウス移動(アナログ)</option>
+                </select>
+                </div>
+                <div id="key_action_main_box" style="text-align: left; width: 870px; height: 400px; margin: 20px 0;overflow-x: hidden; overflow-y: auto;"></div>
+                <div style="text-align: right;margin: 0 0 20px 0;">
+                <a id="pin_set_ok" class="exec-button" onClick="javascript:aztool.keyact_close(1);">決定</a>　
+                <a id="pin_set_cancel" class="cancel-button" onClick="javascript:aztool.keyact_close(0);">キャンセル</a>
+                </div>
             </div>
-            <div id="key_action_main_box" style="text-align: left; width: 870px; height: 400px; margin: 20px 0;overflow-x: hidden; overflow-y: auto;"></div>
-            <div style="text-align: right;margin: 0 0 20px 0;">
-            <a id="pin_set_ok" class="exec-button" onClick="javascript:aztool.keyact_close(1);">決定</a>　
-            <a id="pin_set_cancel" class="cancel-button" onClick="javascript:aztool.keyact_close(0);">キャンセル</a>
-        </div>
-
-    </div>`;
+        </div>`;
     $("body").append(html);
     // モーダル登録
     aztool.keyact_mdl = $('[data-remodal-id=keyact_modal]').remodal();
@@ -41,35 +47,35 @@ aztool.keyact_init = function() {
 
 // 動作タイプ変更した時のイベント
 aztool.keyact_acttype_change = function() {
-    let k, s;
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
     // 動作タイプ変更
-    aztool.keyact_edit_key.press.action_type = $("#key_action_type_select").val();
+    press.action_type = $("#key_action_type_select").val();
     // デフォルトのデータを入れる
-    if (aztool.keyact_edit_key.press.action_type == 1) {
+    if (press.action_type == 1) {
         // 通常入力
-        if (!aztool.keyact_edit_key.press.key) {
-            aztool.keyact_edit_key.press.key = [];
+        if (!press.key) {
+            press.key = [];
         }
 
-    } else if (aztool.keyact_edit_key.press.action_type == 2) {
+    } else if (press.action_type == 2) {
         // テキスト入力
-        if (!aztool.keyact_edit_key.press.text) {
-            aztool.keyact_edit_key.press.text = "";
+        if (!press.text) {
+            press.text = "";
         }
 
-    } else if (aztool.keyact_edit_key.press.action_type == 3) {
+    } else if (press.action_type == 3) {
         // レイヤー切り替え
-        if (!aztool.keyact_edit_key.press.layer) {
-            aztool.keyact_edit_key.press.layer = aztool.setting_json_data.default_layer; // デフォルトのれいやー
+        if (!press.layer) {
+            press.layer = aztool.setting_json_data.default_layer; // デフォルトのれいやー
         }
-        if (!aztool.keyact_edit_key.press.layer_type) {
-            aztool.keyact_edit_key.press.layer_type = 0x51;
+        if (!press.layer_type) {
+            press.layer_type = 0x51;
         }
 
-    } else if (aztool.keyact_edit_key.press.action_type == 4) {
+    } else if (press.action_type == 4) {
         // WEBフック
-        if (!aztool.keyact_edit_key.press.webhook) {
-            aztool.keyact_edit_key.press.webhook = {
+        if (!press.webhook) {
+            press.webhook = {
                 "url":"",
                 "header":[],
                 "post":"",
@@ -77,13 +83,13 @@ aztool.keyact_acttype_change = function() {
             };
         }
     
-    } else if (aztool.keyact_edit_key.press.action_type == 5 || aztool.keyact_edit_key.press.action_type == 10) {
+    } else if (press.action_type == 5 || press.action_type == 10) {
         // マウス移動
-        if (!aztool.keyact_edit_key.press.move) {
-            aztool.keyact_edit_key.press.move = {"x": "0", "y": "0", "wheel": "0", "hWheel": "0", "speed": "0"};
+        if (!press.move) {
+            press.move = {"x": "0", "y": "0", "wheel": "0", "hWheel": "0", "speed": "0"};
         }
-        if (!aztool.keyact_edit_key.press.move.wheel) aztool.keyact_edit_key.press.move.wheel = "0";
-        if (!aztool.keyact_edit_key.press.move.hWheel) aztool.keyact_edit_key.press.move.hWheel = "0";
+        if (!press.move.wheel) press.move.wheel = "0";
+        if (!press.move.hWheel) press.move.hWheel = "0";
 
     }
     // 入力フォーム表示
@@ -103,42 +109,76 @@ aztool.keyact_open = function(key_id) {
         aztool.keyact_edit_key = {"press": {"action_type": 0}};
     }
     // 入力フォーム表示
-    aztool.keyact_form_view();
+    if ("act" in aztool.keyact_edit_key.press && aztool.keyact_edit_key.press.act == 2) {
+        // 2段入力の場合
+        if (!("sub" in aztool.keyact_edit_key)) aztool.keyact_edit_key.sub = {"action_type": 0};
+        aztool.keyact_double_form_init(); // 1段目2段目を選ぶフォームを作成
+        $("#keyact_html").show(); // 拡張フォーム
+        $("#keyact_form").hide(); // 通常フォーム
+    } else {
+        // 通常
+        aztool.keyact_seting_key = "press";
+        $("#keyact_html").hide(); // 拡張フォーム
+        $("#keyact_form").show(); // 通常フォーム
+        aztool.keyact_form_view(); // 通常フォームにデータを反映
+    }
     // モーダルを開く
     aztool.keyact_mdl.open();
 };
 
+// 2段入力の1段目、2段目どちらを設定するか確認するフォーム表示
+aztool.keyact_double_form_init = function() {
+    let h = "";
+    h += "<font class='title_1'>2段階入力 どちらの入力設定をしますか</font><br><br><br><br>";
+    h += "<a class='select-button' onClick='javascript:aztool.keyact_double_select(1);'>1段目の設定</a><br><br><br>";
+    h += "<a class='select-button' onClick='javascript:aztool.keyact_double_select(2);'>2段目の設定</a>";
+    $("#keyact_html").html(h);
+};
+
+// 2段階入力のどちらを設定するかクリック
+aztool.keyact_double_select = function(select_no) {
+    if (select_no == 1) {
+        aztool.keyact_seting_key = "sub";
+    } else {
+        aztool.keyact_seting_key = "press";
+    }
+    $("#keyact_html").hide(); // 拡張フォーム
+    $("#keyact_form").show(); // 通常フォーム
+    aztool.keyact_form_view(); // 通常フォームにデータを反映
+};
+
 // キーの動作を設定するモーダルを閉じる
 aztool.keyact_close = function(save_flag) {
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
     let k = aztool.setmap_select_layer; // 選択中のレイヤーのキー名
     let t;
     if (save_flag) { // 変更内容を反映
-        if (aztool.keyact_edit_key.press.action_type == 2) {
+        if (press.action_type == 2) {
             // テキスト入力
             t = $("#key_action_form_text").val();
             if (!aztool.is_han(t)) {
                 alert("英数字で入力してください。");
                 return;
             }
-            aztool.keyact_edit_key.press.text = t;
+            press.text = t;
 
-        } else if (aztool.keyact_edit_key.press.action_type == 3) {
+        } else if (press.action_type == 3) {
             // レイヤー切り替え
-            aztool.keyact_edit_key.press.layer = $("#key_action_form_layer").val();
-            aztool.keyact_edit_key.press.layer_type = $("#key_action_form_layer_type").val();
+            press.layer = $("#key_action_form_layer").val();
+            press.layer_type = $("#key_action_form_layer_type").val();
 
-        } else if (aztool.keyact_edit_key.press.action_type == 4) {
+        } else if (press.action_type == 4) {
             // WEBフック
-            aztool.keyact_edit_key.press.webhook = {
+            press.webhook = {
                 "url": $("#key_action_form_url").val(),
                 "header": aztool.keyact_form_webheader_get_data(),
                 "post": $("#webhook_post").val(),
                 "keyoutput": parseInt($("#webhook_keyoutput").val())
             };
 
-        } else if (aztool.keyact_edit_key.press.action_type == 5 || aztool.keyact_edit_key.press.action_type == 10) {
+        } else if (press.action_type == 5 || press.action_type == 10) {
             // マウス移動
-            aztool.keyact_edit_key.press.move = {
+            press.move = {
                 "x": $("#keyact_mouse_x").val(),
                 "y": $("#keyact_mouse_y").val(),
                 "wheel": $("#keyact_mouse_wheel").val(),
@@ -146,10 +186,10 @@ aztool.keyact_close = function(save_flag) {
                 "speed": $("#keyact_mouse_speed").val()
             };
             // アナログ入力の時だけアクチュエーションポイント、ラピットトリガー指定
-            if (aztool.keyact_edit_key.press.action_type == 10) {
-                aztool.keyact_edit_key.press.act = 0;
-                aztool.keyact_edit_key.press.acp = 30;
-                aztool.keyact_edit_key.press.rap = 20;
+            if (press.action_type == 10) {
+                press.act = 0;
+                press.acp = 30;
+                press.rap = 20;
                 
             }
 
@@ -164,7 +204,7 @@ aztool.keyact_close = function(save_flag) {
 
 // 入力フォームを表示
 aztool.keyact_form_view = function() {
-    let press = aztool.keyact_edit_key.press;
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
     // 入力の種類
     $("#key_action_type_select").val(press.action_type);
     // フォーム作成
@@ -203,7 +243,7 @@ aztool.keyact_form_view = function() {
 aztool.keyact_form_normal_view = function() {
     let h = "";
     let c, d, i, k, s;
-    let press = aztool.keyact_edit_key.press;
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
     // 通常入力
     h += "<div class='keyaction_form_title'>入力するコード</div>";
     k = [];
@@ -317,15 +357,16 @@ aztool.keyact_key_list_open = function(list_num, hid_id) {
     // クリックした時のイベント登録
     for (i in code_list) {
         $("#ka_"+code_list[i]).click(function(e) {
+            let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
             let t = (e.target.id)? e.target.id: e.currentTarget.id; // ka_{hid} が入る
             let s = t.split("_");
-            if (aztool.keyact_edit_key.press.key.length > aztool.keyact_key_list_num) {
+            if (press.key.length > aztool.keyact_key_list_num) {
                 // 既に設定されていたIDの変更
-                aztool.keyact_edit_key.press.key[aztool.keyact_key_list_num] = parseInt(s[1]);
+                press.key[aztool.keyact_key_list_num] = parseInt(s[1]);
             } else {
                 // 設定されていなかった所の変更はリストに追加
-                if (aztool.keyact_edit_key.press.key.length < 5) { // 登録数は5件まで
-                    aztool.keyact_edit_key.press.key.push(parseInt(s[1]));
+                if (press.key.length < 5) { // 登録数は5件まで
+                    press.key.push(parseInt(s[1]));
                 }
             }
             // 選択が終わったら選んでいた番号をリセット
@@ -339,7 +380,8 @@ aztool.keyact_key_list_open = function(list_num, hid_id) {
 // hold設定ボタンの色と文字を更新
 aztool.keyact_key_hold_btn_color_update = function() {
     // ボタンの色を更新
-    let h = aztool.keyact_edit_key.press.hold;
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
+    let h = press.hold;
     let c = (h)? "#e7fbff": "#f7f7f7"; // データが有る/無いの色
     $("#kbh_0").css({"background-color": c});
     // ボタンの表示文字更新
@@ -351,6 +393,7 @@ aztool.keyact_key_hold_btn_color_update = function() {
 aztool.keyact_key_hold_open = function() {
 
     let b, c, h, i, n;
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
     // 既に選んでいる最中で、同じ所をクリックされたら閉じる
     if (aztool.keyact_key_list_num >= 0) {
         if (aztool.keyact_key_list_num == 5) { // 自分が開かれてて自分が押された
@@ -385,7 +428,7 @@ aztool.keyact_key_hold_open = function() {
     h += "<tr><td valign='top' style='padding: 15px 10px;white-space:nowrap;'>Mod</td><td style='padding: 10px 0;'>";
     // b = (c && c == hid_id)? "#d3ebff": "#fff"; // 登録されてるIDは色を付ける
     for (i in mlist) {
-        b = (aztool.keyact_edit_key.press.hold == mlist[i].hold)? "#d3ebff": "#fff"; // 登録されてるIDは色を付ける
+        b = (press.hold == mlist[i].hold)? "#d3ebff": "#fff"; // 登録されてるIDは色を付ける
         h += "<div id='ka_"+mlist[i].hold+"' class='keyaction_stg_btn' style='background-color: "+b+";' onClick='javascript:aztool.keyact_key_hold_code_click("+mlist[i].hold+");'>"+mlist[i].str+"</div>";
     }
     h += "</td></tr>";
@@ -394,7 +437,7 @@ aztool.keyact_key_hold_open = function() {
         n = aztool.setmap_get_layer_name(i); // レイヤー名取得
         if (!n) continue;
         c = 0x40 + i;
-        b = (aztool.keyact_edit_key.press.hold == c)? "#d3ebff": "#fff"; // 選択していれば色を変える
+        b = (press.hold == c)? "#d3ebff": "#fff"; // 選択していれば色を変える
         h += "<div id='ka_"+c+"' class='keyaction_stg_btn' style='background-color: "+b+"; width: 120px;' onClick='javascript:aztool.keyact_key_hold_code_click("+c+");'>"+n+"</div>";
     }
     h += "</td></tr>";
@@ -405,11 +448,12 @@ aztool.keyact_key_hold_open = function() {
 
 // ホールド設定クリック
 aztool.keyact_key_hold_code_click = function(hold_id) {
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
     // ホールドの設定を更新
     if (hold_id) {
-        aztool.keyact_edit_key.press.hold = hold_id;
+        press.hold = hold_id;
     } else {
-        delete aztool.keyact_edit_key.press.hold;
+        delete press.hold;
     }
     // 選んでいた番号をリセット
     aztool.keyact_key_list_num = -1;
@@ -423,7 +467,7 @@ aztool.keyact_key_hold_code_click = function(hold_id) {
 // テキスト入力フォーム
 aztool.keyact_form_text_view = function() {
     let h = "";
-    let press = aztool.keyact_edit_key.press;
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
     h += "<div class='keyaction_form_title'>入力する文字</div>";
     h += "<input type='text' id='key_action_form_text' value='"+press.text+"' style='font-size: 20; line-height: 30px; padding: 6px 20px; width: 600px; margin: 10px 0;'><br>";
     h += "<font style='font-size: 16px;'>※ 英数字で入力して下さい。</font>";
@@ -433,7 +477,7 @@ aztool.keyact_form_text_view = function() {
 // レイヤー切り替えフォーム
 aztool.keyact_form_layer_view = function() {
     let c, i, n, h = "", s;
-    let press = aztool.keyact_edit_key.press;
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
     h += "<div class='keyaction_form_title'>切替えるレイヤー</div>";
     h += "<select id='key_action_form_layer' style='padding: 10px; font-size: 20px; width: 500px;'>";
     for (i in aztool.setting_json_data.layers) {
@@ -457,7 +501,8 @@ aztool.keyact_form_layer_view = function() {
 // WEBフックフォーム
 aztool.keyact_form_webhook_view = function() {
     let i, h = "";
-    let webhook = aztool.keyact_edit_key.press.webhook;
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
+    let webhook = press.webhook;
     h += "<div class='keyaction_form_title'>WEBフックする URL</div>";
     h += "<input type='text' id='key_action_form_url' value='' style='font-size: 20; line-height: 30px; padding: 6px 20px; width: 600px; margin: 10px 0;'><br>";
     h += "<br><br>";
@@ -541,7 +586,7 @@ aztool.keyact_form_webheader_get_data = function() {
 // マウス移動設定フォーム表示
 aztool.keyact_form_mouse_view = function(act_type) {
     let h = "";
-    let press = aztool.keyact_edit_key.press;
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
     let xy_min = (act_type == 5)? -100: -10;
     let xy_max = (act_type == 5)? 100: 10;
     let wee_min = (act_type == 5)? -10: -10;

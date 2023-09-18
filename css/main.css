@@ -137,6 +137,27 @@ li {
     text-decoration: none;
 }
 
+/* 選択用ボタン */
+.select-button {
+    width: 300px;
+    height: 50px;
+    font-size: 18px;
+    background-color: #ffffff;
+    color: #222;
+    text-align: center;
+    line-height: 50px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: solid 1px #222;
+    display: inline-block;
+
+}
+/* 選択用ボタン(カーソル当たった時) */
+.select-button:hover {
+    background-color: #2183c0;
+    color: #eee;
+}
+
 /* 左メニュー 枠*/
 .leftmenu-box {
     width: 200px;
@@ -219,6 +240,14 @@ li {
 .save_bbutton:hover {
     background-color: #166799;
 }
+
+/* タイトルテキスト */
+.title_1 {
+    font-size: 26px;
+    font-weight: bold;
+    color: #000;
+}
+
 
 /* IOエキスパンダアイコン */
 .icon_ioxp {

@@ -76,6 +76,7 @@ aztool.actuation_setting_end = function() {
 aztool.actuation_key_select = function(div_id, key_id) {
     aztool.actuation_select_key = parseInt(key_id.split("_")[1]);
     aztool.actuation_key_color_set(div_id);
+    aztool.actp_form_set_flag = 0;
 };
 
 
@@ -117,10 +118,12 @@ aztool.actuation_read_loop = function() {
         let h = "";
         let i, c, p;
         if (aztool.actp_form_set_flag == 0) {
+            aztool.actp_form_set_flag = 1;
+        } else if (aztool.actp_form_set_flag == 1) {
             $("#actp_select").val(d[3] + "");
             $("#actu_txt").val(d[4] + "");
             $("#rapd_txt").val(d[5] + "");
-            aztool.actp_form_set_flag = 1;
+            aztool.actp_form_set_flag = 2;
         }
         h += "キーNO : " + aztool.actuation_select_key + "<br>";
         h += "アクチュエーションタイプ : " + d[3] + "<br>";
@@ -183,6 +186,12 @@ aztool.actuation_set = function() {
     let actps = parseInt($("#actp_select").val());
     let actpt = parseInt($("#actu_txt").val());
     let rapid = parseInt($("#rapd_txt").val());
+    let lid = aztool.setmap_select_layer; // 選択中のレイヤーのキー名
+    let kid = "key_" + aztool.actuation_select_key;
+    let press = aztool.setting_json_data.layers[lid].keys[kid].press;
+    press.act = actps;
+    press.acp = actpt;
+    press.rap = rapid;
     webhid.set_analog_switch(aztool.actuation_select_key, actps, actpt, rapid, function() {
 
     });

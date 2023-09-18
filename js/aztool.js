@@ -119,8 +119,11 @@ aztool.view_top_menu = function() {
     h += "<tr><th>VendorId / ProductId</th><td>" + k.vendorId + " / " + k.productId + "</td></tr>";
     h += "<tr><th>キーボード名</th><td>" + kname + "</td></tr>";
     x = [];
+    if (k.keyboard_pin.row && k.keyboard_pin.row.length) x.push("row = " + k.keyboard_pin.row.join(","));
+    if (k.keyboard_pin.col && k.keyboard_pin.col.length) x.push("col = " + k.keyboard_pin.col.join(","));
     if (k.keyboard_pin.ioxp && k.keyboard_pin.ioxp.length) x.push("ioxp = " + k.keyboard_pin.ioxp.join(","));
     if (k.keyboard_pin.direct && k.keyboard_pin.direct.length) x.push("direct = " + k.keyboard_pin.direct.join(","));
+    if (k.keyboard_pin.hall && k.keyboard_pin.hall.length) x.push("hall = " + k.keyboard_pin.hall.join(","));
     h += "<tr><th>キーピン</th><td>"+x.join("　")+"</td></tr>";
     console.log(k);
     if (k.i2c_set && k.i2c_set.length == 3) {
