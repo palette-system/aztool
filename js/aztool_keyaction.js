@@ -28,6 +28,7 @@ aztool.keyact_init = function() {
                 <option value="4">WEBフック</option>
                 <option value="5">マウス移動</option>
                 <option value="10">マウス移動(アナログ)</option>
+                <option value="11">Nubkey 調節</option>
                 </select>
                 </div>
                 <div id="key_action_main_box" style="text-align: left; width: 870px; height: 400px; margin: 20px 0;overflow-x: hidden; overflow-y: auto;"></div>
@@ -231,6 +232,10 @@ aztool.keyact_form_view = function() {
     } else if (press.action_type == 5 || press.action_type == 10) {
         // マウス移動
         aztool.keyact_form_mouse_view(press.action_type);
+
+    } else if (press.action_type == 11) {
+        // Nubkey 位置調整
+        $("#key_action_main_box").html(""); // 設定するパラメータは無し
 
     } else {
         // 不明な入力はフォームクリア

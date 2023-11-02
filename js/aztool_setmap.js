@@ -421,6 +421,10 @@ aztool.setmap_get_key_string = function(key_data) {
         // マウス移動
         r = "analog<br>mouse";
 
+    } else if (k.action_type == 11) {
+        // Nubkey 位置設定
+        r = "Nubkey<br>調節";
+
     }
     return "<table cellpadding='0' cellspacing='0' style='user-select: none; width: 100%; height: 100%;font-size: 12px;'><tr><td align='center'>" + r + "</td></tr></table>";
 };

@@ -24,8 +24,8 @@ aztool.actuation_setting = function() {
         h += "</select><br>";
         h += "アクチュエーションポイント：　<input id='actu_txt' type='text' style='font-size: 20px; width: 120px;'><br>";
         h += "ラピットトリガー：　<input id='rapd_txt' type='text' style='font-size: 20px; width: 120px;'><br>";
-        h += "<input type='button' value='変更' onClick='javascript:aztool.actuation_set();'>";
-        h += "<br><br>";
+        h += "　<input type='button' value='変更' onClick='javascript:aztool.actuation_set();'>";
+        h += "　　　";
         h += "<input type='button' value='終了' onClick='javascript:aztool.actuation_setting_end();'>";
         $("#key_set_list").html(h);
         aztool.setmap_stat = 4;
