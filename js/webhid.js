@@ -558,10 +558,10 @@ webhid.get_report_id = function(d) {
     // 該当のポート番号を探す
     for (i in d.collections) {
         if (d.collections[i].usage == webhid.hid_usage && d.collections[i].usagePage == webhid.hid_usage_page) {
-            r.in = d.collections[1].inputReports[0].reportId; // 入力ポートID
-            r.in_size = d.collections[1].inputReports[0].items[0].reportCount; // 入力ポートのサイズ(32byte)
-            r.out = d.collections[1].outputReports[0].reportId; // 出力ポートID
-            r.out_size = d.collections[1].outputReports[0].items[0].reportCount; // 出力ポートのサイズ(32bytp)
+            r.in = d.collections[i].inputReports[0].reportId; // 入力ポートID
+            r.in_size = d.collections[i].inputReports[0].items[0].reportCount; // 入力ポートのサイズ(32byte)
+            r.out = d.collections[i].outputReports[0].reportId; // 出力ポートID
+            r.out_size = d.collections[i].outputReports[0].items[0].reportCount; // 出力ポートのサイズ(32bytp)
             break;
         }
     }
