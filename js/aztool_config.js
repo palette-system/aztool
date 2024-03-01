@@ -30,6 +30,7 @@ aztool.main_kle["atoms3"] = `["0","1","2"]`;
 // AZ-Nubpad
 aztool.main_kle["az_nubpad"] = `[{x:1},"0"],["1","3","2"]`;
 
+// AZ-Magicpad
 aztool.main_kle["az_magicpad"] = `[{x:1},"0","1","2","3"],["4","5","6","7","8"],["9","10","11","12","13"]`;
 
 // レイヤー切り替えの種類
