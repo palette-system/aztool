@@ -140,7 +140,8 @@ aztool.option_add_layout_view = function() {
         <br>    
         <textarea id="kle_json_txt" style="width: 800px; height: 150px;"
         placeholder="KLEのレイアウトJSONを張り付けて下さい。"
-        onChange="javascript:aztool.option_add_kle_change();"></textarea>
+        onChange="javascript:aztool.option_add_kle_change();"></textarea><br>
+        <a href="http://www.keyboard-layout-editor.com/" target="_blank">keyboard-layout-editor.com</a><br>
         <br><br>
         <div style="text-align: right; width: 800px;">
         <div id="can_btn" style="display: inline-block"></div>
