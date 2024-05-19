@@ -112,9 +112,11 @@ aztool.view_top_menu = function() {
     let x, t, tm;
     let kname = (k.keyboard_name)? k.keyboard_name: k.keyboard_type;
     h += "<center>";
-    h += "<h2 style='font-size: 50px; margin: 40px 0;'>⌨ AZTOOL</h2>";
-    h += "<div style='text-align: left; display: inline-block; margin: 0 0 80px 0;'>";
-    h += "キーボード情報<br>";
+    h += "<table><tr><td colspan='2'>";
+    h += "<h2 style='font-size: 50px; margin: 16px 0;'>⌨ AZTOOL</h2>";
+    h += "</td></tr>";
+    h += "<tr><td valign='top' align='center'>";
+    h += "<div style='text-align: left; display: inline-block; margin: 0 0 40px 0;'>";
     h += "<table cellpadding='4' cellspacing='0' border='0' class='keystatus'>";
     h += "<tr><th>VendorId / ProductId</th><td>" + k.vendorId + " / " + k.productId + "</td></tr>";
     h += "<tr><th>キーボード名</th><td>" + kname + "</td></tr>";
@@ -134,6 +136,15 @@ aztool.view_top_menu = function() {
     tm = " style='font-size: 40px; margin: 0 0 16px 0; display: block; height: 50px; line-height: 70px;'";
     h += "</table>";
     h += "</div>";
+
+    h += "<div>";
+    h += "<div class='conn_bbutton' onClick='javascript:aztool.close();'>閉じる</div>";
+    if (JSON.stringify(aztool.setting_json_data) != aztool.setting_json_txt) { // 設定内容が変更されていれば保存ボタン表示
+        h += "<br><br><div class='save_bbutton' onClick='javascript:aztool.save();'>保存して再起動</div>";
+    }
+    h += "</div>";
+
+    h += "</td><td valign='top'>";
     h += "<div style='width: 900px;'>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setmap();'><font "+t+">⌨</font>キーマップ</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_keytest();'><font "+t+">🩺</font>入力テスト</div>";
@@ -149,12 +160,7 @@ aztool.view_top_menu = function() {
     h += "<div class='topmenu_btn' onClick='javascript:aztool.setting_init();'><font "+t+">🧊</font>初期化</div>";
     
     h += "</div>";
-    h += "<div style='margin: 100px 0 50px 0;'>";
-    h += "<div class='conn_bbutton' onClick='javascript:aztool.close();'>閉じる</div>";
-    if (JSON.stringify(aztool.setting_json_data) != aztool.setting_json_txt) { // 設定内容が変更されていれば保存ボタン表示
-        h += "　　　　<div class='save_bbutton' onClick='javascript:aztool.save();'>保存して再起動</div>";
-    }
-    h += "</div>";
+    h += "</td></tr></table>";
     h += "</center>";
     $("#main_box").html(h);
     if (!aztool.is_azcore()) $(".azcore").css({"display": "none"}); // azcore専用の機能は他の機器の場合非表示
