@@ -130,6 +130,7 @@ aztool.dispimg_image_change = function() {
         $("#img_canvas").css({"border": "solid 2px #ddd", "margin": "10px 0"});
         $(".exec-button").show();
         $("#img_load_btn").hide();
+        $("#img_info").html("");
     });
 
 };
