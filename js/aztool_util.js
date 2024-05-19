@@ -210,6 +210,18 @@ aztool.is_azcore = function() {
     return false;
 };
 
+// 接続しているキーボードのモニターが縦向きか横向きか
+// -1 = モニターがない
+// 0 = たて長
+// 1 = よこ長
+aztool.get_disp_rotation = function() {
+    if (!aztool.setting_json_data || !aztool.setting_json_data.disp_rotation) return -1;
+    let r = aztool.setting_json_data.disp_rotation;
+    if (r == 1 || r == 3) return 1;
+    if (r == 0 || r == 2) return 0;
+    return -1;
+};
+
 // 本体のKLEを取得
 aztool.get_main_kle = function() {
     // ロードしたkle.json データがあればそれを返す

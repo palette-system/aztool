@@ -97,7 +97,7 @@ aztool.addoled_setiing_view = function() {
 // 画像ファイルが選択された
 aztool.addoled_image_change = function() {
     let send_size = $("#oled_size").val().split("_");
-    aztool.image_change("img_file", {"width": parseInt(send_size[0]), "height": parseInt(send_size[1])}, "img_canvas", function(img_data, save_data) {
+    aztool.addoled_image_change("img_file", {"width": parseInt(send_size[0]), "height": parseInt(send_size[1])}, "img_canvas", function(img_data, save_data) {
         let html = "";
         aztool.option_add.def_img = img_data;
         aztool.option_add.def_img_save = save_data;
@@ -112,7 +112,7 @@ aztool.addoled_image_change = function() {
 // max_size = {"width": 作成する画像の幅, "height": 作成する画像の高さ}
 // canvas_id = 作成した画像を表示するキャンバスのID
 // cb_func = 画像データ生成後呼び出される関数 func(生成した画像データ配列) ※生成しなかった場合は呼び出されない
-aztool.image_change = function(file_id, max_size, canvas_id, cb_func) {
+aztool.addoled_image_change = function(file_id, max_size, canvas_id, cb_func) {
     let set_file = $("#"+file_id)[0].files[0];
     
     // 選択されたファイルが画像かどうか判定する
