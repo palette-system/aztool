@@ -17,6 +17,10 @@ aztool.addcustam_start = function() {
         "i2c_set": aztool.clone(aztool.setting_json_data.i2c_set), // 現在の本体のピン設定
         "map": [] // キーと読み込んだデータとのマッピング設定
     };
+    if (!aztool.option_add.keyboard_pin.direct) aztool.option_add.keyboard_pin.direct = [];
+    if (!aztool.option_add.keyboard_pin.touch) aztool.option_add.keyboard_pin.touch = [];
+    if (!aztool.option_add.keyboard_pin.col) aztool.option_add.keyboard_pin.col = [];
+    if (!aztool.option_add.keyboard_pin.row) aztool.option_add.keyboard_pin.row = [];
     // 設定画面表示
     aztool.addcustam_layout_view();
 };
