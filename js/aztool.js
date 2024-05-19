@@ -145,7 +145,7 @@ aztool.view_top_menu = function() {
     h += "</div>";
 
     h += "</td><td valign='top'>";
-    h += "<div style='width: 900px;'>";
+    h += "<div style='width: 900px; margin: -10px 0;'>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setmap();'><font "+t+">⌨</font>キーマップ</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_keytest();'><font "+t+">🩺</font>入力テスト</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font "+t+">🧩</font>I2C オプション</div>";
