@@ -107,7 +107,7 @@ aztool.file_drop_file_zip = function() {
         setTimeout(function() {
             aztool.remodal_close();
             aztool.keyboard_restart(0); // キーボードモードで再起動
-        }, 500); // 一応 0.5 秒待ってから
+        }, 1000); // 一応 0.5 秒待ってから
         return;
     }
     // ファイルデータを取得
@@ -120,11 +120,11 @@ aztool.file_drop_file_zip = function() {
     webhid.save_file(fp, file_data, function(stat) {
         // 失敗したらスキップして次のファイル
         if (stat != 0) {
-            setTimeout(aztool.file_drop_file_zip, 200);
+            setTimeout(aztool.file_drop_file_zip, 1000);
             return;
         }
         // 次のファイルを解凍する
-        setTimeout(aztool.file_drop_file_zip, 200);
+        setTimeout(aztool.file_drop_file_zip, 1000);
     });
 
 };
