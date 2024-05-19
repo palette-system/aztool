@@ -215,7 +215,9 @@ aztool.is_azcore = function() {
 // 0 = たて長
 // 1 = よこ長
 aztool.get_disp_rotation = function() {
-    if (!aztool.setting_json_data || !aztool.setting_json_data.disp_rotation) return -1;
+    if (!aztool.setting_json_data || 
+        aztool.setting_json_data.disp_rotation === undefined || 
+        aztool.setting_json_data.disp_rotation === null) return -1;
     let r = aztool.setting_json_data.disp_rotation;
     if (r == 1 || r == 3) return 1;
     if (r == 0 || r == 2) return 0;
