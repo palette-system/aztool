@@ -26,7 +26,7 @@ aztool.file_add_file_zip = function() {
         let file_name = aztool.setting_json_data.keyboard_name + ".zip";
         aztool.data_download(file_name, comp, "application/zip");
         // トップメニュー表示
-        setTimeout(aztool.view_top_menu, 500);
+        setTimeout(aztool.view_top_menu, 1000);
         return;
     }
     // ファイルデータを取得
@@ -34,7 +34,7 @@ aztool.file_add_file_zip = function() {
     // 起動回数ファイルは無視
     if (f.name == "/boot_count") {
         // 次のファイルを取得する
-        setTimeout(aztool.file_add_file_zip, 200);
+        setTimeout(aztool.file_add_file_zip, 1000);
         return;
     }
     console.log("file: " + f.name);
@@ -42,14 +42,14 @@ aztool.file_add_file_zip = function() {
         // 失敗したら諦めて次のファイル
         if (stat != 0) {
             console.log("error: get_file status " + stat);
-            setTimeout(aztool.file_add_file_zip, 200);
+            setTimeout(aztool.file_add_file_zip, 1000);
             return;
         }
         // 成功したらZIPにデータ追加
         console.log(res);
         aztool.file_zip.addFile(res, {"filename": webhid.str2arr(f.name.substr(1)), "os": 0});
         // 次のファイルを取得する
-        setTimeout(aztool.file_add_file_zip, 200);
+        setTimeout(aztool.file_add_file_zip, 1000);
     });
 };
 
