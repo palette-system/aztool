@@ -2,6 +2,16 @@
 
 if (!window.aztool) aztool = {};
 
+// 2つのbyteをshortとして数値にする
+aztool.short = function(hb, lb) {
+    let i = 0;
+    if (hb & 0x80) {
+        // マイナス
+        return (((hb & 0x7F) << 8) + lb) - 0x8000;
+    } else {
+        return (hb << 8) + lb;
+    }
+}
 
 // 0詰め
 aztool.zero = function(n, len){

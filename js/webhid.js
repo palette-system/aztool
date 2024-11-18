@@ -894,6 +894,22 @@ webhid.i2c_write = function(i2c_addr, write_data, cb_func) {
     });
 };
 
+// I2Cにコマンドを投げて結果を受け取る
+webhid.i2c_write_read = function(i2c_addr, write_data, read_length, cb_func) {
+    if (!cb_func) cb_func = function(stat, raw_data) {};
+    webhid.i2c_write(i2c_addr, write_data, function(stat, raw_data) {
+        // 書き込み失敗したらここで終了
+        if (stat != 0) {
+            cb_func(stat);
+            return;
+        }
+        // 書き込み成功したら読み込みに行く
+        webhid.i2c_read(i2c_addr, read_length, function(read_length, read_data, raw_data) {
+            cb_func(0, read_data);
+        });
+    });
+};
+
 // I2C にデータ書込み(複数コマンド)
 webhid.i2c_write_list = function(i2c_addr, write_data_list, cb_func) {
     if (!cb_func) cb_func = function(stat, raw_data) {};
