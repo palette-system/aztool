@@ -133,6 +133,13 @@ aztool.view_top_menu = function() {
     console.log(k);
     if (k.i2c_set && k.i2c_set.length == 3) {
         h += "<tr><th>I2Cピン</th><td>SDA= " + k.i2c_set[0] + " / SCL= " + k.i2c_set[1] + " / " + k.i2c_set[2].toLocaleString() + " Hz</td></tr>";
+    } else {
+        h += "<tr><th>I2Cピン</th><td>　</td></tr>";
+    }
+    if (k.seri_set && k.seri_set.length == 3) {
+        h += "<tr><th>シリアル(赤外線)ピン</th><td>TX= " + k.seri_set[0] + " / RX= " + k.seri_set[1] + " / " + k.seri_set[2].toLocaleString() + " Hz</td></tr>";
+    } else {
+        h += "<tr><th>シリアル(赤外線)ピン</th><td>　</td></tr>";
     }
     h += "<tr><th>ディスク使用量</th><td> " + aztool.disk_data.used.toLocaleString() + " / " + aztool.disk_data.total.toLocaleString() + " </td></tr>";
     t = " style='font-size: 40px; margin: 0 0 16px 0; display: block; height: 70px; line-height: 70px;'";
@@ -156,6 +163,7 @@ aztool.view_top_menu = function() {
     h += "<div class='topmenu_btn azdisp' onClick='javascript:aztool.view_setdispimg();'><font "+t+">🖥️</font>待受画像</div>";
     h += "<div class='topmenu_btn azcore' onClick='javascript:aztool.power_saving_setting_open();'><font "+t+">🔋</font>省電力</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.param_setting_open();'><font "+t+">🎛️</font>パラメータ</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.serial_setting_open();'><font "+t+">📍</font>シリアルピン</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.addopt_start(\"main_box\", 100);'><font "+tm+">🛠️</font>カスタム<br>レイアウト</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font "+t+">📝</font>設定JSON</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.file_export_all();'><font "+t+">📤</font>エクスポート</div>";
