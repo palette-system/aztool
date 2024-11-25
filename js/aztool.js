@@ -27,8 +27,11 @@ aztool.step_index = 0; // 今のステップ
 // aztool初期化
 aztool.init = function() {
     // webhidオブジェクト初期化
-    webhid.disconnect_func = aztool.hid_disconn_func; // 接続が切れた時のイベント
-    webhid.init({"info_div": "console_div"});
+    webhid.init({
+        "info_div": "console_div",
+        "connect_func": null, // 再接続した時のイベント
+        "disconnect_func": aztool.hid_disconn_func // 接続が切れた時のイベント
+    });
     // IOエキスパンダ ピン設定モーダルの初期化
     pinstp.init();
     // I2Cアドレス設定モーダルの初期化
@@ -45,9 +48,9 @@ aztool.init = function() {
 
 
 // キーボードに接続
-aztool.connect = function() {
+aztool.connect = function(set_step=null) {
     // ロードステップ設定
-    webhid.load_step = $("#load_step_select").val();
+    if (set_step) webhid.load_step = set_step;
     // コネクション開始
     webhid.connect(function(stat) {
         // コネクション失敗
@@ -93,7 +96,7 @@ aztool.view_connect_top = function(msg) {
             h += "<option value='"+i+"'>"+i+"</option>";
         }
         h += "</select><br><br>";
-        h += "<div class='conn_bbutton' onClick='javascript:aztool.connect();'>キーボードに接続</div>";
+        h += "<div class='conn_bbutton' onClick='javascript:aztool.connect($(\"#load_step_select\").val());'>キーボードに接続</div>";
         h += "<br>";
         if (msg) h += "<br>" + msg;
     }

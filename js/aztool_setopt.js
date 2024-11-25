@@ -14,6 +14,7 @@ aztool.get_opt_name = function(opt_type) {
     if (opt_type == 4) r = "AZ1UBALL(SC)";
     if (opt_type == 5) r = "AZエキスパンダ";
     if (opt_type == 6) r = "OLED(メイン)";
+    if (opt_type == 7) r = "シリアル通信(赤外線)";
     return r;
 };
 
@@ -29,6 +30,7 @@ aztool.view_setopt = function() {
     <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>AZ1UBALL(トラックボール) 追加</a><br>
     <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 4);'>AZ1UBALL(スクロール) 追加</a><br>
     <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 6);'>OLED(メイン)追加</a><br>
+    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 7);'>赤外線追加</a><br>
     <!-- <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\");'>エクスポート</a><br> -->
     <div id="back_btn_box"></div>
     </td><td valign="top" style="padding: 20px;">
@@ -65,23 +67,26 @@ aztool.setopt_optlist_view = function() {
         h += "<b>" + aztool.get_opt_name(o.type) + "</b><br>";
         h += "ID: " + o.id + "<br>";
         h += (o.enable)? "設定：有効<br>": "設定：無効<br>";
-        h += "アドレス： ";
         if (o.type == 1) {
+            h += "アドレス： ";
             // IOエキスパンダ
             for (j in o.ioxp) {
                 if (j > 0) h += " ,";
                 h += aztool.to_hex(o.ioxp[j].addr);
             }
         } else if (o.type == 2) {
+            h += "アドレス： ";
             // I2Cロータリーエンコーダー
             for (j in o.rotary) {
                 if (j > 0) h += " ,";
                 h += aztool.to_hex(o.rotary[j]);
             }
         } else if (o.type == 3 || o.type == 4 || o.type == 6) {
+            h += "アドレス： ";
             // 1U トラックボール PIM447 / OLED(メイン)
             h += aztool.to_hex(o.addr);
         } else if (o.type == 5) {
+            h += "アドレス： ";
             // AZエキスパンダ
             h += aztool.to_hex(o.setting[0]);
         }

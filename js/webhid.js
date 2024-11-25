@@ -86,6 +86,7 @@ webhid.command_id = {
     "i2c_write": 0x43, // i2c へデータ書込み
     "get_analog_switch": 0x44, // スイッチデータ読み込み
     "set_analog_switch": 0x45, // アナログスイッチの設定をリアルタイム変更
+    "get_serial_input": 0x46, // シリアル通信(赤外線)のキー入力取得
     "none": 0x00 // 空送信
 };
 
@@ -172,16 +173,19 @@ webhid.view_info = function(msg) {
 
 // HID接続した時呼び出されるイベント
 webhid.handle_connect = function(e) {
+    if (webhid.connect_func) webhid.connect_func(e);
     console.log("hid connect");
-    webhid.view_info("接続しました " + e.device.productId + " : " + e.device.vendorId);
+    console.log(e);
+    webhid.view_info("再接続しました " + e.device.productId + " : " + e.device.vendorId);
 };
 
 // HID接続終了した時に呼び出されるイベント
 webhid.handle_disconnect = function(e) {
-    webhid.device = null; // デバイス
-    webhid.raw_report_id = 0; // 送受信していたレポート番号
-    if (webhid.disconnect_func) webhid.disconnect_func(e);
+    console.log(webhid.device);
     console.log("hid disconnect");
+    // webhid.device = null; // デバイス
+    // webhid.raw_report_id = 0; // 送受信していたレポート番号
+    if (webhid.disconnect_func) webhid.disconnect_func(e);
     webhid.view_info("切断しました " + e.device.productId + " : " + e.device.vendorId);
 };
 
@@ -357,6 +361,10 @@ webhid.handle_input_report = function(e) {
     } else if (cmd_type == webhid.command_id.set_analog_switch) {
         // アナログスイッチの設定変更
         webhid.set_analog_switch_cb(get_data);
+
+    } else if (cmd_type == webhid.command_id.get_serial_input) {
+        // アナログスイッチの設定変更
+        webhid.get_serial_input_cb(get_data);
 
     }
     
@@ -939,6 +947,16 @@ webhid.i2c_write_list_func = function() {
         }
     });
 };
+
+// シリアル通信(赤外線)のキー入力取得
+webhid.get_serial_input = function(cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.get_serial_input_cb = cb_func;
+    let cmd = [webhid.command_id.get_serial_input];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("get_serial_input ...");
+    });
+}
 
 // eztoolモードのフラグ設定
 webhid.set_aztool_mode = function(set_flag, cb_func) {

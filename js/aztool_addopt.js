@@ -68,6 +68,9 @@ aztool.addopt_start = function(div_id, add_type) {
         } else if (aztool.option_add_type == 6) {
             // OLED (メイン)
             aztool.addoled_start();
+        } else if (aztool.option_add_type == 7) {
+            // シリアル通信(赤外線)
+            aztool.addirkb_start();
         } else if (aztool.option_add_type == 100) {
             // カスタムレイアウト設定
             aztool.addcustam_start();
@@ -392,6 +395,9 @@ aztool.option_add_read_check_exec = function(step_no) {
     } else if (aztool.option_add_type == 5) {
         // AZエキスパンダ の状態を確認する
         aztool.option_add_read_check_exec_azxp(step_no);
+    } else if (aztool.option_add_type == 7) {
+        // シリアル通信(赤外線) の入力を確認する
+        aztool.option_add_read_check_exec_irkb(step_no);
     } else if (aztool.option_add_type == 100) {
         // カスタムレイアウト 本体の入力チェック
         aztool.option_add_read_check_exec_iopin(step_no);

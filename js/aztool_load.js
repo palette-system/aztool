@@ -34,7 +34,7 @@ aztool.load_i2c_data = function() {
     // i2cのデータをロード
     let o = aztool.setting_json_data.i2c_option[ aztool.i2c_load_index ];
     let t;
-    if (o.type == 1 || o.type == 2 || o.type == 5) {
+    if (o.type == 1 || o.type == 2 || o.type == 5 || o.type == 7) {
         // IOエキスパンダ || I2Cロータリーエンコーダ || AZエキスパンダ
         // kleのJSONロード
         console.log("get_file: /o" + o.id);
