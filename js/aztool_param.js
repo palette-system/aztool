@@ -107,6 +107,7 @@ aztool.serial_setting_open = function() {
     h += "TX<input id='seri_tx' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 100px; text-align: right;'>";
     h += "　　RX<input id='seri_rx' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 100px; text-align: right;'>";
     h += "　　<input id='seri_hz' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 100px; text-align: right;'>Hz";
+    h += "　　　<input id='seri_logic' type='checkbox'> ロジック反転";
     h += "</td></tr>";
     h += "</table>";
     h += "<br><br>";
@@ -124,16 +125,17 @@ aztool.serial_setting_open = function() {
         $("#i2c_scl").val(aztool.setting_json_data.i2c_set[1]);
         $("#i2c_hz").val(aztool.setting_json_data.i2c_set[2]);
     }
-    if (aztool.setting_json_data.seri_set && aztool.setting_json_data.seri_set.length == 3) {
+    if (aztool.setting_json_data.seri_set && aztool.setting_json_data.seri_set.length == 4) {
         $("#seri_tx").val(aztool.setting_json_data.seri_set[0]);
         $("#seri_rx").val(aztool.setting_json_data.seri_set[1]);
         $("#seri_hz").val(aztool.setting_json_data.seri_set[2]);
+        $("#seri_logic").prop('checked', (aztool.setting_json_data.seri_set[3] != 0));
     }
 };
 
 // 省電力モードの設定モーダルを閉じる
 aztool.serial_saving_setting_close = function(save_flag) {
-    var sda, scl, hz, tx, rx;
+    var sda, scl, hz, tx, rx, lg;
     // 決定が押された場合はフォームの入力内容を設定配列に反映
     if (save_flag) {
         // I2C設定
@@ -150,8 +152,9 @@ aztool.serial_saving_setting_close = function(save_flag) {
         tx = $("#seri_tx").val();
         rx = $("#seri_rx").val();
         hz = $("#seri_hz").val();
+        lg = ($("#seri_logic").prop("checked"))? 1: 0;
         if (tx.length > 0 && rx.length > 0 && hz.length > 0) {
-            aztool.setting_json_data.seri_set = [parseInt(tx), parseInt(rx), parseInt(hz)];
+            aztool.setting_json_data.seri_set = [parseInt(tx), parseInt(rx), parseInt(hz), lg];
         } else {
             aztool.setting_json_data.seri_set = [];
             delete aztool.setting_json_data.seri_set;

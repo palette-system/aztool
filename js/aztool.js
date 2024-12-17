@@ -136,8 +136,9 @@ aztool.view_top_menu = function() {
     } else {
         h += "<tr><th>I2Cピン</th><td>　</td></tr>";
     }
-    if (k.seri_set && k.seri_set.length == 3) {
-        h += "<tr><th>シリアル(赤外線)ピン</th><td>TX= " + k.seri_set[0] + " / RX= " + k.seri_set[1] + " / " + k.seri_set[2].toLocaleString() + " Hz</td></tr>";
+    if (k.seri_set && k.seri_set.length == 4) {
+        t = (k.seri_set[3])? " / 反転": "";
+        h += "<tr><th>シリアル(赤外線)ピン</th><td>RX= " + k.seri_set[0] + " / TX= " + k.seri_set[1] + " / " + k.seri_set[2].toLocaleString() + " Hz" + t + "</td></tr>";
     } else {
         h += "<tr><th>シリアル(赤外線)ピン</th><td>　</td></tr>";
     }
