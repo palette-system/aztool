@@ -104,8 +104,8 @@ aztool.serial_setting_open = function() {
     h += "<div style='margin: 0;font-size: 20px;font-weight: bold;'>シリアル通信(赤外線) 設定</div>";
     h += "<table style='display: inline-block; font-size: 16px;'>";
     h += "<tr><td style='font-size: 18px; text-align: left;'>"
-    h += "TX<input id='seri_tx' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 100px; text-align: right;'>";
-    h += "　　RX<input id='seri_rx' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 100px; text-align: right;'>";
+    h += "RX<input id='seri_tx' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 100px; text-align: right;'>";
+    h += "　　TX<input id='seri_rx' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 100px; text-align: right;'>";
     h += "　　<input id='seri_hz' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 100px; text-align: right;'>Hz";
     h += "　　　<input id='seri_logic' type='checkbox'> ロジック反転";
     h += "</td></tr>";
