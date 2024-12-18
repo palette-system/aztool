@@ -44,6 +44,8 @@ aztool.init = function() {
     aztool.keyact_init();
     // 接続ページを表示
     aztool.view_connect_top();
+    // シリアル通信(赤外線)動作テスト用のモーダル初期化
+    aztool.irtest_init();
 };
 
 
@@ -159,6 +161,7 @@ aztool.view_top_menu = function() {
     h += "<div style='width: 900px; margin: -10px 0;'>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setmap();'><font "+t+">⌨</font>キーマップ</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_keytest();'><font "+t+">🩺</font>入力テスト</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.irtest_open();'><font "+t+">🚨</font>赤外線確認</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font "+t+">🧩</font>I2C オプション</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_wifi_top();'><font "+t+">📶</font>Wifi</div>";
     h += "<div class='topmenu_btn azdisp' onClick='javascript:aztool.view_setdispimg();'><font "+t+">🖥️</font>待受画像</div>";

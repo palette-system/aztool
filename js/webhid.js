@@ -87,6 +87,7 @@ webhid.command_id = {
     "get_analog_switch": 0x44, // スイッチデータ読み込み
     "set_analog_switch": 0x45, // アナログスイッチの設定をリアルタイム変更
     "get_serial_input": 0x46, // シリアル通信(赤外線)のキー入力取得
+    "get_serial_setting": 0x47, // シリアル通信(赤外線)のセッティング情報取得
     "none": 0x00 // 空送信
 };
 
@@ -365,6 +366,10 @@ webhid.handle_input_report = function(e) {
     } else if (cmd_type == webhid.command_id.get_serial_input) {
         // アナログスイッチの設定変更
         webhid.get_serial_input_cb(get_data);
+
+    } else if (cmd_type == webhid.command_id.get_serial_setting) {
+        // アナログスイッチの設定変更
+        webhid.get_serial_setting_cb(get_data);
 
     }
     
@@ -955,6 +960,16 @@ webhid.get_serial_input = function(cb_func) {
     let cmd = [webhid.command_id.get_serial_input];
     webhid.send_command(cmd).then(() => {
         webhid.view_info("get_serial_input ...");
+    });
+}
+
+// シリアル通信(赤外線)のセッティング情報取得
+webhid.get_serial_setting = function(cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.get_serial_setting_cb = cb_func;
+    let cmd = [webhid.command_id.get_serial_setting];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("get_serial_setting ...");
     });
 }
 
