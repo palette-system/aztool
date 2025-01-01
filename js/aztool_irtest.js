@@ -13,6 +13,7 @@ aztool.irtest_init = function() {
             <div id="irtest_html" style='margin: 0; padding: 0;'><!-- 拡張仕様用 --></div>
             <div id="irtest_key_html" style='margin: 0; padding: 0;'></div>
             <div id="irtest_setting_html" style='margin: 0; padding: 0;'></div>
+            <br><br><br>
             <div style="text-align: right;margin: 0 0 20px 0;">
             <a id="pin_set_cancel" class="cancel-button" onClick="javascript:aztool.irtest_close();">終了</a>
             </div>
@@ -49,34 +50,35 @@ aztool.irtest_close = function() {
 // 受け取ったキー入力を表示
 aztool.irtest_keyinput_view = function(key_data) {
     let i, s;
-    s = "入力キー ： ";
+    s = "";
+    s += "<table style='width: 800px; border: #ccc 4px solid; border-radius: 5px; padding: 5px; margin: 5px;'><tr>";
+    s += "<td style='width: 100px; height: 100px; font-size: 20px; padding: 20px;'><b>入力キー</b></td><td>";
     for (i=1; i<32; i++) {
         if (key_data[i] == 0) continue;
-        s += "["+key_data[i]+"]";
+        s += "<div style='border-radius: 10px; background-color:rgb(153, 194, 255); display: inline-block; margin: 5px; padding: 5px; width: 50px; height: 50px; font-size: 20px; text-align: center; line-height: 50px;'>";
+        s += key_data[i]+"</div>";
     }
+    s += "</td></tr></table>";
     $("#irtest_key_html").html(s);
 };
 
 // 受け取った設定情報表示
 aztool.irtest_setinput_view = function(set_data) {
-    let i, s;
+    let s, tr_style;
     let type_name = ["マトリックス","ダブルマトリックス","ダイレクト"];
     s = "";
     if (set_data[1] == 1) {
         // データタイプ1
-        s += "スキャンタイプ ： ";
-        if (set_data[2] == 0) {
-            s += "<b>"+type_name[set_data[3]]+"</b>";
-        } else {
-            s += type_name[set_data[3]];
-        }
-        s += "　　";
-        s += "キー開始番号 ： ";
-        if (set_data[2] == 1) {
-            s += "<b>"+set_data[4]+"</b>";
-        } else {
-            s += set_data[4];
-        }
+        tr_style = (set_data[2] == 0)? 'background-color: rgb(153, 194, 255);': '';
+        s += "<table style='width: 800px; border: #ccc 4px solid; border-radius: 5px; padding: 5px; margin: 5px; font-size: 20px;' cellspacing='0'>";
+        s += "<tr style='"+tr_style+"'><td style='width: 200px; height: 70px; font-size: 20px; padding: 20px;'><b>スキャンタイプ</b></td>";
+        s += "<td style='width: 50px;'><b>：</b></td><td>"+type_name[set_data[3]]+"</td></tr>";
+        tr_style = (set_data[2] == 1)? 'background-color: rgb(153, 194, 255);': '';
+        s += "<tr style='"+tr_style+"'><td style='width: 200px; height: 70px; font-size: 20px; padding: 20px;'><b>キー開始番号</b></td>";
+        s += "<td style='width: 50px;'><b>：</b></td><td>"+set_data[4]+"</td></tr>";
+        s += "</table>";
+    } else {
+        s += "<div style='height: 150px;'></div>";
     }
     $("#irtest_setting_html").html(s);
 };

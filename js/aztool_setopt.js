@@ -23,15 +23,14 @@ aztool.view_setopt = function() {
     let h = `
     <div  style="width: 1400px;">
     <table style="min-height: 700px;">
-    <tr><td class="leftmenu-box">
-    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 1);'>IOエキスパンダ追加</a><br>
-    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 5);'>AZエキスパンダ追加</a><br>
-    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 2);'>ロータリエンコーダ追加</a><br>
-    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>AZ1UBALL(トラックボール) 追加</a><br>
-    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 4);'>AZ1UBALL(スクロール) 追加</a><br>
-    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 6);'>OLED(メイン)追加</a><br>
-    <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\", 7);'>赤外線追加</a><br>
-    <!-- <a class='leftmenu-button' onClick='javascript:aztool.addopt_start(\"main_box\");'>エクスポート</a><br> -->
+    <tr><td class="leftmenu-box" style="width: 250px;">
+    <a class='leftmenu-button' style='width: 226px;' onClick='javascript:aztool.addopt_start(\"main_box\", 1);'>IOエキスパンダ追加</a><br>
+    <a class='leftmenu-button' style='width: 226px;' onClick='javascript:aztool.addopt_start(\"main_box\", 5);'>AZエキスパンダ追加</a><br>
+    <a class='leftmenu-button' style='width: 226px;' onClick='javascript:aztool.addopt_start(\"main_box\", 2);'>ロータリエンコーダ追加</a><br>
+    <a class='leftmenu-button' style='width: 226px;' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>AZ1UBALL(トラックボール) 追加</a><br>
+    <a class='leftmenu-button' style='width: 226px;' onClick='javascript:aztool.addopt_start(\"main_box\", 4);'>AZ1UBALL(スクロール) 追加</a><br>
+    <a class='leftmenu-button' style='width: 226px;' onClick='javascript:aztool.addopt_start(\"main_box\", 6);'>OLED(メイン)追加</a><br>
+    <a class='leftmenu-button' style='width: 226px;' onClick='javascript:aztool.addopt_start(\"main_box\", 7);'>赤外線キーボード追加</a><br>
     <div id="back_btn_box"></div>
     </td><td valign="top" style="padding: 20px;">
     <div id="opt_list"></div>
@@ -111,10 +110,13 @@ aztool.setopt_optlist_view = function() {
     }
     // オプションが何もなければオプション追加ボタン表示
     if (!h) {
-        h += "<div class='conn_bbutton' style='width: 500px; height: 150px; line-height: 150px; margin: 20px 100px;' onClick='javascript:aztool.addopt_start(\"main_box\", 1);'>IOエキスパンダ追加</div>";
-        h += "<div class='conn_bbutton' style='width: 500px; height: 150px; line-height: 150px; margin: 20px 100px;' onClick='javascript:aztool.addopt_start(\"main_box\", 5);'>AZエキスパンダ追加</div>";
-        h += "<div class='conn_bbutton' style='width: 500px; height: 150px; line-height: 150px; margin: 20px 100px;' onClick='javascript:aztool.addopt_start(\"main_box\", 2);'>ロータリエンコーダ追加</div>";
-        h += "<div class='conn_bbutton' style='width: 500px; height: 150px; line-height: 150px; margin: 20px 100px;' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>AZ1UBALL トラックボール追加</div>";
+        c = "width: 300px; height: 150px; line-height: 150px; margin: 20px; display: inline-block;";
+        h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>AZ1UBALL トラックボール追加</div>";
+        h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 2);'>ロータリエンコーダ追加</div>";
+        h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 1);'>IOエキスパンダ追加</div>";
+        h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 5);'>AZエキスパンダ追加</div>";
+        h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 7);'>赤外線キーボード追加</div>";
+        h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 6);'>OLED追加</div>";
     }
     $("#opt_list").html(h);
     for (i in aztool.setting_json_data.i2c_option) {
