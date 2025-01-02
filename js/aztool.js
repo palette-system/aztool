@@ -162,7 +162,7 @@ aztool.view_top_menu = function() {
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setmap();'><font "+t+">⌨</font>キーマップ</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_keytest();'><font "+t+">🩺</font>入力テスト</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.irtest_open();'><font "+t+">🚨</font>赤外線確認</div>";
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font "+t+">🧩</font>I2C オプション</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font "+t+">🧩</font>オプション</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_wifi_top();'><font "+t+">📶</font>Wifi</div>";
     h += "<div class='topmenu_btn azdisp' onClick='javascript:aztool.view_setdispimg();'><font "+t+">🖥️</font>待受画像</div>";
     h += "<div class='topmenu_btn azcore' onClick='javascript:aztool.power_saving_setting_open();'><font "+t+">🔋</font>省電力</div>";

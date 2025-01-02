@@ -100,6 +100,10 @@ aztool.setopt_optlist_view = function() {
         } else if (o.type == 4) {
             // PIM447 スクロール
             h += "向き: " + aztool.pim447_rotate_list[o.rotate];
+        } else if (o.type == 7) {
+            // 赤外線キーボード
+            h += "キー数： " + o.map.length + "<br>";
+            h += "キー番号： " + Math.min(...o.map) + " ～ " + Math.max(...o.map);
         }
         h += "</td></tr>";
         h += "<tr><td valign='bottom' align='right'>";
