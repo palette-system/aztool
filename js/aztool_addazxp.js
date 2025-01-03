@@ -158,8 +158,8 @@ aztool.addazxp_ioset_view = function() {
         <td style="width: 300px;text-align: right; padding: 15px 20px;">マトリックススキャンのタイプ</td>
         <td>
             <select id="azxp_scan_type" style="font-size: 22px; width: 300px; text-align: center;">
-            <option value="0">通常マトリックス</option>
-            <option value="1">倍マトリックス</option>
+            <option value="0">マトリックス</option>
+            <option value="1">ダブルマトリックス</option>
             </select>
         </td>
         </tr>
