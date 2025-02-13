@@ -27,6 +27,9 @@ aztool.main_kle["az_core_b"] = `[{x:1},"0"],
 // M5Stack AtomS3
 aztool.main_kle["atoms3"] = `["0","1","2"]`;
 
+// M5Stack XIAO ESP32C6
+aztool.main_kle["xiao_c6"] = `["0","1","2"]`;
+
 // AZ-Nubpad
 aztool.main_kle["az_nubpad"] = `[{x:1},"0"],["1","3","2"]`;
 
