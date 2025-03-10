@@ -27,7 +27,7 @@ aztool.main_kle["az_core_b"] = `[{x:1},"0"],
 // M5Stack AtomS3
 aztool.main_kle["atoms3"] = `["0","1","2"]`;
 
-// M5Stack XIAO ESP32C6
+// XIAO ESP32C6
 aztool.main_kle["xiao_c6"] = `["0","1","2"]`;
 
 // AZ-Nubpad
@@ -35,6 +35,9 @@ aztool.main_kle["az_nubpad"] = `[{x:1},"0"],["1","3","2"]`;
 
 // AZ-Magicpad
 aztool.main_kle["az_magicpad"] = `[{x:1},"0","1","2","3"],["4","5","6","7","8"],["9","10","11","12","13"]`;
+
+// AZPOCKET
+aztool.main_kle["azpocket"] = `[{x:1},"2"],[{x:1},"4"],["5","3"],["0","1"]`;
 
 // レイヤー切り替えの種類
 // https://qiita.com/chesscommands/items/3e7e02d025f261bf6134
