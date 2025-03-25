@@ -21,9 +21,17 @@ var ble;
 $(function(){
     $("#ble_btn").click(async function() {
         var s = "";
+        // const device = await navigator.bluetooth.requestDevice({
+        //    acceptAllDevices: true
+        // });
         const device = await navigator.bluetooth.requestDevice({
-            acceptAllDevices: true
+            filters: [{
+                acceptAllDevices: true
+            }],
+            optionalServices: ['battery_service'] // 後でサービスにアクセスするために必要です。
         });
+
+
         ble = device;
         console.log('選択されたデバイス:', device.name);
         s += "device.name: " + device.id + "<br>";
