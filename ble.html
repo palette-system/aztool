@@ -39,8 +39,7 @@ $(function(){
                     // "0000180f" // バッテリー
                     // "00001812-0000-1000-8000-00805f9b34fb" // HID
                     // ,"1812-0000-1000-8000-00805f9b34fb"
-                    "00001812-0000-1000-8000-00805f9b34fb"
-                    // "00002a4d-0000-1000-8000-00805f9b34fb" // 2A4D  char
+                    "00002a4d-0000-1000-8000-00805f9b34fb" // 2A4D  char
                 ] },
                 { namePrefix: "azpocket" }
             ]
@@ -53,14 +52,14 @@ $(function(){
         .then(service => {
             ble_service = service;
             console.log(service);
-            return service.getCharacteristic('00001812-0000-1000-8000-00805f9b34fb');
+            return service.getCharacteristic('00002a4d-0000-1000-8000-00805f9b34fb');
         })
         .then(characteristic => {
             ble_characteristic = characteristic;
             console.log(characteristic);
             return characteristic.readValue();
         }).catch(error => {
-            $("#ble_info").html("error:" + JSON.stringify(error));
+            $("#ble_info").html("error:" + error);
         });
 
         ble = device;
