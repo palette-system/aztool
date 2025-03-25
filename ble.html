@@ -60,7 +60,7 @@ $(function(){
             console.log(characteristic);
             return characteristic.readValue();
         }).catch(error => {
-            $("#ble_info").html("error:" + error);
+            $("#ble_info").html("error:" + JSON.stringify(error));
         });
 
         ble = device;
