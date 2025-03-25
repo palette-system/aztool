@@ -1,0 +1,37 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>AZTOOL</title>
+<link rel="stylesheet" type="text/css" href="./css/remodal.css?1">
+<link rel="stylesheet" type="text/css" href="./css/remodal-default-theme.css">
+<link rel="stylesheet" type="text/css" href="./css/main.css">
+<script type="text/javascript" src="./js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="./js/jquery-ui.js"></script>
+</head>
+<body>
+
+<div id="main_box">
+    <a id="ble_btn" class="save_bbutton">ble_btn</a><br>
+    <br>
+    <div id="ble_info"></div>
+</div>
+
+<script type="text/javascript">
+var ble;
+$(function(){
+    $("#ble_btn").click(async function() {
+        var s = "";
+        const device = await navigator.bluetooth.requestDevice({
+            acceptAllDevices: true
+        });
+        ble = device;
+        console.log('選択されたデバイス:', device.name);
+        s += "device.name: " + device.id + "<br>";
+        s += "device.name: " + device.name + "<br>";
+        $("#ble_info").html(s);
+    });
+});
+</script>
+
+</body>
+</html>
