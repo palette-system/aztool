@@ -105,7 +105,7 @@ $(function(){
             console.log(v);
             ble_array = new Uint8Array(v.buffer);
             var s = new TextDecoder().decode(v.buffer);
-            $("#ble_info").html("value:" + s);
+            $("#ble_info").html("<font style='font-size: 110px;'>value: " + s + "</font>");
             return ble_value;
         }).catch(error => {
             $("#ble_info").html("error:" + error);
