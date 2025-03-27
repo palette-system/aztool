@@ -11,7 +11,12 @@
 <body>
 
 <div id="main_box">
-    <a id="ble_btn" class="save_bbutton">ble_btn</a><br>
+    <br><br>
+    <a id="bt_btn" class="save_bbutton">battery</a><br>
+    <br>
+    <div id="bt_info"></div>
+    <br><br>
+    <a id="ble_btn" class="save_bbutton">message</a><br>
     <br>
     <div id="ble_info"></div>
 </div>
@@ -20,7 +25,7 @@
 var ble;
 var ble_server, ble_service, ble_characteristic, ble_value, ble_array;
 $(function(){
-    $("#ble_btn").click(async function() {
+    $("#bt_btn").click(async function() {
         var s = "";
         /*
         const device = await navigator.bluetooth.requestDevice({
@@ -33,9 +38,8 @@ $(function(){
         */
 
 
-        /* バッテリーレベル取れた
        // service list https://github.com/WebBluetoothCG/registries/blob/master/gatt_assigned_services.txt
-        const device = await navigator.bluetooth.requestDevice({
+        var device = await navigator.bluetooth.requestDevice({
             filters: [
                 { services: [
                     "0000180f-0000-1000-8000-00805f9b34fb" // バッテリー
@@ -69,21 +73,22 @@ $(function(){
         .then(v => {
             console.log(v);
             ble_array = new Uint8Array(v.buffer);
-            $("#ble_info").html("value:" + ble_array[0]);
+            $("#bt_info").html("value:" + ble_array[0]);
             return ble_value;
         }).catch(error => {
-            $("#ble_info").html("error:" + error);
+            $("#bt_info").html("error:" + error);
         });
-        */
+    });
 
 
+    $("#ble_btn").click(async function() {
         const device = await navigator.bluetooth.requestDevice({
             filters: [
                 { services: [
                     // "4fafc201-1fb5-459e-8fcc-c5c9c331914b" // シリアル？
                     "0000ffa0-0000-1000-8000-00805f9b34fb"
                 ] },
-                { namePrefix: "azpocket" }
+                { namePrefix: "az" }
             ]
         })
         .then(device => device.gatt.connect()).then(server => {
