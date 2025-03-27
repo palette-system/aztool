@@ -31,6 +31,9 @@ $(function(){
             return server.getPrimaryService('battery_service');
         });
         */
+
+
+        /* バッテリーレベル取れた
        // service list https://github.com/WebBluetoothCG/registries/blob/master/gatt_assigned_services.txt
         const device = await navigator.bluetooth.requestDevice({
             filters: [
@@ -71,15 +74,51 @@ $(function(){
         }).catch(error => {
             $("#ble_info").html("error:" + error);
         });
+        */
+
+
+        const device = await navigator.bluetooth.requestDevice({
+            filters: [
+                { services: [
+                    "4fafc201-1fb5-459e-8fcc-c5c9c331914b" // シリアル？
+                ] },
+                { namePrefix: "azpocket" }
+            ]
+        })
+        .then(device => device.gatt.connect()).then(server => {
+            ble_server = server;
+            console.log(server);
+            return server.getPrimaryService("4fafc201-1fb5-459e-8fcc-c5c9c331914b"); // シリアル
+        })
+        .then(service => {
+            ble_service = service;
+            console.log(service);
+            return service.getCharacteristic("beb5483e-36e1-4688-b7f5-ea07361b26a8"); // シリアル
+        })
+        .then(characteristic => {
+            ble_characteristic = characteristic;
+            console.log(characteristic);
+            ble_value = characteristic.readValue();
+            return ble_value;
+        })
+        .then(v => {
+            console.log(v);
+            ble_array = new Uint8Array(v.buffer);
+            var s = new TextDecoder().decode(v.buffer);
+            $("#ble_info").html("value:" + s);
+            return ble_value;
+        }).catch(error => {
+            $("#ble_info").html("error:" + error);
+        });
+
 
         ble = device;
 
-        /*
-        console.log('選択されたデバイス:', device.name);
-        s += "device.name: " + device.id + "<br>";
-        s += "device.name: " + device.name + "<br>";
-        $("#ble_info").html(s);
-        */
+        
+        // console.log('選択されたデバイス:', device.name);
+        // s += "device.name: " + device.id + "<br>";
+        // s += "device.name: " + device.name + "<br>";
+        // $("#ble_info").html(s);
     });
 });
 </script>
