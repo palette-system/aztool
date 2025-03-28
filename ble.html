@@ -48,13 +48,13 @@ $(function(){
                     // ,"1812-0000-1000-8000-00805f9b34fb"
                     // "00002a4d-0000-1000-8000-00805f9b34fb" // 2A4D  char
                 ] },
-                { namePrefix: "azpocket" }
+                { namePrefix: "a" }
             ]
         })
         .then(device => device.gatt.connect()).then(server => {
             ble_server = server;
             console.log(server);
-            return server.getPrimaryService("battery_service");
+            return server.getPrimaryService("0000180f-0000-1000-8000-00805f9b34fb");
             // return server.getPrimaryService("00001812-0000-1000-8000-00805f9b34fb"); // hid service
         })
         .then(service => {
@@ -73,7 +73,7 @@ $(function(){
         .then(v => {
             console.log(v);
             ble_array = new Uint8Array(v.buffer);
-            $("#bt_info").html("value:" + ble_array[0]);
+            $("#bt_info").html("<font style='font-size: 110px;'>value: " + ble_array[0] + "</font>");
             return ble_value;
         }).catch(error => {
             $("#bt_info").html("error:" + error);
