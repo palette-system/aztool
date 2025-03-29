@@ -68,6 +68,7 @@ $(function(){
         .then(characteristic => {
             ble_characteristic = characteristic;
             console.log(characteristic);
+            $("#bt_info").html("<font style='font-size: 110px;'>value: " + (typeof characteristic) + "</font>");
             ble_value = characteristic.readValue();
             return ble_value;
         })
