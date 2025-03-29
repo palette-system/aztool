@@ -42,9 +42,9 @@ $(function(){
         var device = await navigator.bluetooth.requestDevice({
             filters: [
                 { services: [
-                    "0000180f-0000-1000-8000-00805f9b34fb" // バッテリー
+                    // "0000180f-0000-1000-8000-00805f9b34fb" // バッテリー
                     // "0000180f" // バッテリー
-                    // "00001812-0000-1000-8000-00805f9b34fb" // HID
+                    "00001812-0000-1000-8000-00805f9b34fb" // HID
                     // ,"1812-0000-1000-8000-00805f9b34fb"
                     // "00002a4d-0000-1000-8000-00805f9b34fb" // 2A4D  char
                 ] },
@@ -54,13 +54,14 @@ $(function(){
         .then(device => device.gatt.connect()).then(server => {
             ble_server = server;
             console.log(server);
-            return server.getPrimaryService("0000180f-0000-1000-8000-00805f9b34fb");
+            return server.getPrimaryService("00001812-0000-1000-8000-00805f9b34fb");
             // return server.getPrimaryService("00001812-0000-1000-8000-00805f9b34fb"); // hid service
         })
         .then(service => {
             ble_service = service;
             console.log(service);
-            return service.getCharacteristic(0x2A19); // battery
+            return service.getCharacteristic(0x2A4D); // char
+            // return service.getCharacteristic(0x2A19); // battery
             // return service.getCharacteristic("battery_level");
             // return service.getCharacteristic(0x2A4D); // char
         })
