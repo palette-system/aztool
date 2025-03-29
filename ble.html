@@ -60,7 +60,7 @@ $(function(){
         .then(service => {
             ble_service = service;
             console.log(service);
-            return service.getCharacteristic(0x2A4D); // char
+            return service.getCharacteristics(0x2A4D); // char
             // return service.getCharacteristic(0x2A19); // battery
             // return service.getCharacteristic("battery_level");
             // return service.getCharacteristic(0x2A4D); // char
