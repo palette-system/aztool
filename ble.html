@@ -76,7 +76,7 @@ $(function(){
             ble_value = characteristic.readValue();
             return ble_value;
         }).catch((error) => {
-            $("#bt_error").html("<font style='font-size: 110px;'>error: " + error + "</font>");
+            $("#bt_error").html("<font style='font-size: 110px;'>error: ("+(typeof error)+")" + error + "</font>");
             console.error(error);
         });
         /*
