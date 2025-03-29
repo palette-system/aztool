@@ -15,10 +15,12 @@
     <a id="bt_btn" class="save_bbutton">battery</a><br>
     <br>
     <div id="bt_info"></div>
+    <div id="bt_error"></div>
     <br><br>
     <a id="ble_btn" class="save_bbutton">message</a><br>
     <br>
     <div id="ble_info"></div>
+    <div id="ble_error"></div>
 </div>
 
 <script type="text/javascript">
@@ -54,12 +56,14 @@ $(function(){
         .then(device => device.gatt.connect()).then(server => {
             ble_server = server;
             console.log(server);
+            $("#bt_info").html("<font style='font-size: 110px;'>server</font>");
             return server.getPrimaryService("00001812-0000-1000-8000-00805f9b34fb");
             // return server.getPrimaryService("00001812-0000-1000-8000-00805f9b34fb"); // hid service
         })
         .then(service => {
             ble_service = service;
             console.log(service);
+            $("#bt_info").html("<font style='font-size: 110px;'>service</font>");
             return service.getCharacteristics(0x2A4D); // char
             // return service.getCharacteristic(0x2A19); // battery
             // return service.getCharacteristic("battery_level");
@@ -72,7 +76,7 @@ $(function(){
             ble_value = characteristic.readValue();
             return ble_value;
         }).catch((error) => {
-            $("#bt_info").html("<font style='font-size: 110px;'>error: " + error + "</font>");
+            $("#bt_error").html("<font style='font-size: 110px;'>error: " + error + "</font>");
             console.error(error);
         });
         /*
