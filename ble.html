@@ -57,7 +57,7 @@ $(function(){
             ble_server = server;
             console.log(server);
             $("#bt_info").html("<font style='font-size: 110px;'>server</font>");
-            return server.getPrimaryService("00001812-0000-1000-8000-00805f9b34fb");
+            return server.getPrimaryServices("00001812-0000-1000-8000-00805f9b34fb");
             // return server.getPrimaryService("00001812-0000-1000-8000-00805f9b34fb"); // hid service
         })
         .then(service => {
