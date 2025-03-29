@@ -56,7 +56,7 @@ $(function(){
         .then(device => device.gatt.connect()).then(server => {
             ble_server = server;
             console.log(server);
-            $("#bt_info").html("<font style='font-size: 110px;'>server("+(typeof server)+"): "+JSON.stringify(server)+"</font>");
+            $("#bt_info").html("<font style='font-size: 110px;'>server("+(typeof server)+"): "+Object.keys(server)+"</font>");
             return server[0].getPrimaryServices("00001812-0000-1000-8000-00805f9b34fb");
             // return server.getPrimaryService("00001812-0000-1000-8000-00805f9b34fb"); // hid service
         })
