@@ -137,8 +137,11 @@ $(function(){
         .then(v => {
             console.log(v);
             ble_array = new Uint8Array(v.buffer);
-            var s = new TextDecoder().decode(v.buffer);
-            $("#ble_info").html("<font style='font-size: 110px;'>value: " + s + "</font>");
+            var i, s;
+            // s = new TextDecoder().decode(v.buffer);
+            s = "";
+            for (i=0; i<v.buffer.byteLength; i++) { s += "["+ble_array[i]+"]"; }
+            $("#ble_info").html("<font style='font-size: 80px;'>value: " + s + "</font>");
             return ble_value;
         }).catch(error => {
             $("#ble_info").html("error:" + error);
