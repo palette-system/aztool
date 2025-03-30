@@ -60,7 +60,7 @@ $(function(){
             console.log("server");
             console.log(server);
             $("#bt_info").html("<font style='font-size: 110px;'>server("+(typeof server)+"): "+Object.keys(server)+"</font>");
-            return server[0].getPrimaryServices("0000ff01-0000-1000-8000-00805f9b34fb"); // Custam
+            return server.getPrimaryServices("0000ff01-0000-1000-8000-00805f9b34fb"); // Custam
             // return server.getPrimaryService("00001812-0000-1000-8000-00805f9b34fb"); // hid service
         })
         .then(service => {
