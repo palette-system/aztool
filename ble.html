@@ -111,22 +111,22 @@ $(function(){
             filters: [
                 { services: [
                     // "4fafc201-1fb5-459e-8fcc-c5c9c331914b" // シリアル？
-                    "0000ffa0-0000-1000-8000-00805f9b34fb"
+                    "0000ff01-0000-1000-8000-00805f9b34fb"
                 ] },
-                { namePrefix: "az" }
+                { namePrefix: "X" }
             ]
         })
         .then(device => device.gatt.connect()).then(server => {
             ble_server = server;
             console.log(server);
             // return server.getPrimaryService("4fafc201-1fb5-459e-8fcc-c5c9c331914b"); // シリアル
-            return server.getPrimaryService("0000ffa0-0000-1000-8000-00805f9b34fb"); // シリアル
+            return server.getPrimaryService("0000ff01-0000-1000-8000-00805f9b34fb"); // シリアル
         })
         .then(service => {
             ble_service = service;
             console.log(service);
             // return service.getCharacteristic("beb5483e-36e1-4688-b7f5-ea07361b26a8"); // シリアル
-            return service.getCharacteristic("0000ffa1-0000-1000-8000-00805f9b34fb"); // シリアル
+            return service.getCharacteristic("0000ff02-0000-1000-8000-00805f9b34fb"); // シリアル
         })
         .then(characteristic => {
             ble_characteristic = characteristic;
