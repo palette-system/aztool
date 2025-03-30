@@ -51,7 +51,7 @@ $(function(){
                     // ,"1812-0000-1000-8000-00805f9b34fb"
                     // "00002a4d-0000-1000-8000-00805f9b34fb" // 2A4D  char
                 ] },
-                { namePrefix: "T" }
+                { namePrefix: "X" }
             ]
         })
         .then(device => device.gatt.connect())
@@ -60,7 +60,7 @@ $(function(){
             console.log("server");
             console.log(server);
             $("#bt_info").html("<font style='font-size: 110px;'>server("+(typeof server)+"): "+Object.keys(server)+"</font>");
-            return server.getPrimaryServices("0000ff01-0000-1000-8000-00805f9b34fb"); // Custam
+            return server.getPrimaryService("0000ff01-0000-1000-8000-00805f9b34fb"); // Custam
             // return server.getPrimaryService("00001812-0000-1000-8000-00805f9b34fb"); // hid service
         })
         .then(service => {
