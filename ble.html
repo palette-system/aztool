@@ -12,145 +12,21 @@
 
 <div id="main_box">
     <br><br>
-    <a id="bt_btn" class="save_bbutton">battery</a><br>
-    <br>
-    <div id="bt_info"></div>
-    <div id="bt_error"></div>
     <br><br>
-    <a id="ble_btn" class="save_bbutton">message</a><br>
+    <a id="ble_btn" class="save_bbutton">connect</a><br>
     <br>
     <div id="ble_info"></div>
     <div id="ble_error"></div>
+    <br><br>
+    <a id="send_btn" class="save_bbutton">add</a><br>
+    <br>
+    <div id="send_info"></div>
 </div>
 
 <script type="text/javascript">
 var ble;
-var ble_server, ble_service, ble_characteristic, ble_value, ble_array;
+var ble_server, ble_service, ble_input, ble_output, ble_value, ble_array;
 $(function(){
-    $("#bt_btn").click(async function() {
-        var s = "";
-        /*
-        const device = await navigator.bluetooth.requestDevice({
-            acceptAllDevices: true
-        }).then(device => device.gatt.connect()).then(server => {
-            // Battery Serviceを取得中…
-            console.log(server);
-            return server.getPrimaryService('battery_service');
-        });
-        */
-
-
-       // service list https://github.com/WebBluetoothCG/registries/blob/master/gatt_assigned_services.txt
-        var device = await navigator.bluetooth.requestDevice({
-            filters: [
-                { services: [
-                    // "0000180f-0000-1000-8000-00805f9b34fb" // バッテリー
-                    // "0000180f" // バッテリー
-                    "0000ff01-0000-1000-8000-00805f9b34fb" // Custam
-                    // "00001812-0000-1000-8000-00805f9b34fb" // HID
-                    // ,"1812-0000-1000-8000-00805f9b34fb"
-                    // "00002a4d-0000-1000-8000-00805f9b34fb" // 2A4D  char
-                ] },
-                { namePrefix: "X" }
-            ]
-        })
-        .then(device => device.gatt.connect())
-        .then(server => {
-            ble_server = server;
-            console.log("server");
-            console.log(server);
-            $("#bt_info").html("<font style='font-size: 110px;'>server("+(typeof server)+"): "+Object.keys(server)+"</font>");
-            return server.getPrimaryService("0000ff01-0000-1000-8000-00805f9b34fb"); // Custam
-            // return server.getPrimaryService("00001812-0000-1000-8000-00805f9b34fb"); // hid service
-        })
-        .then(service => {
-            ble_service = service;
-            console.log("service");
-            console.log(service);
-            $("#bt_info").html("<font style='font-size: 110px;'>service</font>");
-            return service[0].getCharacteristics(0xFF02); // Custam
-            // return service.getCharacteristic(0x2A19); // battery
-            // return service.getCharacteristic("battery_level");
-            // return service.getCharacteristic(0x2A4D); // char
-        })
-        .then(characteristic => {
-            ble_characteristic = characteristic;
-            console.log("characteristic");
-            console.log(characteristic);
-            $("#bt_info").html("<font style='font-size: 110px;'>characteristic: " + (typeof characteristic) + "</font>");
-            ble_value = characteristic[0].readValue();
-            return ble_value;
-        })
-        .then(v => {
-            ble_value = v;
-            console.log(v);
-            ble_array = new Uint8Array(v.buffer);
-            $("#bt_info").html("<font style='font-size: 110px;'>value: " + ble_array[0] + "</font>");
-            return ble_value;
-        })
-        .catch((error) => {
-            $("#bt_error").html("<font style='font-size: 110px;'>error: ("+(typeof error)+")" + error + "</font>");
-            console.error(error);
-        });
-        /*
-        .then(v => {
-            console.log(v);
-            ble_array = new Uint8Array(v.buffer);
-            $("#bt_info").html("<font style='font-size: 110px;'>value: " + ble_array[0] + "</font>");
-            return ble_value;
-        })
-        .catch(error => {
-            $("#bt_info").html("error:" + error);
-        });
-        */
-    });
-
-/*
-    $("#ble_btn").click(async function() {
-        const device = await navigator.bluetooth.requestDevice({
-            filters: [
-                { services: [
-                    // "4fafc201-1fb5-459e-8fcc-c5c9c331914b" // シリアル？
-                    "0000ff01-0000-1000-8000-00805f9b34fb"
-                ] },
-                { namePrefix: "X" }
-            ]
-        })
-        .then(device => device.gatt.connect()).then(server => {
-            ble_server = server;
-            console.log(server);
-            // return server.getPrimaryService("4fafc201-1fb5-459e-8fcc-c5c9c331914b"); // シリアル
-            return server.getPrimaryService("0000ff01-0000-1000-8000-00805f9b34fb"); // シリアル
-        })
-        .then(service => {
-            ble_service = service;
-            console.log(service);
-            // return service.getCharacteristic("beb5483e-36e1-4688-b7f5-ea07361b26a8"); // シリアル
-            return service.getCharacteristic("0000ff02-0000-1000-8000-00805f9b34fb"); // シリアル
-        })
-        .then(characteristic => {
-            ble_characteristic = characteristic;
-            ble_characteristic.addEventListener('characteristicvaluechanged', f);
-            console.log(characteristic);
-            ble_value = characteristic.readValue();
-            return ble_value;
-        })
-        .then(v => {
-            console.log(v);
-            ble_array = new Uint8Array(v.buffer);
-            var i, s;
-            // s = new TextDecoder().decode(v.buffer);
-            s = "";
-            for (i=0; i<v.buffer.byteLength; i++) { s += "["+ble_array[i]+"]"; }
-            $("#ble_info").html("<font style='font-size: 80px;'>value: " + s + "</font>");
-            return ble_value;
-        }).catch(error => {
-            $("#ble_info").html("error:" + error);
-        });
-        ble = device;
-    });
-*/
-
 
     var noti_func = function(event) {
         let value = event.target.value;
@@ -158,7 +34,7 @@ $(function(){
         for (let i = 0; i < value.byteLength; i++) {
             a.push('0x' + ('00' + value.getUint8(i).toString(16)).slice(-2));
         }
-        console.log('> ' + a.join(' '));
+        // console.log('> ' + a.join(' '));
         $("#ble_info").html("<font style='font-size: 80px;'>value: " + a.join(' ') + "</font>");
     };
 
@@ -182,22 +58,34 @@ $(function(){
             console.log(service);
             return service.getCharacteristic("0000ff02-0000-1000-8000-00805f9b34fb"); // シリアル
         })
-        .then(characteristic => {
-            ble_characteristic = characteristic;
-            console.log("characteristic");
-            console.log(characteristic);
-            return ble_characteristic.startNotifications(); // 通知開始
+        .then(characteristic_input => {
+            ble_input = characteristic_input;
+            console.log("characteristic_input");
+            console.log(characteristic_input);
+            return ble_input.startNotifications(); // 通知開始
         })
         .then(n => {
             console.log("n");
             console.log(n);
-            ble_characteristic.addEventListener('characteristicvaluechanged', noti_func);
+            ble_input.addEventListener('characteristicvaluechanged', noti_func);
             return ble_value;
         })
         .catch(error => {
             $("#ble_info").html("error:" + error);
         });
         ble = device;
+        await ble_service.getCharacteristic("0000ff03-0000-1000-8000-00805f9b34fb")
+        .then(characteristic_output => {
+            ble_output = characteristic_output;
+            console.log("characteristic_output");
+            console.log(characteristic_output);
+        });
+
+    });
+
+    $("#send_btn").click(async function() {
+        var d = new ArrayBuffer([0]);
+        ble_output.writeValue(d);
     });
 
 });
