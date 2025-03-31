@@ -105,7 +105,7 @@ $(function(){
         */
     });
 
-
+/*
     $("#ble_btn").click(async function() {
         const device = await navigator.bluetooth.requestDevice({
             filters: [
@@ -130,6 +130,7 @@ $(function(){
         })
         .then(characteristic => {
             ble_characteristic = characteristic;
+            ble_characteristic.addEventListener('characteristicvaluechanged', f);
             console.log(characteristic);
             ble_value = characteristic.readValue();
             return ble_value;
@@ -146,16 +147,59 @@ $(function(){
         }).catch(error => {
             $("#ble_info").html("error:" + error);
         });
-
-
         ble = device;
-
-        
-        // console.log('選択されたデバイス:', device.name);
-        // s += "device.name: " + device.id + "<br>";
-        // s += "device.name: " + device.name + "<br>";
-        // $("#ble_info").html(s);
     });
+*/
+
+
+    var noti_func = function(event) {
+        let value = event.target.value;
+        let a = [];
+        for (let i = 0; i < value.byteLength; i++) {
+            a.push('0x' + ('00' + value.getUint8(i).toString(16)).slice(-2));
+        }
+        console.log('> ' + a.join(' '));
+        $("#ble_info").html("<font style='font-size: 80px;'>value: " + a.join(' ') + "</font>");
+    };
+
+    $("#ble_btn").click(async function() {
+        const device = await navigator.bluetooth.requestDevice({
+            filters: [
+                { services: ["0000ff01-0000-1000-8000-00805f9b34fb"]},
+                { namePrefix: "X" }
+            ]
+        })
+        .then(device => device.gatt.connect())
+        .then(server => {
+            ble_server = server;
+            console.log("server");
+            console.log(server);
+            return server.getPrimaryService("0000ff01-0000-1000-8000-00805f9b34fb"); // シリアル
+        })
+        .then(service => {
+            ble_service = service;
+            console.log("service");
+            console.log(service);
+            return service.getCharacteristic("0000ff02-0000-1000-8000-00805f9b34fb"); // シリアル
+        })
+        .then(characteristic => {
+            ble_characteristic = characteristic;
+            console.log("characteristic");
+            console.log(characteristic);
+            return ble_characteristic.startNotifications(); // 通知開始
+        })
+        .then(n => {
+            console.log("n");
+            console.log(n);
+            ble_characteristic.addEventListener('characteristicvaluechanged', noti_func);
+            return ble_value;
+        })
+        .catch(error => {
+            $("#ble_info").html("error:" + error);
+        });
+        ble = device;
+    });
+
 });
 </script>
 
