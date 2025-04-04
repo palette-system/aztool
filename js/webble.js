@@ -109,7 +109,7 @@ webble.connect = function(cb_func) {
 };
 
 // WEB Bluetooth 切断
-webhid.close = function(cb_func) {
+webble.close = function(cb_func) {
     webble.ble_server.disconnect();
     cb_func();
 };
