@@ -25,7 +25,7 @@ aztool.step_max = 0;
 aztool.step_index = 0; // 今のステップ
 
 // aztool初期化
-aztool.init = function() {
+aztool.init = function(webhid_opt) {
     // webhidオブジェクト初期化
     webhid.init({
         "info_div": "console_div",
@@ -83,13 +83,30 @@ aztool.view_load_page = function() {
     $("#main_box").html("<div id='console_div'></div>");
 };
 
+// 使用可能かどうか
+aztool.check_device = function() {
+    if (webble.webble_mode) {
+        // WEB Bluetooth モード
+        if (!aztool.is_mobile()) {
+            // スマホ以外
+            if (!aztool.is_chrome()) return false; // Chrome以外は未対応
+        }
+        // スマホはとりあえず何でもOK
+    } else {
+        // WEB HID モード
+        if (aztool.is_mobile()) return false; // スマホは未対応
+        if (!aztool.is_chrome()) return false; // Chrome以外は未対応
+    }
+    return true;
+};
+
 // コネクションページ表示
 aztool.view_connect_top = function(msg) {
     let i;
     let h = "";
     h += "<div style='text-align: center; margin: 100px 0;'>";
     h += "<h2 style='font-size: 80px; margin: 40px 0 100px 0;'>⌨ AZTOOL</h2>";
-    if (aztool.is_mobile() || !aztool.is_chrome()) {
+    if (!aztool.check_device()) {
         h += "<div style='font-size: 20px;'>※ PC Chrome で開いて下さい。</div>";
 
     } else {

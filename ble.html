@@ -24,28 +24,47 @@
 </div>
 
 <script type="text/javascript">
-var ble;
-var ble_server, ble_service, ble_input, ble_output, ble_value, ble_array;
+var ble_device, ble_server, ble_service, ble_input, ble_output, ble_value, ble_array, hidout;
 $(function(){
 
     var noti_func = function(event) {
         let value = event.target.value;
+        console.log(value);
         let a = [];
         for (let i = 0; i < value.byteLength; i++) {
-            a.push('0x' + ('00' + value.getUint8(i).toString(16)).slice(-2));
+            a.push(value.getUint8(i));
         }
         // console.log('> ' + a.join(' '));
-        $("#ble_info").html("<font style='font-size: 80px;'>value: " + a.join(' ') + "</font>");
+        console.log(a);
+        $("#ble_info").html("<font style='font-size: 30px;'>value: " + a.join(' ') + "</font>");
     };
+
+    hidout = async function(out_data) {
+        var i;
+        var b = new ArrayBuffer(out_data.length);
+        var u = new Uint8Array(b);
+        for (i=0; i<out_data.length; i++) {
+            u[i] = out_data[i];
+        }
+        console.log(out_data);
+        ble_output.writeValue(b);
+    };
+    var name_prefix = [
+        "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
+        "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+    ];
 
     $("#ble_btn").click(async function() {
         const device = await navigator.bluetooth.requestDevice({
             filters: [
-                { services: ["0000ff01-0000-1000-8000-00805f9b34fb"]},
-                { namePrefix: "X" }
+                { services: ["0000ff01-0000-1000-8000-00805f9b34fb"]}
+                ,{ namePrefix: "X" }
             ]
         })
-        .then(device => device.gatt.connect())
+        .then(device => {
+            ble_device = device;
+            return device.gatt.connect();
+        })
         .then(server => {
             ble_server = server;
             console.log("server");
@@ -56,8 +75,13 @@ $(function(){
             ble_service = service;
             console.log("service");
             console.log(service);
-            return service.getCharacteristic("0000ff02-0000-1000-8000-00805f9b34fb"); // シリアル
+            return ble_device; // シリアル
         })
+        .catch(error => {
+            $("#ble_info").html("error:" + error);
+        });
+
+        ble_service.getCharacteristic("0000ff02-0000-1000-8000-00805f9b34fb") // Input サービス
         .then(characteristic_input => {
             ble_input = characteristic_input;
             console.log("characteristic_input");
@@ -67,14 +91,16 @@ $(function(){
         .then(n => {
             console.log("n");
             console.log(n);
-            ble_input.addEventListener('characteristicvaluechanged', noti_func);
+            // イベントの種類
+            // https://webbluetoothcg.github.io/web-bluetooth/#eventdef-bluetoothremotegattcharacteristic-characteristicvaluechanged
+            ble_input.addEventListener('characteristicvaluechanged', noti_func); // 通知受け取った時に実行する関数登録
             return ble_value;
         })
         .catch(error => {
             $("#ble_info").html("error:" + error);
         });
-        ble = device;
-        await ble_service.getCharacteristic("0000ff03-0000-1000-8000-00805f9b34fb")
+
+        await ble_service.getCharacteristic("0000ff03-0000-1000-8000-00805f9b34fb") // Output サービス
         .then(characteristic_output => {
             ble_output = characteristic_output;
             console.log("characteristic_output");
