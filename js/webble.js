@@ -117,12 +117,16 @@ webble.close = function(cb_func) {
 // コマンドを送信
 webble.send_command = function(arr) {
     var i;
-    var b = new ArrayBuffer(arr.length);
+    var b = new ArrayBuffer(webble.command_size);
     var u = new Uint8Array(b);
-    for (i=0; i<arr.length; i++) {
-        u[i] = arr[i];
+    for (i=0; i<webble.command_size; i++) {
+        if (i >= arr.length) {
+            u[i] = 0;
+        } else {
+            u[i] = arr[i];
+        }
     }
-    console.log(arr);
+    console.log(u);
     return webble.ble_output.writeValue(b);
 };
 
