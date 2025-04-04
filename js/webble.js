@@ -135,34 +135,3 @@ webble.handle_input_report = function(event) {
     });
 };
 
-
-
-
-
-// データを受け取った時のイベント
-webhid.handle_input_report = function(e) {
-    // 全てのポートのインプットでこのイベントが発生するのでraw以外のポートのイベントは無視
-    if (e.reportId != webhid.raw_report_id.in) return;
-    // データをUint8Arrayにする
-    let get_data = new Uint8Array(e.data.buffer);
-    // console.log("get");
-    console.log(get_data);
-    let cmd_type = get_data[0];
-    let cmd;
-    let i, h, p, r, u, s;
-    if (cmd_type == webhid.command_id.file_load_start) {
-        // ファイル読み込み開始(ファイル有無と容量が帰って来る)
-        if (!get_data[1]) { // ファイルが無い
-            webhid.load_file_path = ""; // 読み込み終わり
-            webhid.view_info("ファイルが存在しませんでした。");
-            webhid.get_file_cb_func(2, []);
-            return;
-        }
-        // ファイルの容量取得
-        s = (get_data[2] << 24) + (get_data[3] << 16) + (get_data[4] << 8) + get_data[5];
-        // 読み込み開始
-        webhid.load_start_exec(s, webhid.get_file_cb_func);
-
-    } 
-    
-};
