@@ -108,7 +108,9 @@ webble.connect = function(cb_func) {
         console.log("characteristic_output");
         console.log(characteristic_output);
         // コールバック実行
-        cb_func(0); // 0 = 成功
+        setTimeout(function(){
+            cb_func(0); // 0 = 成功
+        }, 10000);
     })
     .catch(error => {
         console.log(error);
