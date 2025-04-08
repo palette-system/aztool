@@ -80,7 +80,7 @@ aztool.hid_disconn_func = function(e) {
 
 // データのロードページ表示
 aztool.view_load_page = function() {
-    $("#main_box").html("<div id='console_div'></div><div id='debug_div'></div>");
+    $("#main_box").html("<div id='console_div'></div>");
 };
 
 // 使用可能かどうか

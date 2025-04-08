@@ -7,12 +7,9 @@ aztool.load_setting_json = function() {
     aztool.view_load_page(); // ロード画面表示
     webhid.get_file(aztool.setting_json_path, function(stat, load_data) {
         // 読み込み失敗
-        $("#debug_div").html("stat:"+stat+"　　load_data:["+load_data+"]");
         if (stat != 0) return;
         // 読み込み成功したらデータを受けとる
-        console.log(load_data);
         let txt = webhid.arr2str(load_data);
-        console.log(txt);
         aztool.setting_json_data = JSON.parse(txt); // 設定データパース
         aztool.setting_json_txt = JSON.stringify(aztool.setting_json_data); // 設定データテキスト
         console.log(aztool.setting_json_txt);

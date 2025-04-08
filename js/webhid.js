@@ -218,9 +218,7 @@ webhid.handle_input_report = function(e) {
         // ファイルの容量取得
         s = (get_data[2] << 24) + (get_data[3] << 16) + (get_data[4] << 8) + get_data[5];
         // 読み込み開始
-        setTimeout(function(){
-            webhid.load_start_exec(s, webhid.get_file_cb_func);
-        }, webhid.load_wait);
+        webhid.load_start_exec(s, webhid.get_file_cb_func);
 
     } else if (cmd_type == webhid.command_id.file_load_data) {
         // データロード処理
@@ -405,7 +403,7 @@ webhid.load_start_exec = function(data_size, cb_func) {
         webhid.view_info("loading... [ 0 / "+webhid.load_length+" ]");
     });
     // ロード監視処理開始
-    webhid.file_load_check();
+    // webhid.file_load_check();
 };
 
 // データロード処理
@@ -445,11 +443,9 @@ webhid.load_data_exec = function(get_data) {
         // コマンド送信
         webhid.last_load_time = webhid.millis(); // 最後にコマンドを投げた時間
         webhid.last_load_point = m; // 最後にリクエストしたポイント
-        setTimeout(function() {
-            webhid.send_command(cmd).then(() => {
-                webhid.view_info("loading...  "+m+" / "+webhid.load_length+" ");
-            });
-        }, webhid.load_wait);
+        webhid.send_command(cmd).then(() => {
+            webhid.view_info("loading...  "+m+" / "+webhid.load_length+" ");
+        });
     } else if ((p + i) >= webhid.load_length) {
         // 最後まで取得できたら完了
         webhid.load_file_path = "";
