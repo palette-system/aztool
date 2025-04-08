@@ -35,7 +35,7 @@ webble.enable = function() {
     webhid.connect = webble.connect; // 接続メソッド
     webhid.send_command = webble.send_command; // コマンド送信
     webhid.close = webble.close; // 切断メソッド
-    webhid.save_wait = 50; // 保存時のウェイト
+    webhid.save_wait = 100; // 保存時のウェイト
     webble.webble_mode = true;
 };
 
