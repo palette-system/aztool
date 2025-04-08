@@ -230,7 +230,7 @@ webhid.handle_input_report = function(e) {
             console.log("OK : [" + h + "  " + p + "] [" + webhid.save_seek + " ]");
         } else {
             console.error("NG : [" + h + "  " + p + "] [" + webhid.save_seek + " -> "+s+"]");
-            webhid.save_seek = s;
+            // webhid.save_seek = s;
         }
         webhid.save_index = 0; // ステップ位置を0に
         webhid.save_hash = [];
