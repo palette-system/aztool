@@ -56,6 +56,8 @@ webble.init = function(opt) {
 
 // WEB Bluetooth へ接続
 webble.connect = function(cb_func) {
+    // 同時送信数4固定
+    webhid.load_step = 4;
     // デバイス情報設定
     webhid.raw_report_id = {
         "in": 1,

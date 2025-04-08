@@ -117,7 +117,7 @@ aztool.is_chrome = function() {
 
 // スマートフォンかどうか
 aztool.is_mobile = function isSmartPhone() {
-    return Boolean(navigator.userAgent.match(/iPhone|Android.+Mobile/));
+    return Boolean(navigator.userAgent.match(/iPad|iPhone|Android.+Mobile/));
 };
 
 // util 用初期化
