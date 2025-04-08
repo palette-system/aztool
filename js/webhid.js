@@ -218,7 +218,9 @@ webhid.handle_input_report = function(e) {
         // ファイルの容量取得
         s = (get_data[2] << 24) + (get_data[3] << 16) + (get_data[4] << 8) + get_data[5];
         // 読み込み開始
-        webhid.load_start_exec(s, webhid.get_file_cb_func);
+        setTimeout(function(){
+            webhid.load_start_exec(s, webhid.get_file_cb_func);
+        }, webhid.load_wait);
 
     } else if (cmd_type == webhid.command_id.file_load_data) {
         // データロード処理
