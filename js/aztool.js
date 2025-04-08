@@ -108,6 +108,7 @@ aztool.view_connect_top = function(msg) {
     h += "<h2 style='font-size: 80px; margin: 40px 0 100px 0;'>⌨ AZTOOL</h2>";
     if (!aztool.check_device()) {
         h += "<div style='font-size: 20px;'>※ PC Chrome で開いて下さい。</div>";
+        h += "<div style='font-size: 20px;'>"+navigator.userAgent+"</div>";
 
     } else {
         h += "<font style='font-size: 16px;'>転送速度</font>　<select id='load_step_select' style='font-size: 16px; width: 100px; text-align: center; padding: 4px;'>";
