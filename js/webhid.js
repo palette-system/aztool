@@ -43,6 +43,9 @@ webhid.save_seek = 0;
 // 保存データを送信する時のウェイト
 webhid.save_wait = 0;
 
+// データを受信する時のウェイト
+webhid.load_wait = 0;
+
 // 保存するデータ
 webhid.save_data = [];
 
@@ -234,7 +237,7 @@ webhid.handle_input_report = function(e) {
         } else {
             console.error("NG : [" + h + "  " + p + "] [" + webhid.save_seek + " -> "+s+"]");
             webhid.save_seek = s;
-            webhid.save_wait += 10;
+            webhid.save_wait += 50;
         }
         webhid.save_index = 0; // ステップ位置を0に
         webhid.save_hash = [];

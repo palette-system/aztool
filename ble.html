@@ -55,12 +55,20 @@ $(function(){
     ];
 
     $("#ble_btn").click(async function() {
+        /*
         const device = await navigator.bluetooth.requestDevice({
             filters: [
                 { services: ["0000ff01-0000-1000-8000-00805f9b34fb"]}
                 ,{ namePrefix: "X" }
             ]
         })
+        */
+        const device = await navigator.bluetooth.requestDevice({
+            filters: [
+                { services: ["0000ff01-0000-1000-8000-00805f9b34fb"], namePrefix: "x" }
+            ]
+        })
+        acceptAllDevices
         .then(device => {
             ble_device = device;
             return device.gatt.connect();
