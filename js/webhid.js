@@ -40,6 +40,9 @@ webhid.save_step = 0;
 // 保存データを送信するデータの開始位置
 webhid.save_seek = 0;
 
+// 保存データを送信する時のウェイト
+webhid.save_wait = 0;
+
 // 保存するデータ
 webhid.save_data = [];
 
@@ -230,7 +233,7 @@ webhid.handle_input_report = function(e) {
             console.log("OK : [" + h + "  " + p + "] [" + webhid.save_seek + " ]");
         } else {
             console.error("NG : [" + h + "  " + p + "] [" + webhid.save_seek + " -> "+s+"]");
-            // webhid.save_seek = s;
+            webhid.save_seek = s;
         }
         webhid.save_index = 0; // ステップ位置を0に
         webhid.save_hash = [];
@@ -481,7 +484,7 @@ webhid.send_save_data = function() {
     webhid.send_command(cmd).then(() => {
         webhid.save_index++;
         if (webhid.save_index < webhid.save_step) {
-            setTimeout(webhid.send_save_data, 0);
+            setTimeout(webhid.send_save_data, webhid.save_wait);
         }
     });
 };
