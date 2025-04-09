@@ -110,7 +110,7 @@ aztool.view_keytest_layout = function() {
         if (pos && pos[l] && pos[l].top && pos[l].left) {
             $("#odiv_"+o.id).css({"top": pos[l].top, "left": pos[l].left});
         } else {
-            $("#odiv_"+o.id).css({"top": 250, "left": 0}); // デフォルト位置は中央
+            $("#odiv_"+o.id).css({"top": 250, "left": 500}); // デフォルト位置は中央
         }
     }
 };
