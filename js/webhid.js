@@ -403,7 +403,7 @@ webhid.load_start_exec = function(data_size, cb_func) {
         webhid.view_info("loading... [ 0 / "+webhid.load_length+" ]");
     });
     // ロード監視処理開始
-    // webhid.file_load_check();
+    webhid.file_load_check();
 };
 
 // データロード処理
