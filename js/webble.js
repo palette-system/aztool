@@ -10,8 +10,7 @@ webble.custam_output_id = "0000ff03-0000-1000-8000-00805f9b34fb";
 // デバイス検索オプション
 webble.device_search_option = {
     filters: [
-        { services: [webble.custam_service_id]},
-        { namePrefix: "X" }
+        { services: [webble.custam_service_id]}
     ]
 };
 
