@@ -4,6 +4,7 @@ if (!window.aztool) aztool = {};
 
 // カスタムレイアウト
 aztool.addcustam_start = function() {
+    var i2c_set;
     // オプション設定
     aztool.option_add_name = "IOピン";
     // HTML 作成
@@ -11,10 +12,11 @@ aztool.addcustam_start = function() {
     // データの準備
     aztool.step_max = 6;
     aztool.step_index = 0;
+    var i2c_set = (aztool.setting_json_data.i2c_set)? aztool.setting_json_data.i2c_set: [-1, -1, 0];
     aztool.option_add = {
         "kle": aztool.get_main_kle(), // 現在の本体KLE
         "keyboard_pin": aztool.clone(aztool.setting_json_data.keyboard_pin), // 現在の本体のピン設定
-        "i2c_set": aztool.clone(aztool.setting_json_data.i2c_set), // 現在の本体のピン設定
+        "i2c_set": aztool.clone(i2c_set), // 現在の本体のピン設定
         "map": [] // キーと読み込んだデータとのマッピング設定
     };
     if (!aztool.option_add.keyboard_pin.direct) aztool.option_add.keyboard_pin.direct = [];
@@ -396,8 +398,11 @@ aztool.option_addcustam_save = function() {
             }
             // 保存が成功したらピンデータなども変更して設定JSONを保存
             aztool.setting_json_data.keyboard_pin = aztool.clone(aztool.option_add.keyboard_pin);
-            aztool.setting_json_data.i2c_set[0] = aztool.clone(aztool.option_add.i2c_set[0]);
-            aztool.setting_json_data.i2c_set[1] = aztool.clone(aztool.option_add.i2c_set[1]);
+            if (aztool.option_add.i2c_set[0] >= 0 || aztool.option_add.i2c_set[1] >= 0) {
+                if (!aztool.setting_json_data.i2c_set) aztool.setting_json_data.i2c_set = [-1, -1, 100000];
+                aztool.setting_json_data.i2c_set[0] = aztool.clone(aztool.option_add.i2c_set[0]);
+                aztool.setting_json_data.i2c_set[1] = aztool.clone(aztool.option_add.i2c_set[1]);
+            }
             // 設定JSON保存
             aztool.setting_json_save(function(stat) {
                 // 保存失敗

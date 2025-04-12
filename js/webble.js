@@ -3,9 +3,9 @@
 webble = {};
 
 // UUID
-webble.custam_service_id = "0000ff01-0000-1000-8000-00805f9b34fb";
-webble.custam_input_id = "0000ff02-0000-1000-8000-00805f9b34fb";
-webble.custam_output_id = "0000ff03-0000-1000-8000-00805f9b34fb";
+webble.custam_service_id = "0000ff26-0000-1000-8000-00805f9b34fb";
+webble.custam_input_id = "0000ff27-0000-1000-8000-00805f9b34fb";
+webble.custam_output_id = "0000ff28-0000-1000-8000-00805f9b34fb";
 
 // デバイス検索オプション
 webble.device_search_option = {
@@ -34,8 +34,8 @@ webble.enable = function() {
     webhid.connect = webble.connect; // 接続メソッド
     webhid.send_command = webble.send_command; // コマンド送信
     webhid.close = webble.close; // 切断メソッド
-    webhid.save_wait = 200; // 保存時のウェイト
-    webhid.load_wait = 200; // 読み込み時のウェイト
+    webhid.save_wait = 100; // 保存時のウェイト
+    webhid.load_wait = 100; // 読み込み時のウェイト
     webble.webble_mode = true;
 };
 
