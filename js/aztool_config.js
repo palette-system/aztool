@@ -2,6 +2,9 @@
 
 if (!window.aztool) aztool = {};
 
+// アクチュエーション設定があるキーボードリスト
+aztool.actuation_kb_list = ["az_nubpad", "az_magicpad"];
+
 // 本体のkle
 aztool.main_kle = {};
 

@@ -183,7 +183,7 @@ webhid.handle_connect = function(e) {
     if (webhid.connect_func) webhid.connect_func(e);
     console.log("hid connect");
     console.log(e);
-    webhid.view_info("再接続しました " + e.device.productId + " : " + e.device.vendorId);
+    webhid.view_info("再接続しました");
 };
 
 // HID接続終了した時に呼び出されるイベント
@@ -193,7 +193,7 @@ webhid.handle_disconnect = function(e) {
     // webhid.device = null; // デバイス
     // webhid.raw_report_id = 0; // 送受信していたレポート番号
     if (webhid.disconnect_func) webhid.disconnect_func(e);
-    webhid.view_info("切断しました " + e.device.productId + " : " + e.device.vendorId);
+    webhid.view_info("切断しました");
 };
 
 // データを受け取った時のイベント
