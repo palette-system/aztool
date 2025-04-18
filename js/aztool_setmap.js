@@ -17,11 +17,13 @@ aztool.view_setmap = function() {
     let h = `
     <div  style="width: 1400px;">
     <table><tr><td class="leftmenu-box">
-    <a class="leftmenu-button" onClick="javascript:aztool.setmap_all_set(0);">一括設定</a><br>
-    <a class="leftmenu-button" onClick="javascript:aztool.setmap_layer_set();">レイヤー設定</a><br>
-    <a class="leftmenu-button" onClick="javascript:aztool.setmap_layer_copy();">コピーレイヤーを作成</a><br>
-    <a class="leftmenu-button" onClick="javascript:aztool.actuation_setting();">アクチュエーション</a><br>
-    <a class="leftmenu-button" onClick="javascript:aztool.view_setmap_end();">戻る</a><br>
+    <div class='menu_bbutton' onClick='javascript:aztool.setmap_all_set(0);'>一括設定</div>
+    <div class='menu_bbutton' onClick='javascript:aztool.setmap_layer_set();'>レイヤー設定</div>
+    <div class='menu_bbutton' onClick='javascript:aztool.setmap_layer_copy();'>コピーレイヤーを作成</div>
+    <div id='menu_actuation_btn' class='menu_bbutton' style='display: none;' onClick='javascript:aztool.actuation_setting();'>アクチュエーション</div>
+    <div class='menu_bbutton' onClick='javascript:aztool.view_setmap_end();'>戻る</div>
+    <br>
+    <div id='save_btn_box'></div>
     </td><td valign="top" style="padding: 20px;">
     <div id='key_layout_box' style='width: 1000px; height: 400px;overflow: hidden; border: solid 1px black; text-align: left;'></div>
     <div id='key_set_list' style='width: 1000px; height: 350px;overflow-x: hidden; overflow-y: scroll; background-color: #e8e8f8; text-align: left;'></div>
@@ -38,6 +40,10 @@ aztool.view_setmap = function() {
     aztool.setmap_key_string_update();
     // 設定用キーコードリスト表示
     aztool.key_set_list_init();
+    // 対応キーボードだけアクチュエーション設定ボタンを表示
+    if (aztool.is_actuation_kb()) {
+        $("#menu_actuation_btn").show();
+    }
 };
 
 // キーマップ設定終了
@@ -385,6 +391,10 @@ aztool.setmap_key_string_update = function() {
                 aztool.setmap_key_string_update();
             });
         }
+    }
+    // 設定内容が変更されていれば保存ボタン表示
+    if (JSON.stringify(aztool.setting_json_data) != aztool.setting_json_txt) {
+        $("#save_btn_box").html("<div class='menu_save_button' onClick='javascript:aztool.save();'>保存</div>");
     }
 };
 

@@ -222,8 +222,29 @@ li {
     background-color: #acdbfd;
 }
 
+/* スタートページのキーボード接続ボタン */
+.menu_bbutton {
+    width: 300px;
+    height: 50px;
+    font-size: 16px;
+    background-color: #dddddd;
+    color: #222;
+    text-align: center;
+    line-height: 50px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: solid 1px #222;
+    display: inline-block;
+    width: 194px;
+    margin: 4px 0;
+}
+
+.menu_bbutton:hover {
+    background-color: #acdbfd;
+}
+
 /* 保存して再起動 ボタン */
-.save_bbutton {
+.save_button {
     width: 300px;
     height: 50px;
     font-size: 18px;
@@ -237,7 +258,28 @@ li {
     display: inline-block;
 }
 
-.save_bbutton:hover {
+.save_button:hover {
+    background-color: #166799;
+}
+
+/* 左メニューの保存 ボタン */
+.menu_save_button {
+    width: 300px;
+    height: 50px;
+    font-size: 18px;
+    background-color: #2183c0;
+    color: #eee;
+    text-align: center;
+    line-height: 50px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: solid 1px #222;
+    display: inline-block;
+    width: 194px;
+    margin: 10px 0;
+}
+
+.menu_save_button:hover {
     background-color: #166799;
 }
 

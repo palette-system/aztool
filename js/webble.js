@@ -57,12 +57,8 @@ webble.init = function(opt) {
 
 // WEB Bluetooth へ接続
 webble.connect = function(cb_func) {
-    // 同時送信数4固定
-    if (aztool.is_mobile()) {
-        webhid.load_step = 1;
-    } else {
-        webhid.load_step = 4;
-    }
+    // 同時送信数1固定
+    webhid.load_step = 1;
     // デバイス情報設定
     webhid.raw_report_id = {
         "in": 1,
@@ -74,6 +70,14 @@ webble.connect = function(cb_func) {
     navigator.bluetooth.requestDevice(webble.device_search_option)
     .then(device => {
         webble.ble_device = device;
+        // 接続が切れた時のイベント登録
+        webble.ble_device.addEventListener("gattserverdisconnected", webhid.handle_disconnect);
+        // webble.ble_device.addEventListener("advertisementreceived", function(e) { console.log("event: advertisementreceived"); console.log(e); });
+        // webble.ble_device.addEventListener("gattserverdisconnected", function(e) { console.log("event: gattserverdisconnected"); console.log(e); });
+        // webble.ble_device.addEventListener("serviceadded", function(e) { console.log("event: serviceadded"); console.log(e); });
+        // webble.ble_device.addEventListener("servicechanged", function(e) { console.log("event: servicechanged"); console.log(e); });
+        // webble.ble_device.addEventListener("serviceremoved", function(e) { console.log("event: serviceremoved"); console.log(e); });
+
         return webble.ble_device.gatt.connect(); // デバイスへ接続
     })
     .then(server => {

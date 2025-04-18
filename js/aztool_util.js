@@ -245,3 +245,8 @@ aztool.get_main_kle = function() {
     // キーボードのタイプに合うKLE文字を取得
     return aztool.main_kle[aztool.setting_json_data.keyboard_type];
 };
+
+// アクチュエーション設定があるキーボードかどうか
+aztool.is_actuation_kb = function() {
+    return (aztool.actuation_kb_list.indexOf(aztool.setting_json_data.keyboard_type) >= 0);
+};

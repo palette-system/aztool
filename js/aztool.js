@@ -75,7 +75,7 @@ aztool.close = function() {
 // 接続が切れた時に呼び出される
 aztool.hid_disconn_func = function(e) {
     // 接続ページを表示
-    aztool.view_connect_top("切断しました " + aztool.to_hex(e.device.productId, 4) + " : " + aztool.to_hex(e.device.vendorId, 4));
+    aztool.view_connect_top("切断しました");
 };
 
 // データのロードページ表示
@@ -171,7 +171,7 @@ aztool.view_top_menu = function() {
     h += "<div>";
     h += "<div class='conn_bbutton' onClick='javascript:aztool.close();'>閉じる</div>";
     if (JSON.stringify(aztool.setting_json_data) != aztool.setting_json_txt) { // 設定内容が変更されていれば保存ボタン表示
-        h += "<br><br><div class='save_bbutton' onClick='javascript:aztool.save();'>保存して再起動</div>";
+        h += "<br><br><div class='save_button' onClick='javascript:aztool.save();'>保存</div>";
     }
     h += "</div>";
 
