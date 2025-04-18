@@ -94,6 +94,7 @@ webhid.command_id = {
     "set_analog_switch": 0x45, // アナログスイッチの設定をリアルタイム変更
     "get_serial_input": 0x46, // シリアル通信(赤外線)のキー入力取得
     "get_serial_setting": 0x47, // シリアル通信(赤外線)のセッティング情報取得
+    "get_firmware_status": 0x60, // ファームウェアの情報取得
     "none": 0x00 // 空送信
 };
 
@@ -377,6 +378,11 @@ webhid.handle_input_report = function(e) {
     } else if (cmd_type == webhid.command_id.get_serial_setting) {
         // アナログスイッチの設定変更
         webhid.get_serial_setting_cb(get_data);
+
+    } else if (cmd_type == webhid.command_id.get_firmware_status) {
+        // ファームウェア情報取得
+        r = get_data.split("-");
+        webhid.get_firmware_status_cb({"version": r[0], "eep_data": r[1]});
 
     }
     
@@ -970,7 +976,7 @@ webhid.get_serial_input = function(cb_func) {
     webhid.send_command(cmd).then(() => {
         webhid.view_info("get_serial_input ...");
     });
-}
+};
 
 // シリアル通信(赤外線)のセッティング情報取得
 webhid.get_serial_setting = function(cb_func) {
@@ -980,7 +986,17 @@ webhid.get_serial_setting = function(cb_func) {
     webhid.send_command(cmd).then(() => {
         webhid.view_info("get_serial_setting ...");
     });
-}
+};
+
+// ファームウェアの情報取得
+webhid.get_firmware_status = function(cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.get_firmware_status_cb = cb_func;
+    let cmd = [webhid.command_id.get_firmware_status];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("get_firmware_status ...");
+    });
+};
 
 // eztoolモードのフラグ設定
 webhid.set_aztool_mode = function(set_flag, cb_func) {
