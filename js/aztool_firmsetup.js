@@ -17,7 +17,7 @@ aztool.firm_setup = function() {
     h += "<div class='conn_bbutton' onClick='javascript:aztool.addopt_start(\"main_box\", 100);'>オリジナル</div>";
     h += "<br>";
 
-    h += "<div class='conn_bbutton' onClick='javascript:aztool.file_import_url(\"/data/ZIP_BLE.zip\");'>ZIP_BLE</div>";
+    h += "<div class='conn_bbutton' onClick='javascript:aztool.file_import_url(\"/aztool/data/ZIP_BLE.zip\");'>ZIP_BLE</div>";
     h += "<br>";
 
     h += "<div style='margin: 140px 0 0 0; height: 80px; line-height: 80px;'>";
