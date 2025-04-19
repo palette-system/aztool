@@ -523,4 +523,36 @@ li {
     background-color: #acdbfd;
 }
 
+/* セットアップページキーボード選択ボタン */
+.setup_menu_btn {
+    width: 270px;
+    height: 270px;
+    background-color: #f1f1f1;
+    color: #2c2c2c;
+    font-size: 16px;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+    margin: 10px 10px;
+    vertical-align: top;
+    padding: 10px 0;
+    border: solid 2px #939393;
+}
 
+.setup_menu_btn:hover {
+    background-color: #acdbfd;
+    border: solid 2px #acdbfd;
+}
+
+.setup_menu_img {
+    width: 250px;
+    height: 230px;
+    object-fit: cover;
+}
+
+.setup_menu_title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px;
+}
