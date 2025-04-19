@@ -136,7 +136,6 @@ aztool.ajax_array_buffer = function(src, cb_func) {
     xhr.responseType = "arraybuffer"; // arraybuffer blob text json 
     xhr.onload = function(e) {
         if (xhr.status == 200) {
-            azesp.download_data[src] = xhr.response;
             cb_func(0, xhr);
         } else {
             cb_func(1, null);
@@ -147,6 +146,7 @@ aztool.ajax_array_buffer = function(src, cb_func) {
 
 // 指定したURLのZIPをインポートする
 aztool.file_import_url = function(src, cb_func) {
+    if (!cb_func) cb_func = function() {};
     aztool.view_message("<div id='import_info'>ZIPロード中</div><br><br><br><div id='console_div'></div>");
     aztool.ajax_array_buffer(src, function(stat, res) {
         // エラー
