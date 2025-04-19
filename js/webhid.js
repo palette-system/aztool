@@ -139,7 +139,13 @@ webhid.str2arr = function(str) {
 
 // uint8Arrayを文字列にする
 webhid.arr2str = function(arr) {
-    return  new TextDecoder().decode(new Uint8Array(arr))
+    let arr_uint, i = 0, r = [];
+    arr_uint = new Uint8Array(arr);
+    while (i < arr_uint.length && arr_uint[i] > 0) {
+        r.push(arr_uint[i]);
+        i++;
+    }
+    return  new TextDecoder().decode(new Uint8Array(r))
 };
 
 // 文字列かどうかの判定
@@ -381,7 +387,8 @@ webhid.handle_input_report = function(e) {
 
     } else if (cmd_type == webhid.command_id.get_firmware_status) {
         // ファームウェア情報取得
-        r = get_data.split("-");
+        s = webhid.arr2str(get_data);
+        r = s.split("-");
         webhid.get_firmware_status_cb({"version": r[0], "eep_data": r[1]});
 
     }
@@ -988,7 +995,7 @@ webhid.get_serial_setting = function(cb_func) {
     });
 };
 
-// ファームウェアの情報取得
+// ファームウェアの情報取得（古いAZキーボードだとレスポンスが返ってこない場合がある）
 webhid.get_firmware_status = function(cb_func) {
     if (!cb_func) cb_func = function() {};
     webhid.get_firmware_status_cb = cb_func;

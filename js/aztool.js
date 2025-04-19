@@ -24,6 +24,9 @@ aztool.i2c_option_data = {};
 aztool.step_max = 0;
 aztool.step_index = 0; // 今のステップ
 
+// ファームウェアの情報
+aztool.firm_info = {"version": "000000", "eep_data": "AZC000"};
+
 // aztool初期化
 aztool.init = function(webhid_opt) {
     // webhidオブジェクト初期化
@@ -181,7 +184,7 @@ aztool.view_top_menu = function() {
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_keytest();'><font "+t+">🩺</font>入力テスト</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.irtest_open();'><font "+t+">🚨</font>赤外線確認</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font "+t+">🧩</font>オプション</div>";
-    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_wifi_top();'><font "+t+">📶</font>Wifi</div>";
+    h += "<div class='topmenu_btn only_esp' onClick='javascript:aztool.view_wifi_top();'><font "+t+">📶</font>Wifi</div>";
     h += "<div class='topmenu_btn azdisp' onClick='javascript:aztool.view_setdispimg();'><font "+t+">🖥️</font>待受画像</div>";
     h += "<div class='topmenu_btn azcore' onClick='javascript:aztool.power_saving_setting_open();'><font "+t+">🔋</font>省電力</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.param_setting_open();'><font "+t+">🎛️</font>パラメータ</div>";
@@ -198,6 +201,7 @@ aztool.view_top_menu = function() {
     $("#main_box").html(h);
     if (!aztool.is_azcore()) $(".azcore").css({"display": "none"}); // azcore専用の機能は他の機器の場合非表示
     if (aztool.get_disp_rotation() < 0) $(".azdisp").css({"display": "none"}); // azcore専用の機能は他の機器の場合非表示
+    if (aztool.is_nrf52()) $(".only_esp").css({"display": "none"}); // nRF52系であればESP用のメニューを非表示にする
 
     // キー配列を表示
     // aztool.view_key_layout();
@@ -232,6 +236,10 @@ aztool.edit_setting_json = function() {
 
 // 設定配列に反映した内容をJSONにして保存
 aztool.setting_json_save = function(cb_func) {
+    // デフォルトフラグがあればフラグを削除
+    if (aztool.is_default_setting()) {
+        delete aztool.setting_json_data.default;
+    }
     // 設定JSONデータ作成
     let save_data = JSON.stringify(aztool.setting_json_data);
     // 保存

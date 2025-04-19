@@ -17,8 +17,16 @@ aztool.load_setting_json = function() {
         // 別で読み込みが必要なi2cオプションのデータをロード
         aztool.i2c_option_data = {};
         aztool.i2c_load_index = 0;
-        // 設定JSONの読み込みが終わったらi2cデータのロード
-        aztool.load_i2c_data();
+        // 初期化がまだの場合はファームの初期化(設定ファイルの選択)を行う
+        if (aztool.is_default_setting()) {
+            // 初期化がまだの場合使用する設定ファイルを選択する
+            aztool.firm_setup();
+            // ファームウェアのバージョンやEEPROMの設定情報を取得（古いAZキーボードだとレスポンスが返ってこない場合がある）
+            webhid.get_firmware_status(aztool.set_firmware_status);
+        } else {
+            // 設定済みの場合続けて i2c データのロード
+            aztool.load_i2c_data();
+        }
     });
 };
 
@@ -81,6 +89,13 @@ aztool.load_kle_data = function() {
     });
 };
 
+// ファームウェアステータスを取得する
+aztool.set_firmware_status = function(firm_info) {
+    aztool.firm_info = firm_info;
+    // nRF52系であればESP用のメニューを非表示にする
+    if (aztool.is_nrf52()) $(".only_esp").css({"display": "none"});
+};
+
 // ディスク情報の取得
 aztool.load_disk_info = function() {
     // ディスクの空き容量取得
@@ -88,6 +103,8 @@ aztool.load_disk_info = function() {
         aztool.disk_data = disk_data;
         // 読み込みが終わったらAZTOOLのメニューページを表示
         aztool.view_top_menu();
+        // ファームウェアのバージョンやEEPROMの設定情報を取得（古いAZキーボードだとレスポンスが返ってこない場合がある）
+        webhid.get_firmware_status(aztool.set_firmware_status);
     });
 };
 

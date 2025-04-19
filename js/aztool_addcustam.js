@@ -15,6 +15,8 @@ aztool.addcustam_start = function() {
     var i2c_set = (aztool.setting_json_data.i2c_set)? aztool.setting_json_data.i2c_set: [-1, -1, 0];
     aztool.option_add = {
         "kle": aztool.get_main_kle(), // 現在の本体KLE
+        "status_pin": ("status_pin" in aztool.setting_json_data)? aztool.setting_json_data.status_pin: -1,
+        "power_pin": ("power_pin" in aztool.setting_json_data)? aztool.setting_json_data.power_pin: -1,
         "keyboard_pin": aztool.clone(aztool.setting_json_data.keyboard_pin), // 現在の本体のピン設定
         "i2c_set": aztool.clone(i2c_set), // 現在の本体のピン設定
         "map": [] // キーと読み込んだデータとのマッピング設定
@@ -32,8 +34,9 @@ aztool.addcustam_layout_view = function() {
     let h = `
         <br>    
         <textarea id="kle_json_txt" style="width: 800px; height: 150px;"
-        placeholder="KLEのレイアウトJSONを張り付けて下さい。"
-        onChange="javascript:aztool.option_add_kle_change();"></textarea><br>
+        placeholder="設定するキーボードのKLEレイアウトのRAWを張り付けて下さい。"
+        onChange="javascript:aztool.option_add_kle_change();"></textarea><br><br>
+        ※ 下記サイトで設定するキーボードのKLEレイアウトを作成して、RAWデータを張り付けて下さい。<br>
         <a href="http://www.keyboard-layout-editor.com/" target="_blank">keyboard-layout-editor.com</a><br>
         <br><br>
         <div style="text-align: right; width: 800px;">
@@ -44,8 +47,13 @@ aztool.addcustam_layout_view = function() {
     $("#kle_view_box_info").show();
     $("#option_setting_form").html(h);
     $("#kle_json_txt").html(aztool.option_add.kle);
-    // キャンセルするとトップメニューに戻る
-    $("#can_btn").html("<a class='cancel-button' onClick='javascript:aztool.option_add_end(aztool.view_top_menu);'>キャンセル</a>");
+    if (aztool.firm_setup_enable) { // ファーム選択中
+        // キャンセルするとファーム選択トップへ戻る
+        $("#can_btn").html("<a class='cancel-button' onClick='javascript:aztool.firm_setup();'>キャンセル</a>");
+    } else {
+        // キャンセルするとトップメニューに戻る
+        $("#can_btn").html("<a class='cancel-button' onClick='javascript:aztool.option_add_end(aztool.view_top_menu);'>キャンセル</a>");
+    }
     aztool.update_step_box(1);
     aztool.option_add_kle_change();
 };
@@ -58,10 +66,14 @@ aztool.addcustam_ioset_view = function() {
         <br><br>
         <table>
         <tr>
-            <td style="`+st_th+`">ダイレクトピン</td>
-            <td><input type="text" id="pin_direct" value="" style="font-size: 26px; width: 500px;"></td>
+            <td style="`+st_th+`">ステータスLEDピン</td>
+            <td><input type="text" id="pin_stat" value="" style="font-size: 26px; width: 500px;"></td>
         </tr>
         <tr>
+            <td style="`+st_th+`">ダイレクト入力ピン</td>
+            <td><input type="text" id="pin_direct" value="" style="font-size: 26px; width: 500px;"></td>
+        </tr>
+        <tr id="touch_box">
             <td style="`+st_th+`">タッチピン</td>
             <td><input type="text" id="pin_touch" value="" style="font-size: 26px; width: 500px;"></td>
         </tr>
@@ -80,18 +92,14 @@ aztool.addcustam_ioset_view = function() {
             SCL <input type="text" id="pin_scl" value="" style="font-size: 26px; width: 80px;">
             </td>
         </tr>
+        <tr>
+            <td style="`+st_th+`">電源ピン</td>
+            <td><input type="text" id="pin_power" value="" style="font-size: 26px; width: 80px;"></td>
+        </tr>
         </table>
-        <br><br>
         <div id="pin_error" style="color: #ff5656; font-size: 15px;"></div>
         <br><br>
-        <div style="color: #888; font-size: 14px;">
-        ※ ピン番号をカンマ区切りで入力して下さい。<br>
-        ※ EN、SD0、SD1、SD2、SD3、CMD、CLK はIOピンとして使用できません。<br>
-        ※ 0、1(TX)、3(RX) はIOピンですがファームウェア書込み時に使用するので非推薦です。<br>
-        ※ 34、35、36(VP)、39(VN)は入力専用のためダイレクトピン、rowピンでのみ使用できます。<br>　　(内部プルアップが無いので使用時はプルアップして下さい)<br>
-        ※ タッチは 0、2、4、12、13、4、15、27、32、33 のみ指定できます。<br>
-        ※ ESP32-WROVER で 16、17 は使用できないので注意です。<br>
-        </div>
+        <div id="ioset_info_box" style="color: #888; font-size: 14px;"></div>
         <br><br>
         <div style="text-align: right; width: 800px;">
         <a class="cancel-button" onClick="javascript:aztool.addcustam_layout_view();">戻る</a>　
@@ -99,6 +107,8 @@ aztool.addcustam_ioset_view = function() {
         </div>`;
     $("#option_setting_form").html(h);
     let d = aztool.option_add.keyboard_pin;
+    $("#pin_stat").val(aztool.option_add.status_pin);
+    $("#pin_power").val(aztool.option_add.power_pin);
     $("#pin_direct").val(d.direct.join(", "));
     $("#pin_touch").val(d.touch.join(", "));
     $("#pin_col").val(d.col.join(", "));
@@ -107,6 +117,34 @@ aztool.addcustam_ioset_view = function() {
     $("#pin_scl").val(aztool.option_add.i2c_set[1]);
     $("#kle_view_box").hide();
     $("#kle_view_box_info").hide();
+    let info_html = "";
+    if (aztool.is_nrf52()) {
+        // nRF52 の場合タッチ入力は無し
+        $("#touch_box").hide();
+        // nRF52 用のインフォメーション
+        info_html += "※ ピン番号をカンマ区切りで入力して下さい。<br>";
+        info_html += "※ GPIO のピン番号<br>";
+        info_html += "　　0「GPIO 0 (P0.2)」、1「GPIO 1 (P0.3)」、2「GPIO 2 (P0.28)」、3「GPIO 3 (P0.29)」<br>";
+        info_html += "　　4「GPIO 4 (P0.4)」、5「GPIO 5 (P0.5)」、6「GPIO 6 (P1.11)」、7「GPIO 7 (P1.12)」<br>";
+        info_html += "　　8「GPIO 8 (P1.13)」、9「GPIO 9 (P1.14)」、10「GPIO 10 (P1.15)」<br>";
+        info_html += "※ 表面のピン<br>";
+        info_html += "　　24「(P0.21) QSPI_SCK」、25「(P0.25) QSPI_CSN」<br>";
+        info_html += "　　26「(P0.20) QSPI_SIO_0」、27「(P0.24) QSPI_SIO_1」、28「(P0.22) QSPI_SIO_2」、29「(P0.23) QSPI_SIO_3」<br>";
+        info_html += "※ 裏面のピン<br>";
+        info_html += "　　30「(P0.9) NFC1」、31「(P0.10) NFC2」<br>";
+        info_html += "※ LEDピン<br>";
+        info_html += "　　11「LED RED」、12「LED BLUE」、13「LED GREEN」<br>";
+                        
+    } else {
+        // ESP32 用のインフォメーション
+        info_html += "※ ピン番号をカンマ区切りで入力して下さい。<br>";
+        info_html += "※ EN、SD0、SD1、SD2、SD3、CMD、CLK はIOピンとして使用できません。<br>";
+        info_html += "※ 0、1(TX)、3(RX) はIOピンですがファームウェア書込み時に使用するので非推薦です。<br>";
+        info_html += "※ 34、35、36(VP)、39(VN)は入力専用のためダイレクトピン、rowピンでのみ使用できます。<br>　　(内部プルアップが無いので使用時はプルアップして下さい)<br>";
+        info_html += "※ タッチは 0、2、4、12、13、4、15、27、32、33 のみ指定できます。<br>";
+        info_html += "※ ESP32-WROVER で 16、17 は使用できないので注意です。<br>";
+    }
+    $("#ioset_info_box").html(info_html);
     aztool.update_step_box(2);
 };
 
@@ -118,6 +156,7 @@ aztool.addcustam_ioset_check = function(check_data) {
     // ノーマルESP32 のみ 用 let as = [0, 1, 2, 3, 4, 5, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33, 34, 35, 36, 39]; // 使用できるピン全て
     let as = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 32, 33, 34, 35, 36, 39, 40, 41, 42, 43, 44, 46]; // 使用できるピン全て(S3も含む)
     let rs = [34, 35, 36, 39]; // 読み込み専用ピン
+    let nr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32];
     let c, i, j, x;
     // 指定したすべての番号の配列を作成
     c = [];
@@ -126,34 +165,53 @@ aztool.addcustam_ioset_check = function(check_data) {
     }
     c.push(check_data.i2c_set[0]);
     c.push(check_data.i2c_set[1]);
-    // 入力されたピンを全てチェック
-    for (i in c) {
-        x = c[i];
-        // マイナス指定のピンは無視
-        if (x < 0) continue;
-        // 同じ番号が使われていないかチェック
-        if (c.indexOf(x) != i) {
-            return "ピン "+x+" が複数個所で指定されています";
+    // 入力専用ピンのチェック
+    if (aztool.is_nrf52()) {
+        // nRF52 の場合の入力チェック
+        for (i in c) {
+            x = c[i];
+            // マイナス指定のピンは無視
+            if (x < 0) continue;
+            // 同じ番号が使われていないかチェック
+            if (c.indexOf(x) != i) {
+                return "ピン "+x+" が複数個所で指定されています";
+            }
+            // 使用できないピンが入っていないかチェック
+            if (nr.indexOf(x) < 0) {
+                return "ピン "+x+" は使用できません";
+            }
         }
-        // 使用できないピンが入っていないかチェック
-        if (as.indexOf(x) < 0) {
-            return "ピン "+x+" は使用できません";
+    } else {
+        // ESP32の場合の入力チェック
+        // 入力されたピンを全てチェック
+        for (i in c) {
+            x = c[i];
+            // マイナス指定のピンは無視
+            if (x < 0) continue;
+            // 同じ番号が使われていないかチェック
+            if (c.indexOf(x) != i) {
+                return "ピン "+x+" が複数個所で指定されています";
+            }
+            // 使用できないピンが入っていないかチェック
+            if (as.indexOf(x) < 0) {
+                return "ピン "+x+" は使用できません";
+            }
         }
-    }
-    // タッチピンチェック
-    for (i in check_data.keyboard_pin.touch) {
-        x = check_data.keyboard_pin.touch[i];
-        if (ts.indexOf(x) < 0) {
-            return "ピン " + x + " はタッチピンに指定できません";
+        // タッチピンチェック
+        for (i in check_data.keyboard_pin.touch) {
+            x = check_data.keyboard_pin.touch[i];
+            if (ts.indexOf(x) < 0) {
+                return "ピン " + x + " はタッチピンに指定できません";
+            }
         }
-    }
-    // 入力専用ピンが row 以外に使用されていないかチェック
-    for (i in ks) {
-        if (ks[i] == "direct" || ks[i] == "row") continue; // direct, row は無視
-        x = check_data.keyboard_pin[ks[i]];
-        for (j in x) {
-            if (rs.indexOf(x[j]) >= 0) {
-                return "ピン " + x[j] + " はダイレクトピンかROWピンでのみ使用できます";
+        // 入力専用ピンが row 以外に使用されていないかチェック
+        for (i in ks) {
+            if (ks[i] == "direct" || ks[i] == "row") continue; // direct, row は無視
+            x = check_data.keyboard_pin[ks[i]];
+            for (j in x) {
+                if (rs.indexOf(x[j]) >= 0) {
+                    return "ピン " + x[j] + " はダイレクトピンかROWピンでのみ使用できます";
+                }
             }
         }
     }
@@ -186,10 +244,17 @@ aztool.addcustam_ioset_set = function() {
         }
         check_data.keyboard_pin[ks[i]] = aztool.array_uniq(v); // 重複分を削除して保持
     }
+    // I2C
     x = $("#pin_sda").val();
     check_data.i2c_set[0] = (x.length)? parseInt(x): -1;
     x = $("#pin_scl").val();
     check_data.i2c_set[1] = (x.length)? parseInt(x): -1;
+    // ステータスピン
+    x = $("#pin_stat").val();
+    if (x.length && parseInt(x) >= 0) check_data.status_pin = parseInt(x);
+    // 電源ピン
+    x = $("#pin_power").val();
+    if (x.length && parseInt(x) >= 0) check_data.power_pin = parseInt(x);
     console.log(check_data);
     // 入力チェック
     c = aztool.addcustam_ioset_check(check_data);
@@ -201,6 +266,10 @@ aztool.addcustam_ioset_set = function() {
     aztool.option_add.keyboard_pin = check_data.keyboard_pin;
     aztool.option_add.i2c_set[0] = check_data.i2c_set[0];
     aztool.option_add.i2c_set[1] = check_data.i2c_set[1];
+    if ("status_pin" in check_data) aztool.option_add.status_pin = check_data.status_pin;
+    if ("power_pin" in check_data) aztool.option_add.power_pin = check_data.power_pin;
+    if (aztool.option_add.status_pin < 0) delete aztool.option_add.status_pin;
+    if (aztool.option_add.power_pin < 0) delete aztool.option_add.power_pin;
     // チェックOKなら入力確認を開始する
     aztool.addcustam_start_check_mode();
 };
@@ -403,6 +472,9 @@ aztool.option_addcustam_save = function() {
                 aztool.setting_json_data.i2c_set[0] = aztool.clone(aztool.option_add.i2c_set[0]);
                 aztool.setting_json_data.i2c_set[1] = aztool.clone(aztool.option_add.i2c_set[1]);
             }
+            // 電源ピンステータスピン
+            if ("status_pin" in aztool.option_add) aztool.setting_json_data.status_pin = aztool.option_add.status_pin;
+            if ("power_pin" in aztool.option_add) aztool.setting_json_data.power_pin = aztool.option_add.power_pin;
             // 設定JSON保存
             aztool.setting_json_save(function(stat) {
                 // 保存失敗

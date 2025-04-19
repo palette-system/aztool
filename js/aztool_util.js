@@ -250,3 +250,13 @@ aztool.get_main_kle = function() {
 aztool.is_actuation_kb = function() {
     return (aztool.actuation_kb_list.indexOf(aztool.setting_json_data.keyboard_type) >= 0);
 };
+
+// nRF52840 系かどうか
+aztool.is_nrf52 = function() {
+    return (aztool.firm_info.eep_data.substring(0,3) == 'AZN');
+};
+
+// デフォルトの設定かどうか
+aztool.is_default_setting = function() {
+    return ("default" in aztool.setting_json_data);
+};

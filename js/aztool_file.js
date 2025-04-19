@@ -128,3 +128,33 @@ aztool.file_drop_file_zip = function() {
     });
 
 };
+
+// 指定したURLのファイルをダウンロードする
+aztool.ajax_array_buffer = function(src, cb_func) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", src, true);
+    xhr.responseType = "arraybuffer"; // arraybuffer blob text json 
+    xhr.onload = function(e) {
+        if (xhr.status == 200) {
+            azesp.download_data[src] = xhr.response;
+            cb_func(0, xhr);
+        } else {
+            cb_func(1, null);
+        }
+    }
+    xhr.send();
+};
+
+// 指定したURLのZIPをインポートする
+aztool.file_import_url = function(src, cb_func) {
+    aztool.view_message("<div id='import_info'>ZIPロード中</div><br><br><br><div id='console_div'></div>");
+    aztool.ajax_array_buffer(src, function(stat, res) {
+        // エラー
+        if (stat > 0) {
+            cb_func(1, null);
+            return;
+        }
+        // ZIPデータがロードできていればインポート実行
+        aztool.file_import_all(res.response);
+    });
+};
