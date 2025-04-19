@@ -155,6 +155,9 @@ aztool.file_import_url = function(src, cb_func) {
             return;
         }
         // ZIPデータがロードできていればインポート実行
-        aztool.file_import_all(res.response);
+        console.log(res);
+        let arr = new Uint8Array(res.response);
+        console.log(arr);
+        aztool.file_import_all(arr);
     });
 };
