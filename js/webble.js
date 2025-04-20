@@ -59,6 +59,8 @@ webble.init = function(opt) {
 webble.connect = function(cb_func) {
     // 同時送信数1固定
     webhid.load_step = 1;
+    // 保存データ送信のステップ数指定
+    webhid.save_step_set = 1;
     // デバイス情報設定
     webhid.raw_report_id = {
         "in": 1,

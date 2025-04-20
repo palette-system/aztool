@@ -123,8 +123,8 @@ aztool.view_connect_top = function(msg) {
         h += "<br>";
         if (msg) h += "<br>" + msg;
     }
-    h += "<div style='margin: 140px 0 0 0; height: 80px; line-height: 80px;'>";
-    h += "<img src='./img/palette_system_logo.png' alt='パレットシステム'>"
+    h += "<div style='margin: 140px 0 0 0;'>";
+    h += "<img style='width: 147px; height: 147px;' src='./img/logo2.jpg' alt='パレットシステム'>"
     h += "</div>";
     h += "</div>";
     $("#main_box").html(h);

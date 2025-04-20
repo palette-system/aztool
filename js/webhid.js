@@ -35,6 +35,9 @@ webhid.load_file_path = "";
 webhid.save_index = 0;
 
 // 保存データを一気に何レコード送信するか
+webhid.save_step_set = 4;
+
+// 保存データを一気に何レコード送信するか(受け取った数値)
 webhid.save_step = 0;
 
 // 保存データを送信するデータの開始位置
@@ -249,7 +252,7 @@ webhid.handle_input_report = function(e) {
         webhid.save_index = 0; // ステップ位置を0に
         webhid.save_hash = [];
         webhid.last_save_time = webhid.millis(); // 最後にコマンドを投げた時間
-        webhid.send_save_data(); // 保存データの送信
+        setTimeout(webhid.send_save_data, webhid.save_wait); // 保存データの送信
 
     } else if (cmd_type == webhid.command_id.file_save_complate) {
         // ファイル保存完了通知
@@ -646,7 +649,7 @@ webhid.save_file = function(file_path, file_data, cb_func) {
         ((data_len >> 16) & 0xff),
         ((data_len >> 8) & 0xff),
         (data_len & 0xff),
-        4, // 保存データ送信のステップ数指定
+        webhid.save_step_set // 保存データ送信のステップ数指定
     ];
     let i;
     for (i=0; i<file_path_arr.length; i++) {

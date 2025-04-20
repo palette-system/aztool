@@ -78,15 +78,15 @@ aztool.addcustam_ioset_view = function() {
             <td><input type="text" id="pin_touch" value="" style="font-size: 26px; width: 500px;"></td>
         </tr>
         <tr>
-            <td style="`+st_th+`">colピン</td>
+            <td style="`+st_th+`">COL ピン</td>
             <td><input type="text" id="pin_col" value="" style="font-size: 26px; width: 500px;"></td>
         </tr>
         <tr>
-            <td style="`+st_th+`">rowピン</td>
+            <td style="`+st_th+`">ROW ピン</td>
             <td><input type="text" id="pin_row" value="" style="font-size: 26px; width: 500px;"></td>
         </tr>
         <tr>
-            <td style="`+st_th+`">I2Cピン</td>
+            <td style="`+st_th+`">I2C ピン</td>
             <td>
             SDA <input type="text" id="pin_sda" value="" style="font-size: 26px; width: 80px;">　　
             SCL <input type="text" id="pin_scl" value="" style="font-size: 26px; width: 80px;">
@@ -456,39 +456,43 @@ aztool.option_addcustam_save = function() {
     $("#option_setting_form").html(h);
     aztool.update_step_box(6);
     // KLE データをファイルに出力
-    webhid.save_file(
-        aztool.kle_json_path, // 保存するKLE JSON のパス
-        aztool.option_add.kle, // 保存データ
-        function (stat) {
-            // 保存失敗
-            if (stat != 0) {
-                $("#console_div").html("kleデータの保存に失敗しました");
-                return;
-            }
-            // 保存が成功したらピンデータなども変更して設定JSONを保存
-            aztool.setting_json_data.keyboard_pin = aztool.clone(aztool.option_add.keyboard_pin);
-            if (aztool.option_add.i2c_set[0] >= 0 || aztool.option_add.i2c_set[1] >= 0) {
-                if (!aztool.setting_json_data.i2c_set) aztool.setting_json_data.i2c_set = [-1, -1, 100000];
-                aztool.setting_json_data.i2c_set[0] = aztool.clone(aztool.option_add.i2c_set[0]);
-                aztool.setting_json_data.i2c_set[1] = aztool.clone(aztool.option_add.i2c_set[1]);
-            }
-            // 電源ピンステータスピン
-            if ("status_pin" in aztool.option_add) aztool.setting_json_data.status_pin = aztool.option_add.status_pin;
-            if ("power_pin" in aztool.option_add) aztool.setting_json_data.power_pin = aztool.option_add.power_pin;
-            // 設定JSON保存
-            aztool.setting_json_save(function(stat) {
+    setTimeout(function() {
+        webhid.save_file(
+            aztool.kle_json_path, // 保存するKLE JSON のパス
+            aztool.option_add.kle, // 保存データ
+            function (stat) {
                 // 保存失敗
                 if (stat != 0) {
-                    $("#console_div").html("設定JSONの保存に失敗しました");
+                    $("#console_div").html("kleデータの保存に失敗しました");
                     return;
                 }
-                // 保存成功したら再起動(一応画面が確認できるよう2秒くらい待ってから)
-                $("#console_div").html("保存完了しました。");
+                // 保存が成功したらピンデータなども変更して設定JSONを保存
+                aztool.setting_json_data.keyboard_pin = aztool.clone(aztool.option_add.keyboard_pin);
+                if (aztool.option_add.i2c_set[0] >= 0 || aztool.option_add.i2c_set[1] >= 0) {
+                    if (!aztool.setting_json_data.i2c_set) aztool.setting_json_data.i2c_set = [-1, -1, 100000];
+                    aztool.setting_json_data.i2c_set[0] = aztool.clone(aztool.option_add.i2c_set[0]);
+                    aztool.setting_json_data.i2c_set[1] = aztool.clone(aztool.option_add.i2c_set[1]);
+                }
+                // 電源ピンステータスピン
+                if ("status_pin" in aztool.option_add) aztool.setting_json_data.status_pin = aztool.option_add.status_pin;
+                if ("power_pin" in aztool.option_add) aztool.setting_json_data.power_pin = aztool.option_add.power_pin;
+                // 設定JSON保存
                 setTimeout(function() {
-                    aztool.keyboard_restart(0); // キーボードを再起動
-                }, 5000);
-            });
-        }
-    );
+                    aztool.setting_json_save(function(stat) {
+                        // 保存失敗
+                        if (stat != 0) {
+                            $("#console_div").html("設定JSONの保存に失敗しました");
+                            return;
+                        }
+                        // 保存成功したら再起動(一応画面が確認できるよう2秒くらい待ってから)
+                        $("#console_div").html("保存完了しました。");
+                        setTimeout(function() {
+                            aztool.keyboard_restart(0); // キーボードを再起動
+                        }, 3000);
+                    });
+                }, 1000);
+            }
+        );
+    }, 3000);
 };
 
