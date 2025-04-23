@@ -4,11 +4,62 @@ if (!window.aztool) aztool = {};
 
 aztool.firm_setup_enable = false;
 
+// AZTOOL GAS API
+aztool.gas_api = "https://script.google.com/macros/s/AKfycby02k83aIZcSPbiwikvsVKcmZuZOjKAPALDjhPxu7WPaXYsKu6EK9XZ0Fb5wQAfgpAP/exec";
+
+
 // キーボードリスト
 aztool.setup_keyboard_list = [
+    {"name": "AZPOCKET", "img": "./img/setup_azpocket.jpg", "zip": "./data/ZIP_BLE.zip"},
     {"name": "AZPOCKET", "img": "./img/setup_azpocket.jpg", "zip": "./data/ZIP_BLE.zip"}
 ];
 
+aztool.setup_keyboard_list = [
+    {"name": "AZPOCKET", "github": "https://github.com/palette-system/az-core/tree/main/azpocket"}
+];
+
+// Github URL から画像とインポート用の URL を作成する
+aztool.create_github_url = function(main_url) {
+    var i;
+    var url_data = main_url.split("/");
+    var github_user = url_data[3]; // github ユーザー名
+    var github_repo = url_data[4]; // リポジトリ名
+    var github_branch = url_data[6]; // ブランチ名
+    var github_path = "";
+    for (i in url_data) {
+        if (i < 7) continue;
+        github_path += "/" + url_data[i];
+    }
+    var base_url = "https://github.com/" + github_user + "/" + github_repo + "/raw/refs/heads/" + github_branch + github_path;
+    var res = {
+        "base": base_url,
+        "image": base_url + "/main.jpg",
+        "zip": base_url + "/import.zip"
+    };
+    return res;
+};
+
+// GAS からキーボードリストを取得する
+aztool.get_keyboard_list = function(cb_func) {
+    if (!cb_func) cb_func = function() {};
+    aztool.ajax_array_buffer(
+        aztool.gas_api,
+        function(stat, res) {
+            var i;
+            if (stat > 0) return; // エラーだったら何もしない
+            // レスポンスからキーボードリストを取得
+            var json_str = webhid.arr2str(res.response);
+            var json_data = JSON.parse(json_str);
+            aztool.setup_keyboard_list = json_data["data"];
+            // github の url から画像とZIPのURL生成
+            for (i in aztool.setup_keyboard_list) {
+                aztool.setup_keyboard_list[i]["url"] = aztool.create_github_url(aztool.setup_keyboard_list[i]["github"]);
+            }
+            // コールバック関数を実行
+            cb_func();
+        }
+    );
+};
 
 aztool.firm_setup = function() {
     aztool.firm_setup_enable = true;
@@ -45,5 +96,7 @@ aztool.firm_setup = function() {
     h += "</div>";
     h += "</div>";
     $("#main_box").html(h);
+    // GAS からキーボードリストを取得して表示する
+    aztool.get_keyboard_list();
 
 };

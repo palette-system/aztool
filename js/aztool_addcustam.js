@@ -449,8 +449,8 @@ aztool.option_addcustam_map_check_update = function() {
 aztool.option_addcustam_save = function() {
     // 保存中画面表示
     let h = `
-        <div id="btncheck_info">設定内容を保存中</div>
-        <div id="console_div" style="height: 120px;"></div>
+        <div id="btncheck_info">設定内容を保存</div>
+        <div id="console_div" style="height: 120px;">準備中</div>
         <div style="text-align: right; width: 800px;">
         </div>`;
     $("#option_setting_form").html(h);
