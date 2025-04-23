@@ -71,6 +71,8 @@ aztool.firm_setup = function() {
     h += "<font style='font-size: 20px; font-weight: bold;'>初期セットアップ</font><br>接続しているキーボードを選択して下さい。<br>";
     h += "<br>";
 
+    h += "<div id='keyboard_list_box'>";
+
     h += "<div class='setup_menu_btn' onClick='javascript:aztool.addopt_start(\"main_box\", 100);'>";
     h += "<img class='setup_menu_img' style='height: 120px;' src='./img/custam_icon.jpg'><br>";
     h += "<div class='setup_menu_title'>新規作成</div>";
@@ -83,6 +85,7 @@ aztool.firm_setup = function() {
     h += "<div style='margin: 0 10px;'>エクスポートした ZIP ファイルや、配布されている ZIP ファイルを指定してキーボード設定を行います。</div>";
     h += "</div>";
 
+    /*
     for (i in aztool.setup_keyboard_list) {
         k = aztool.setup_keyboard_list[i];
         h += "<div class='setup_menu_btn' onClick='javascript:aztool.file_import_url(\"" + k.zip + "\");'>";
@@ -90,13 +93,25 @@ aztool.firm_setup = function() {
         h += "<div class='setup_menu_title'>" + k.name + "</div>";
         h += "</div>";    
     }
+    */
 
+    h += "</div>";
     h += "<div style='margin: 100px 0 0 0;'>";
     h += "<img style='width: 147px; height: 147px;' src='./img/logo2.jpg' alt='パレットシステム'>"
     h += "</div>";
     h += "</div>";
     $("#main_box").html(h);
     // GAS からキーボードリストを取得して表示する
-    aztool.get_keyboard_list();
+    aztool.get_keyboard_list(function(){
+        var i, h = "", k;
+        for (i in aztool.setup_keyboard_list) {
+            k = aztool.setup_keyboard_list[i];
+            h += "<div class='setup_menu_btn' onClick='javascript:aztool.file_import_url(\"" + k.url.zip + "\");'>";
+            h += "<img class='setup_menu_img' src='" + k.url.image + "'><br>";
+            h += "<div class='setup_menu_title'>" + k.name + "</div>";
+            h += "</div>";    
+        }
+        $("#keyboard_list_box").append(h);
+    });
 
 };
