@@ -8,15 +8,16 @@ aztool.firm_setup_enable = false;
 aztool.gas_api = "https://script.google.com/macros/s/AKfycby02k83aIZcSPbiwikvsVKcmZuZOjKAPALDjhPxu7WPaXYsKu6EK9XZ0Fb5wQAfgpAP/exec";
 
 
-// キーボードリスト
-aztool.setup_keyboard_list = [
-    {"name": "AZPOCKET", "img": "./img/setup_azpocket.jpg", "zip": "./data/ZIP_BLE.zip"},
-    {"name": "AZPOCKET", "img": "./img/setup_azpocket.jpg", "zip": "./data/ZIP_BLE.zip"}
-];
-
+// キーボードリスト(デフォルト) GASからリスト取得失敗した場合表示される
 aztool.setup_keyboard_list = [
     {"name": "AZPOCKET", "github": "https://github.com/palette-system/az-core/tree/main/azpocket"}
 ];
+
+// ファームセットアップ初期処理
+aztool.firm_setup_init = function() {
+    // GAS からキーボードリスト取得
+    aztool.get_keyboard_list();
+};
 
 // Github URL から画像とインポート用の URL を作成する
 aztool.create_github_url = function(main_url) {
@@ -85,15 +86,13 @@ aztool.firm_setup = function() {
     h += "<div style='margin: 0 10px;'>エクスポートした ZIP ファイルや、配布されている ZIP ファイルを指定してキーボード設定を行います。</div>";
     h += "</div>";
 
-    /*
     for (i in aztool.setup_keyboard_list) {
         k = aztool.setup_keyboard_list[i];
-        h += "<div class='setup_menu_btn' onClick='javascript:aztool.file_import_url(\"" + k.zip + "\");'>";
-        h += "<img class='setup_menu_img' src='" + k.img + "'><br>";
+        h += "<div class='setup_menu_btn' onClick='javascript:aztool.file_import_url(\"" + k.url.zip + "\");'>";
+        h += "<img class='setup_menu_img' src='" + k.url.image + "'><br>";
         h += "<div class='setup_menu_title'>" + k.name + "</div>";
         h += "</div>";    
     }
-    */
 
     h += "</div>";
     h += "<div style='margin: 100px 0 0 0;'>";
@@ -102,16 +101,6 @@ aztool.firm_setup = function() {
     h += "</div>";
     $("#main_box").html(h);
     // GAS からキーボードリストを取得して表示する
-    aztool.get_keyboard_list(function(){
-        var i, h = "", k;
-        for (i in aztool.setup_keyboard_list) {
-            k = aztool.setup_keyboard_list[i];
-            h += "<div class='setup_menu_btn' onClick='javascript:aztool.file_import_url(\"" + k.url.zip + "\");'>";
-            h += "<img class='setup_menu_img' src='" + k.url.image + "'><br>";
-            h += "<div class='setup_menu_title'>" + k.name + "</div>";
-            h += "</div>";    
-        }
-        $("#keyboard_list_box").append(h);
-    });
+    aztool.get_keyboard_list();
 
 };

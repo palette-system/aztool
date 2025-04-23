@@ -49,6 +49,8 @@ aztool.init = function(webhid_opt) {
     aztool.view_connect_top();
     // シリアル通信(赤外線)動作テスト用のモーダル初期化
     aztool.irtest_init();
+    // ファームセットアップ初期化
+    aztool.firm_setup_init();
 };
 
 
