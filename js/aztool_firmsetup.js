@@ -100,7 +100,5 @@ aztool.firm_setup = function() {
     h += "</div>";
     h += "</div>";
     $("#main_box").html(h);
-    // GAS からキーボードリストを取得して表示する
-    aztool.get_keyboard_list();
 
 };
