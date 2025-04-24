@@ -138,10 +138,27 @@ aztool.ajax_array_buffer = function(src, cb_func) {
         if (xhr.status == 200) {
             cb_func(0, xhr);
         } else {
-            cb_func(1, null);
+            cb_func(1, xhr);
         }
     }
     xhr.send();
+};
+
+// 指定したURLにPOSTしてのファイルをダウンロードする
+aztool.post_array_buffer = function(src, param, cb_func) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", src, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.responseType = "arraybuffer"; // arraybuffer blob text json 
+    xhr.onload = function(e) {
+        if (xhr.status == 200) {
+            cb_func(0, xhr);
+        } else {
+            cb_func(1, xhr);
+        }
+    }
+    var json_str = JSON.stringify(param);
+    xhr.send(json_str);
 };
 
 // 指定したURLのZIPをインポートする
