@@ -88,7 +88,7 @@ aztool.firm_setup = function() {
 
     for (i in aztool.setup_keyboard_list) {
         k = aztool.setup_keyboard_list[i];
-        h += "<div class='setup_menu_btn' onClick='javascript:aztool.file_import_url(\"" + k.url.zip + "\");'>";
+        h += "<div class='setup_menu_btn' onClick='javascript:aztool.github_import_file(\"" + k.url.base + "\",\"/import.zip\");'>";
         h += "<img class='setup_menu_img' src='" + k.url.image + "'><br>";
         h += "<div class='setup_menu_title'>" + k.name + "</div>";
         h += "</div>";    
