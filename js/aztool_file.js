@@ -189,3 +189,24 @@ aztool.file_import_url = function(src, cb_func) {
         aztool.file_import_all(arr);
     });
 };
+
+// Github からZIPをダウンロードしてインポートする
+aztool.github_import_file = function(github_src, github_path, cb_func) {
+    if (!cb_func) cb_func = function() {};
+    aztool.post_array_buffer_gas(
+        aztool.gas_api, 
+        {"type": "file", "github": github_src, "path": github_path}, 
+        function(s,r) {
+            if (s) {
+                cb_func(s, null);
+                return;
+            }
+            var json_arr = new Uint8Array(r.response);
+            var res = JSON.parse(webhid.arr2str(json_arr)); 
+            var zip_arr = new Uint8Array(res.data);
+            console.log(zip_arr);
+            aztool.file_import_all(arr);
+        }
+    );
+        
+};
