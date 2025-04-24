@@ -205,7 +205,7 @@ aztool.github_import_file = function(github_src, github_path, cb_func) {
             var res = JSON.parse(webhid.arr2str(json_arr)); 
             var zip_arr = new Uint8Array(res.data);
             console.log(zip_arr);
-            aztool.file_import_all(arr);
+            aztool.file_import_all(zip_arr);
         }
     );
         
