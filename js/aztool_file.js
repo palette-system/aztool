@@ -146,11 +146,13 @@ aztool.ajax_array_buffer = function(src, cb_func) {
 };
 
 // 指定したURLにPOSTしてのファイルをダウンロードする
-aztool.post_array_buffer = function(src, param, cb_func) {
+aztool.post_array_buffer = function(src, param, headers, cb_func) {
     if (!cb_func) cb_func = function() {};
+    if (!headers) header = {};
+    var k;
     var xhr = new XMLHttpRequest();
     xhr.open("POST", src, true);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    for (k in headers) xhr.setRequestHeader(k, headers[k]);
     xhr.responseType = "arraybuffer"; // arraybuffer blob text json 
     xhr.onload = function(e) {
         if (xhr.status == 200) {
@@ -162,6 +164,13 @@ aztool.post_array_buffer = function(src, param, cb_func) {
     var json_str = JSON.stringify(param);
     xhr.send(json_str);
 };
+
+// GAS用 POST
+aztool.post_array_buffer_gas = function(src, param, cb_func) {
+    var head = {"Content-Type": "application/x-www-form-urlencoded"};
+    aztool.post_array_buffer(src, param, head, cb_func);
+}
+
 
 // 指定したURLのZIPをインポートする
 aztool.file_import_url = function(src, cb_func) {
