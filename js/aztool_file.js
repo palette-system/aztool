@@ -131,6 +131,7 @@ aztool.file_drop_file_zip = function() {
 
 // 指定したURLのファイルをダウンロードする
 aztool.ajax_array_buffer = function(src, cb_func) {
+    if (!cb_func) cb_func = function() {};
     var xhr = new XMLHttpRequest();
     xhr.open("GET", src, true);
     xhr.responseType = "arraybuffer"; // arraybuffer blob text json 
@@ -140,15 +141,16 @@ aztool.ajax_array_buffer = function(src, cb_func) {
         } else {
             cb_func(1, xhr);
         }
-    }
+    };
     xhr.send();
 };
 
 // 指定したURLにPOSTしてのファイルをダウンロードする
 aztool.post_array_buffer = function(src, param, cb_func) {
+    if (!cb_func) cb_func = function() {};
     var xhr = new XMLHttpRequest();
     xhr.open("POST", src, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.responseType = "arraybuffer"; // arraybuffer blob text json 
     xhr.onload = function(e) {
         if (xhr.status == 200) {
@@ -156,7 +158,7 @@ aztool.post_array_buffer = function(src, param, cb_func) {
         } else {
             cb_func(1, xhr);
         }
-    }
+    };
     var json_str = JSON.stringify(param);
     xhr.send(json_str);
 };
