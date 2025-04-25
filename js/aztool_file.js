@@ -101,7 +101,7 @@ aztool.file_import_all = function(zipArr) {
 
 // 1ファイル分読み込んで解凍
 aztool.file_drop_file_zip = function() {
-    $("#import_info").html("データ展開中　残り " + aztool.file_list.length + " ファイル");
+    $("#import_info").html("データ展開中　残り " + aztool.file_list.length + " ファイル<br><div id='path_info'></div>");
     // 全ファイル展開したらESP再起動
     if (!aztool.file_list.length) {
         setTimeout(function() {
@@ -116,6 +116,7 @@ aztool.file_drop_file_zip = function() {
     let file_data = aztool.file_unzip.decompress(f);
     if (fp.slice(0,1) != "/") fp = "/" + fp;
     console.log("file path : " + fp + " ("+f+")");
+    $("#path_info").html("送信中 : " + fp + " ("+f+")");
     console.log(file_data);
     webhid.save_file(fp, file_data, function(stat) {
         // 失敗したらスキップして次のファイル
@@ -193,6 +194,7 @@ aztool.file_import_url = function(src, cb_func) {
 // Github からZIPをダウンロードしてインポートする
 aztool.github_import_file = function(github_src, github_path, cb_func) {
     if (!cb_func) cb_func = function() {};
+    aztool.view_message("<div id='import_info'>ZIPロード中</div><br><br><br><div id='console_div'></div>");
     aztool.post_array_buffer_gas(
         aztool.gas_api, 
         {"type": "file", "github": github_src, "path": github_path}, 
