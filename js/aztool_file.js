@@ -116,7 +116,8 @@ aztool.file_drop_file_zip = function() {
     let file_data = aztool.file_unzip.decompress(f);
     if (fp.slice(0,1) != "/") fp = "/" + fp;
     console.log("file path : " + fp + " ("+f+")");
-    $("#path_info").html("送信中 : " + fp + " ("+f+")");
+    $("#path_info").html("送信中 : " + fp);
+    console.log(webhid.arr2str(file_data));
     console.log(file_data);
     webhid.save_file(fp, file_data, function(stat) {
         // 失敗したらスキップして次のファイル
