@@ -2,6 +2,11 @@
 
 if (!window.aztool) aztool = {};
 
+// インポートエクスポート時に無視するファイル
+aztool.skip_file_list = [
+    "/boot_count",
+    "/adafruit"
+];
 
 
 // 全設定をZIPに固めてダウンロード
@@ -32,7 +37,7 @@ aztool.file_add_file_zip = function() {
     // ファイルデータを取得
     let f = aztool.file_list.pop();
     // 起動回数ファイルは無視
-    if (f.name == "/boot_count") {
+    if (aztool.skip_file_list.indexOf(f.name) >= 0) {
         // 次のファイルを取得する
         setTimeout(aztool.file_add_file_zip, 1000);
         return;
@@ -115,6 +120,10 @@ aztool.file_drop_file_zip = function() {
     let fp = (f.indexOf("/") >= 0)? f.slice(f.indexOf("/")): f;
     let file_data = aztool.file_unzip.decompress(f);
     if (fp.slice(0,1) != "/") fp = "/" + fp;
+    if (aztool.skip_file_list.indexOf(fp) >= 0) { // スキップファイルであれば何もせず次
+        aztool.file_drop_file_zip();
+        return;
+    }
     console.log("file path : " + fp + " ("+f+")");
     $("#path_info").html("送信中 : " + fp);
     console.log(webhid.arr2str(file_data));
