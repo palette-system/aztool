@@ -3,9 +3,9 @@
 webble = {};
 
 // UUID
-webble.custam_service_id = "0000ff26-0000-1000-8000-00805f9b34fb";
-webble.custam_input_id = "0000ff27-0000-1000-8000-00805f9b34fb";
-webble.custam_output_id = "0000ff28-0000-1000-8000-00805f9b34fb";
+webble.custam_service_id = "0000ff14-0000-1000-8000-00805f9b34fb";
+webble.custam_input_id = "0000ff15-0000-1000-8000-00805f9b34fb";
+webble.custam_output_id = "0000ff16-0000-1000-8000-00805f9b34fb";
 
 // デバイス検索オプション
 webble.device_search_option = {
