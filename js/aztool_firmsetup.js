@@ -4,9 +4,6 @@ if (!window.aztool) aztool = {};
 
 aztool.firm_setup_enable = false;
 
-// AZTOOL GAS API
-aztool.gas_api = "https://script.google.com/macros/s/AKfycby02k83aIZcSPbiwikvsVKcmZuZOjKAPALDjhPxu7WPaXYsKu6EK9XZ0Fb5wQAfgpAP/exec";
-
 
 // キーボードリスト(デフォルト) GASからリスト取得失敗した場合表示される
 aztool.setup_keyboard_list = [
@@ -33,6 +30,9 @@ aztool.create_github_url = function(main_url) {
     }
     var base_url = "https://github.com/" + github_user + "/" + github_repo + "/raw/refs/heads/" + github_branch + github_path;
     var res = {
+        "github_user": github_user,
+        "github_repo": github_repo,
+        "github_branch": github_branch,
         "base": base_url,
         "image": base_url + "/main.jpg",
         "zip": base_url + "/import.zip"
@@ -40,27 +40,6 @@ aztool.create_github_url = function(main_url) {
     return res;
 };
 
-// GAS からキーボードリストを取得する
-aztool.get_keyboard_list = function(cb_func) {
-    if (!cb_func) cb_func = function() {};
-    aztool.ajax_array_buffer(
-        aztool.gas_api,
-        function(stat, res) {
-            var i;
-            if (stat > 0) return; // エラーだったら何もしない
-            // レスポンスからキーボードリストを取得
-            var json_str = webhid.arr2str(res.response);
-            var json_data = JSON.parse(json_str);
-            aztool.setup_keyboard_list = json_data["data"];
-            // github の url から画像とZIPのURL生成
-            for (i in aztool.setup_keyboard_list) {
-                aztool.setup_keyboard_list[i]["url"] = aztool.create_github_url(aztool.setup_keyboard_list[i]["github"]);
-            }
-            // コールバック関数を実行
-            cb_func();
-        }
-    );
-};
 
 aztool.firm_setup = function() {
     aztool.firm_setup_enable = true;
