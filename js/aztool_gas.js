@@ -28,6 +28,7 @@ aztool.get_keyboard_list = function(cb_func) {
 
 // GASにデータ保存する
 aztool.save_keyboard_data = function(save_data, cb_func) {
+    if (!cb_func) cb_func = function() {};
     save_data["type"] = "save";
     aztool.post_array_buffer_gas(
         aztool.gas_api, 
@@ -40,6 +41,7 @@ aztool.save_keyboard_data = function(save_data, cb_func) {
             var json_arr = new Uint8Array(r.response);
             var res = JSON.parse(webhid.arr2str(json_arr)); 
             console.log(res);
+            cb_func(0, res);
         }
     );
 };
