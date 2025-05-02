@@ -44,12 +44,14 @@
 <body>
 
 <div id="main_box"></div>
+<div id="ua_box"></div>
 
 <script type="text/javascript">
 $(function(){
     webble.enable();
     aztool.init();
 });
+$("#ua_box").html(navigator.userAgent);
 </script>
 
 </body>

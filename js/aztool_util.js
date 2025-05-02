@@ -115,8 +115,13 @@ aztool.is_chrome = function() {
     return Boolean(ua.indexOf("chrome") >= 0);
 };
 
+// ios かどうか
+aztool.is_ios = function() {
+    return Boolean(navigator.userAgent.match(/iPad|iPhone/));
+};
+
 // スマートフォンかどうか
-aztool.is_mobile = function isSmartPhone() {
+aztool.is_mobile = function() {
     return Boolean(navigator.userAgent.match(/iPad|iPhone|Android.+Mobile/));
 };
 
