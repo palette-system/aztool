@@ -101,13 +101,12 @@ aztool.check_device = function() {
                 // iOS で bluefy 以外のブラウザ
                 return 1;
             }
-
         }
         // スマホはとりあえず何でもOK
     } else {
         // WEB HID モード
-        if (aztool.is_mobile()) return false; // スマホは未対応
-        if (!aztool.is_chrome()) return false; // Chrome以外は未対応
+        if (aztool.is_mobile()) return 3; // スマホは未対応
+        if (!aztool.is_chrome()) return 4; // Chrome以外は未対応
     }
     return 0;
 };
@@ -154,6 +153,10 @@ aztool.view_connect_top = function(msg) {
 
 // トップメニューの表示
 aztool.view_top_menu = function() {
+    if (aztool.is_vertical()) {
+        // 縦長の場合はスマホ用のトップメニューを表示
+        return aztool.view_top_menu_mobile();
+    }
     let k = aztool.setting_json_data;
     let h = "";
     let x, t, tm;
@@ -223,9 +226,76 @@ aztool.view_top_menu = function() {
     if (!aztool.is_azcore()) $(".azcore").css({"display": "none"}); // azcore専用の機能は他の機器の場合非表示
     if (aztool.get_disp_rotation() < 0) $(".azdisp").css({"display": "none"}); // azcore専用の機能は他の機器の場合非表示
     if (aztool.is_nrf52()) $(".only_esp").css({"display": "none"}); // nRF52系であればESP用のメニューを非表示にする
+};
 
-    // キー配列を表示
-    // aztool.view_key_layout();
+// トップメニューの表示(スマホ用)
+aztool.view_top_menu_mobile = function() {
+    let k = aztool.setting_json_data;
+    let h = "";
+    let x, t, tm;
+    let kname = (k.keyboard_name)? k.keyboard_name: k.keyboard_type;
+    h += "<center>";
+    h += "<h2 style='font-size: 50px; margin: 16px 0;'>⌨ AZTOOL</h2>";
+
+    h += "<div style='text-align: left; display: inline-block; margin: 0 0 40px 0;'>";
+    h += "<table cellpadding='4' cellspacing='0' border='0' class='keystatus'>";
+    h += "<tr><th>VendorId / ProductId</th><td>" + k.vendorId + " / " + k.productId + "</td></tr>";
+    h += "<tr><th>キーボード名</th><td>" + kname + "</td></tr>";
+    x = [];
+    if (k.keyboard_pin.row && k.keyboard_pin.row.length) x.push("row = " + k.keyboard_pin.row.join(","));
+    if (k.keyboard_pin.col && k.keyboard_pin.col.length) x.push("col = " + k.keyboard_pin.col.join(","));
+    if (k.keyboard_pin.ioxp && k.keyboard_pin.ioxp.length) x.push("ioxp = " + k.keyboard_pin.ioxp.join(","));
+    if (k.keyboard_pin.direct && k.keyboard_pin.direct.length) x.push("direct = " + k.keyboard_pin.direct.join(","));
+    if (k.keyboard_pin.hall && k.keyboard_pin.hall.length) x.push("hall = " + k.keyboard_pin.hall.join(","));
+    h += "<tr><th>キーピン</th><td>"+x.join("　")+"</td></tr>";
+    console.log(k);
+    if (k.i2c_set && k.i2c_set.length == 3) {
+        h += "<tr><th>I2Cピン</th><td>SDA= " + k.i2c_set[0] + " / SCL= " + k.i2c_set[1] + " / " + k.i2c_set[2].toLocaleString() + " Hz</td></tr>";
+    } else {
+        h += "<tr><th>I2Cピン</th><td>　</td></tr>";
+    }
+    if (k.seri_set && k.seri_set.length == 4) {
+        t = (k.seri_set[3])? " / 反転": "";
+        h += "<tr><th>シリアル(赤外線)ピン</th><td>RX= " + k.seri_set[0] + " / TX= " + k.seri_set[1] + " / " + k.seri_set[2].toLocaleString() + " Hz" + t + "</td></tr>";
+    } else {
+        h += "<tr><th>シリアル(赤外線)ピン</th><td>　</td></tr>";
+    }
+    h += "<tr><th>ディスク使用量</th><td> " + aztool.disk_data.used.toLocaleString() + " / " + aztool.disk_data.total.toLocaleString() + " </td></tr>";
+    t = " style='font-size: 40px; margin: 0 0 16px 0; display: block; height: 70px; line-height: 70px;'";
+    tm = " style='font-size: 40px; margin: 0 0 16px 0; display: block; height: 50px; line-height: 70px;'";
+    h += "</table>";
+    h += "</div>";
+
+
+    h += "<div style='width: 900px; margin: -10px 0;'>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setmap();'><font "+t+">⌨</font>キーマップ</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_keytest();'><font "+t+">🩺</font>入力テスト</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.irtest_open();'><font "+t+">🚨</font>赤外線確認</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setopt();'><font "+t+">🧩</font>オプション</div>";
+    h += "<div class='topmenu_btn only_esp' onClick='javascript:aztool.view_wifi_top();'><font "+t+">📶</font>Wifi</div>";
+    h += "<div class='topmenu_btn azdisp' onClick='javascript:aztool.view_setdispimg();'><font "+t+">🖥️</font>待受画像</div>";
+    h += "<div class='topmenu_btn azcore' onClick='javascript:aztool.power_saving_setting_open();'><font "+t+">🔋</font>省電力</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.param_setting_open();'><font "+t+">🎛️</font>パラメータ</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.serial_setting_open();'><font "+t+">📍</font>シリアルピン</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.addopt_start(\"main_box\", 100);'><font "+tm+">🛠️</font>カスタム<br>レイアウト</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.edit_setting_json();'><font "+t+">📝</font>設定JSON</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.file_export_all();'><font "+t+">📤</font>エクスポート</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.file_import_modal_open();'><font "+t+">📥</font>インポート</div>";
+    h += "<div class='topmenu_btn' onClick='javascript:aztool.setting_init();'><font "+t+">🧊</font>初期化</div>";
+    h += "</div>";
+
+    h += "<div>";
+    h += "<div class='conn_bbutton' onClick='javascript:aztool.close();'>閉じる</div>";
+    if (JSON.stringify(aztool.setting_json_data) != aztool.setting_json_txt) { // 設定内容が変更されていれば保存ボタン表示
+        h += "<br><br><div class='save_button' onClick='javascript:aztool.save();'>保存</div>";
+    }
+    h += "</div>";
+
+    h += "</center>";
+    $("#main_box").html(h);
+    if (!aztool.is_azcore()) $(".azcore").css({"display": "none"}); // azcore専用の機能は他の機器の場合非表示
+    if (aztool.get_disp_rotation() < 0) $(".azdisp").css({"display": "none"}); // azcore専用の機能は他の機器の場合非表示
+    if (aztool.is_nrf52()) $(".only_esp").css({"display": "none"}); // nRF52系であればESP用のメニューを非表示にする
 };
 
 // メッセージを表示

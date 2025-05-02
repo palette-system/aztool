@@ -14,9 +14,10 @@ aztool.setmap_language = 0;
 
 // キーマップ設定画面表示
 aztool.view_setmap = function() {
+    let h = "";
     if (aztool.is_vertical()) {
         // スマホなどの縦長の場合
-        let h = `
+        h += `
         <div class='menu_bbutton' onClick='javascript:aztool.setmap_all_set(0);'>一括設定</div>
         <div class='menu_bbutton' onClick='javascript:aztool.setmap_layer_set();'>レイヤー設定</div>
         <div class='menu_bbutton' onClick='javascript:aztool.setmap_layer_copy();'>コピーレイヤーを作成</div>
@@ -32,7 +33,7 @@ aztool.view_setmap = function() {
 
     } else {
         // 横長の場合
-        let h = `
+        h += `
         <div  style="width: 1400px;">
         <table><tr><td class="leftmenu-box">
         <div class='menu_bbutton' onClick='javascript:aztool.setmap_all_set(0);'>一括設定</div>
