@@ -165,6 +165,12 @@ function save_keyboard_data(param) {
         response.setContent(JSON.stringify({"message": "パスワードは 4文字以上設定して下さい"}));
         return response;
     }
+    // delete_flag 削除フラグパラメータチェック
+    if (param.delete_flag && param.delete_flag.length && param.delete_flag != "0" && param.delete_flag != "1") {
+        response.setContent(JSON.stringify({"message": "削除フラグは 0 か 1 を指定して下さい"}));
+        return response;
+    }
+
     // データの登録
     if (!param.id || !param.id.length || parseInt(param.id) <= 0) {
       // ID のパラメータが無ければ新しく登録するので、既に存在するキーボードかどうかチェック
@@ -205,6 +211,11 @@ function save_keyboard_data(param) {
       cell_code = col_codes[col_ids["delete_flag"]] + k.row; // A1 とか
       keyboard_sheet.getRange(cell_code).setValue("1");
     }
+    // 削除フラグ1でリクエストされた場合はレコード追加を行わない
+    if (param.delete_flag && param.delete_flag.length && param.delete_flag == "1") {
+      response.setContent(JSON.stringify({"message": "OK", "id": parseInt(k.id)}));
+      return response;
+    }
     // 最終行と最終IDを取得
     var last_row = 1, last_id = 0;
     for (i in keyboard_list) {
@@ -228,7 +239,7 @@ function save_keyboard_data(param) {
     cell_code = col_codes[col_ids["update_date"]] + last_row; // A1 とか
     keyboard_sheet.getRange(cell_code).setValue(get_now());
     cell_code = col_codes[col_ids["delete_flag"]] + last_row; // A1 とか
-    keyboard_sheet.getRange(cell_code).setValue("");
+    keyboard_sheet.getRange(cell_code).setValue("0");
     // レスポンスを返す
     response.setContent(JSON.stringify({"message": "OK", "id": last_id}));
     return response;

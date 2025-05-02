@@ -61,14 +61,15 @@ keyboard_main.keyboard_edit = function(key_id) {
     h += "<br>";
     h += "<div id='edit_btn'>";
     h += "<a class='cancel-button' onClick='javascript:keyboard_main.view_keyboard_list();'>戻る</a>";
-    h += "　　<a class='exec-button' onClick='javascript:keyboard_main.keyboard_edit_save();'>保存</a>";
+    h += "　　<a class='exec-button' onClick='javascript:keyboard_main.keyboard_edit_save(0);'>保存</a>";
+    h += "　　<a class='exec-button' onClick='javascript:keyboard_main.keyboard_edit_save(1);'>削除</a>";
     h += "</div>";
 
     $("#main_box").html(h);
 };
 
 // 保存
-keyboard_main.keyboard_edit_save = function() {
+keyboard_main.keyboard_edit_save = function(delete_flag) {
     $("#edit_btn").hide();
     $("#status_box").html("保存中・・・");
     var prm = {};
@@ -76,6 +77,8 @@ keyboard_main.keyboard_edit_save = function() {
     prm["name"] = $("#key_name").val();
     prm["github"] = $("#key_github").val();
     prm["password"] = $("#key_password").val();
+    prm["password"] = $("#key_password").val();
+    prm["delete_flag"] = "" + delete_flag;
     aztool.save_keyboard_data(prm, function(stat, res) {
         if (stat) {
             $("#status_box").html("予期せぬエラーが発生しました");
@@ -87,7 +90,11 @@ keyboard_main.keyboard_edit_save = function() {
             $("#edit_btn").show();
             return;
         }
-        $("#status_box").html("保存しました");
+        if (delete_flag == 1) {
+            $("#status_box").html("削除しました");
+        } else {
+            $("#status_box").html("保存しました");
+        }
         setTimeout(keyboard_main.view_keyboard_list, 2000);
     });
 };
