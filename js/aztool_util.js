@@ -122,7 +122,7 @@ aztool.is_ios = function() {
 
 // 縦長端末かどうか
 aztool.is_vertical = function() {
-
+    return Boolean((window.innerWidth /window.innerHeight) < 0.9);
 };
 
 // Bluefy かどうか
@@ -132,7 +132,7 @@ aztool.is_bluefy = function() {
 
 // スマートフォンかどうか
 aztool.is_mobile = function() {
-    return Boolean(navigator.userAgent.match(/iPad|iPhone|Android.+Mobile/));
+    return Boolean(navigator.userAgent.match(/iPad|iPhone|Android/));
 };
 
 // util 用初期化
