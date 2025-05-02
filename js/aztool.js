@@ -94,7 +94,14 @@ aztool.check_device = function() {
         // WEB Bluetooth モード
         if (!aztool.is_mobile()) {
             // スマホ以外
-            if (!aztool.is_chrome()) return false; // Chrome以外は未対応
+            if (!aztool.is_chrome()) return 2; // Chrome以外は未対応
+        } else if (aztool.is_ios()) {
+            // iOS
+            if (!aztool.is_bluefy()) {
+                // iOS で bluefy 以外のブラウザ
+                return 1;
+            }
+
         }
         // スマホはとりあえず何でもOK
     } else {
@@ -102,20 +109,18 @@ aztool.check_device = function() {
         if (aztool.is_mobile()) return false; // スマホは未対応
         if (!aztool.is_chrome()) return false; // Chrome以外は未対応
     }
-    return true;
+    return 0;
 };
 
 // コネクションページ表示
 aztool.view_connect_top = function(msg) {
     let i;
     let h = "";
+    let ua_check = aztool.check_device();
     h += "<div style='text-align: center; margin: 100px 0;'>";
     h += "<h2 style='font-size: 80px; margin: 40px 0 100px 0;'>⌨ AZTOOL</h2>";
-    if (!aztool.check_device()) {
-        h += "<div style='font-size: 20px;'>※ PC Chrome で開いて下さい。</div>";
-        h += "<div style='font-size: 20px;'>"+navigator.userAgent+"</div>";
-
-    } else {
+    if (ua_check == 0) {
+        // 表示OK
         h += "<font style='font-size: 16px;'>転送速度</font>　<select id='load_step_select' style='font-size: 16px; width: 100px; text-align: center; padding: 4px;'>";
         for (i=1; i<=16; i++) {
             h += "<option value='"+i+"'>"+i+"</option>";
@@ -124,6 +129,20 @@ aztool.view_connect_top = function(msg) {
         h += "<div class='conn_bbutton' onClick='javascript:aztool.connect($(\"#load_step_select\").val());'>キーボードに接続</div>";
         h += "<br>";
         if (msg) h += "<br>" + msg;
+
+    } else if (ua_check == 1) {
+        // iOSでbluefy以外
+        h += "<div style='font-size: 20px;'>Bluefy から開いてください。</div>";
+        h += "<br><br><br>";
+        h += "<a class='cancel-button' href='https://apps.apple.com/us/app/bluefy-web-ble-browser/id1492822055' target='_blank'>Bluefy</a>";
+
+    } else if (ua_check == 2) {
+        // スマホ以外 & Chromeじゃない
+        h += "<div style='font-size: 20px;'>※ PC Chrome で開いて下さい。</div>";
+
+    } else {
+        h += "<div style='font-size: 20px;'>※ PC Chrome で開いて下さい。</div>";
+
     }
     h += "<div style='margin: 140px 0 0 0;'>";
     h += "<img style='width: 147px; height: 147px;' src='./img/logo2.jpg' alt='パレットシステム'>"

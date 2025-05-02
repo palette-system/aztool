@@ -120,6 +120,16 @@ aztool.is_ios = function() {
     return Boolean(navigator.userAgent.match(/iPad|iPhone/));
 };
 
+// 縦長端末かどうか
+aztool.is_vertical = function() {
+
+};
+
+// Bluefy かどうか
+aztool.is_bluefy = function() {
+    return Boolean(navigator.userAgent.match(/Bluefy/));
+};
+
 // スマートフォンかどうか
 aztool.is_mobile = function() {
     return Boolean(navigator.userAgent.match(/iPad|iPhone|Android.+Mobile/));
