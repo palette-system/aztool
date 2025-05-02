@@ -61,8 +61,8 @@ keyboard_main.keyboard_edit = function(key_id) {
     h += "<br>";
     h += "<div id='edit_btn'>";
     h += "<a class='cancel-button' onClick='javascript:keyboard_main.view_keyboard_list();'>戻る</a>";
+    h += "　　<a class='exec-button' onClick='javascript:keyboard_main.keyboard_delete();'>削除</a>";
     h += "　　<a class='exec-button' onClick='javascript:keyboard_main.keyboard_edit_save(0);'>保存</a>";
-    h += "　　<a class='exec-button' onClick='javascript:keyboard_main.keyboard_edit_save(1);'>削除</a>";
     h += "</div>";
 
     $("#main_box").html(h);
@@ -96,3 +96,10 @@ keyboard_main.keyboard_edit_save = function(delete_flag) {
     });
 };
 
+// 削除
+keyboard_main.keyboard_delete = function() {
+    var res = window.confirm(keyboard_main.keyboard_edit_data.name + " を削除しますか？");
+    if (res) {
+        keyboard_main.keyboard_edit_save(1);
+    }
+};
