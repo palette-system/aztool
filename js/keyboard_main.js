@@ -45,15 +45,15 @@ keyboard_main.keyboard_edit = function(key_id) {
     h += "<table>";
     h += "<tr>";
     h += "<td>キーボード名：</td>";
-    h += "<td><input type='text' id='key_name' value='"+k.name+"' style='font-size: 26px; width: 300px;'></td>";
+    h += "<td><input type='text' id='key_name' value='"+k.name+"' style='font-size: 20px; width: 300px;'></td>";
     h += "</tr>";
     h += "<tr>";
     h += "<td>Github URL：</td>";
-    h += "<td><input type='text' id='key_github' value='"+k.github+"' style='font-size: 26px; width: 700px;'></td>";
+    h += "<td><input type='text' id='key_github' value='"+k.github+"' style='font-size: 20px; width: 700px;'></td>";
     h += "</tr>";
     h += "<tr>";
     h += "<td>編集パスワード：</td>";
-    h += "<td><input type='password' id='key_password' value='' style='font-size: 26px; width: 200px;'></td>";
+    h += "<td><input type='password' id='key_password' value='' style='font-size: 20px; width: 200px;'></td>";
     h += "</tr>";
     h += "</table>";
     h += "<br>";
@@ -70,6 +70,7 @@ keyboard_main.keyboard_edit = function(key_id) {
 // 保存
 keyboard_main.keyboard_edit_save = function() {
     $("#edit_btn").hide();
+    $("#status_box").html("保存中・・・");
     var prm = {};
     prm["id"] = keyboard_main.keyboard_edit_data.id;
     prm["name"] = $("#key_name").val();
