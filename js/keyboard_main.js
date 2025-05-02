@@ -70,8 +70,9 @@ keyboard_main.keyboard_edit = function(key_id) {
 
 // 保存
 keyboard_main.keyboard_edit_save = function(delete_flag) {
+    var send_dype = (delete_flag == 1)? "削除": "保存";
     $("#edit_btn").hide();
-    $("#status_box").html("保存中・・・");
+    $("#status_box").html(send_dype + "中・・・");
     var prm = {};
     prm["id"] = keyboard_main.keyboard_edit_data.id;
     prm["name"] = $("#key_name").val();
@@ -86,15 +87,11 @@ keyboard_main.keyboard_edit_save = function(delete_flag) {
             return;
         }
         if (!res.message || res.message != "OK") {
-            $("#status_box").html("保存失敗しました： " + res.message);
+            $("#status_box").html(send_dype + "失敗しました： " + res.message);
             $("#edit_btn").show();
             return;
         }
-        if (delete_flag == 1) {
-            $("#status_box").html("削除しました");
-        } else {
-            $("#status_box").html("保存しました");
-        }
+        $("#status_box").html(send_dype + "しました");
         setTimeout(keyboard_main.view_keyboard_list, 2000);
     });
 };
