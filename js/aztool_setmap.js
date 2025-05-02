@@ -25,9 +25,12 @@ aztool.view_setmap = function() {
         <div class='menu_bbutton' onClick='javascript:aztool.view_setmap_end();'>戻る</div>
         <br>
         <div id='save_btn_box'></div>
+        <br><br>
 
-        <div id='key_layout_box' style='width: 1000px; height: 400px;overflow: hidden; border: solid 1px black; text-align: left;'></div>
-        <div id='key_set_list' style='width: 1000px; height: 350px;overflow-x: hidden; overflow-y: scroll; background-color: #e8e8f8; text-align: left;'></div>
+        <div id='key_layout_box' style='width: 900px; height: 900px;overflow: hidden; border: solid 1px black; text-align: left;'></div>
+        <br><br>
+
+        <div id='key_set_list' style='width: 900px; height: 700px;overflow-x: hidden; overflow-y: scroll; background-color: #e8e8f8; text-align: left; display: none;'></div>
         <div id="setmap_info"></div>
         `;
 
@@ -76,11 +79,17 @@ aztool.view_setmap_end = function() {
 // モーダル用HTML登録
 aztool.setmap_init = function() {
     // モーダル用HTML登録
+    var mw = 1200, mh = 600;
+    // スマホの場合のモーダルのサイズ
+    if (aztool.is_vertical()) {
+        mw = 900;
+        mh = 1000;
+    }
     let html = `
         <!-- レイヤー設定用モーダル -->
         <div class="remodal azmodal" data-remodal-id="setmap_layer_modal" 
                 data-remodal-options="hashTracking: false, closeOnOutsideClick: false"
-                style="max-width: 1200px; width: 1200px; min-height: 600px;">
+                style="max-width: ` + mw + `px; width: ` + mw + `px; min-height: ` + mh + `px;">
             <table style="display: inline-block; margin: 50px 0;"><tr><td valign="top">
             <font style="font-size: 14px;">レイヤーリスト</font><br>
             <ul id="layer_list" class="layer_list_box"></ul>
