@@ -235,7 +235,7 @@ aztool.view_key_layout = function() {
     if (kle) {
         aztool.key_layout_data.push({
             "option": {"id": 0, "map_start": 0},
-            "kle": aztool.kle_view(kle, "#odiv_0", true, cnf, "sw_0_")
+            "kle": aztool.kle_view(kle, "#odiv_0", false, cnf, "sw_0_")
         });
         $("#odiv_0_title").html("本体");
     }
@@ -246,7 +246,7 @@ aztool.view_key_layout = function() {
         if (!aztool.i2c_option_data["o"+o.id]) continue; // KLEが無いオプションは無視
         aztool.key_layout_data.push({
             "option": aztool.setting_json_data.i2c_option[i],
-            "kle": aztool.kle_view(aztool.i2c_option_data["o"+o.id], "#odiv_"+o.id, true, cnf, "sw_" + o.id + "_")
+            "kle": aztool.kle_view(aztool.i2c_option_data["o"+o.id], "#odiv_"+o.id, false, cnf, "sw_" + o.id + "_")
         });
         $("#odiv_"+o.id+"_title").html(aztool.get_opt_name(o.type) + " ["+o.id+"]");
     }

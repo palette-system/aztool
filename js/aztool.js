@@ -266,6 +266,7 @@ aztool.view_top_menu_mobile = function() {
     h += "</table>";
     h += "</div>";
 
+    h += "<br><br>";
 
     h += "<div style='width: 900px; margin: -10px 0;'>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.view_setmap();'><font "+t+">⌨</font>キーマップ</div>";
@@ -283,6 +284,8 @@ aztool.view_top_menu_mobile = function() {
     h += "<div class='topmenu_btn' onClick='javascript:aztool.file_import_modal_open();'><font "+t+">📥</font>インポート</div>";
     h += "<div class='topmenu_btn' onClick='javascript:aztool.setting_init();'><font "+t+">🧊</font>初期化</div>";
     h += "</div>";
+
+    h += "<br><br>";
 
     h += "<div>";
     h += "<div class='conn_bbutton' onClick='javascript:aztool.close();'>閉じる</div>";
