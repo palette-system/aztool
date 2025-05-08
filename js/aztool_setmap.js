@@ -27,10 +27,10 @@ aztool.view_setmap = function() {
         <div id='save_btn_box'></div>
         <br><br>
 
-        <div id='key_layout_box' style='width: 900px; height: 900px;overflow: hidden; border: solid 1px black; text-align: left;'></div>
+        <div id='key_layout_box' style='width: 100%; height: 900px;overflow: hidden; border: solid 1px black; text-align: left;'></div>
         <br><br>
 
-        <div id='key_set_list' style='width: 900px; height: 700px;overflow-x: hidden; overflow-y: scroll; background-color: #e8e8f8; text-align: left; display: none;'></div>
+        <div id='key_set_list' style='width: 100%; height: 700px;overflow-x: hidden; overflow-y: scroll; background-color: #e8e8f8; text-align: left; display: none;'></div>
         <div id="setmap_info"></div>
         `;
 
@@ -79,17 +79,17 @@ aztool.view_setmap_end = function() {
 // モーダル用HTML登録
 aztool.setmap_init = function() {
     // モーダル用HTML登録
-    var mw = 1200, mh = 600;
+    var mw = "1200px", mh = "600px";
     // スマホの場合のモーダルのサイズ
     if (aztool.is_vertical()) {
-        mw = 900;
-        mh = 1000;
+        mw = "100%";
+        mh = "80%";
     }
     let html = `
         <!-- レイヤー設定用モーダル -->
         <div class="remodal azmodal" data-remodal-id="setmap_layer_modal" 
                 data-remodal-options="hashTracking: false, closeOnOutsideClick: false"
-                style="max-width: ` + mw + `px; width: ` + mw + `px; min-height: ` + mh + `px;">
+                style="max-width: ` + mw + `; width: ` + mw + `; min-height: ` + mh + `;">
             <table style="display: inline-block; margin: 50px 0;"><tr><td valign="top">
             <font style="font-size: 14px;">レイヤーリスト</font><br>
             <ul id="layer_list" class="layer_list_box"></ul>
@@ -203,6 +203,13 @@ aztool.view_key_layout = function() {
     let kle = "";
     let cnf = 44;
     let pos = (aztool.setting_json_data.layout && aztool.setting_json_data.layout.position)? aztool.setting_json_data.layout.position: null;
+    var mw = "970px", mh = "600px";
+    // スマホの場合のモーダルのサイズ
+    if (aztool.is_vertical()) {
+        mw = "90%";
+        mh = "80%";
+        cnf = 100; // １キーのサイズ
+    }
     // キー配列を表示する枠を表示
     h += "<div id='odiv_0' style='position: relative; top: 250px; display: inline-block;'></div>"; // 本体のキー配列用
     for (i in aztool.setting_json_data.i2c_option) {
@@ -210,7 +217,7 @@ aztool.view_key_layout = function() {
         if (!aztool.on_i2coption(o)) continue; // 有効でないオプションは無視
         h += "<div id='odiv_"+o.id+"' style='position: relative; display: inline-block;'></div>"; // オプションのキー配列用
     }
-    h += "<table style='width: 970px;'><tr><td align='left' valign='top'>";
+    h += "<table style='width: "+mw+";'><tr><td align='left' valign='top'>";
     h += "<div id='layer_title_info' class='layer_title'>レイヤー名</div>";
     h += "</td><td align='right'  valign='top'>";
     h += "<select id='lang_select' style='width: 170px; margin: 14px 0; font-size: 15px; padding: 6px 20px;' onChange='aztool.change_language();'>";
