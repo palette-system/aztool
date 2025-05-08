@@ -152,9 +152,14 @@ aztool.keyact_double_select = function(select_no) {
 aztool.keyact_close = function(save_flag) {
     let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
     let k = aztool.setmap_select_layer; // 選択中のレイヤーのキー名
-    let t;
+    let t, s;
     if (save_flag) { // 変更内容を反映
-        if (press.action_type == 2) {
+        if (press.action_type == 1) {
+            // 通常キー入力
+            press.repeat_interval = parseInt($("#repeat_select").val());
+            if (press.repeat_interval < 1) delete press.repeat_interval;
+
+        } else if (press.action_type == 2) {
             // テキスト入力
             t = $("#key_action_form_text").val();
             if (!aztool.is_han(t)) {
@@ -249,6 +254,7 @@ aztool.keyact_form_normal_view = function() {
     let h = "";
     let c, d, i, k, s;
     let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
+    let repeat_list = {"-1": "連打無し", "5": "早い", "10": "早め", "30": "ゆっくりめ", "40": "ゆっくり"};
     // 通常入力
     h += "<div class='keyaction_form_title'>入力するコード</div>";
     k = [];
@@ -266,10 +272,18 @@ aztool.keyact_form_normal_view = function() {
     }
     h += "<div id='keyact_form_key_list' style='width: 900px; height: 400px;display: none; position: absolute; overflow-y: scroll; background-color: #f5f5f5;border: solid 2px #888;box-shadow: 3px 3px 4px #aaa;'>";
     h += "</div>";
-    h += "<br><br><br>";
+    h += "<br><br>";
     h += "<div class='keyaction_form_title'>長押しで入力するコード　（長押しと短押しで入力を分ける場合）</div>";
     h += "<div id='kbh_0' class='keyaction_key_btn' style='background-color: #f7f7f7;' onClick='javascript:aztool.keyact_key_hold_open();'></div>";
-    h += "<div id='keyact_form_hold_list' style='width: 900px; height: 250px;display: none; position: absolute; overflow-y: scroll; background-color: #f5f5f5;border: solid 2px #888;box-shadow: 3px 3px 4px #aaa;'>";
+    h += "<div id='keyact_form_hold_list' style='width: 900px; height: 250px;display: none; position: absolute; overflow-y: scroll; background-color: #f5f5f5;border: solid 2px #888;box-shadow: 3px 3px 4px #aaa;'></div>";
+    h += "<br><br>";
+    h += "<div class='keyaction_form_title'>長押しで連打</div>";
+    h += "<select id='repeat_select' style='padding: 10px; font-size: 20px; width: 200px;'>";
+    for (i in repeat_list) {
+        c = ((parseInt(i) == -1 && !press.repeat_interval) || (press.repeat_interval == parseInt(i)))? " selected": "";
+        h += "<option value='"+i+"'"+c+">"+repeat_list[i]+"</option>";
+    }
+    h += "</select>";
     $("#key_action_main_box").html(h);
     aztool.keyact_key_hold_btn_color_update();
 };
@@ -491,7 +505,7 @@ aztool.keyact_form_layer_view = function() {
         c = (press.layer == parseInt(s[1]))? " selected": "";
         h += "<option value='"+s[1]+"' "+c+">"+n+"</option>";
     }
-    h += "</select><br><br><br>";
+    h += "</select><br><br>";
     h += "<div class='keyaction_form_title'>切替え方</div>";
     h += "<select id='key_action_form_layer_type' style='padding: 10px; font-size: 20px; width: 500px;'>";
     for (i in aztool.layer_move_type_list) {
@@ -499,7 +513,7 @@ aztool.keyact_form_layer_view = function() {
         c = (press.layer_type == s.key)? " selected": "";
         h += "<option value='"+s.key+"' "+c+">"+s.value+"</option>";
     }
-    h += "</select><br>";
+    h += "</select><br><br>";
     $("#key_action_main_box").html(h);
 };
 
