@@ -39,6 +39,9 @@ aztool.main_kle["az_nubpad"] = `[{x:1},"0"],["1","3","2"]`;
 // AZ-Magicpad
 aztool.main_kle["az_magicpad"] = `[{x:1},"0","1","2","3"],["4","5","6","7","8"],["9","10","11","12","13"]`;
 
+// AZCARD ESP32S3
+aztool.main_kle["azcard"] = `["0","1","2"],["3","4","5"],["6","7","8"],["9","10","11"]`;
+
 // AZPOCKET
 aztool.main_kle["azpocket"] = `[{x:1},"2"],[{x:1},"4"],["5","3"],["0","1"]`;
 
