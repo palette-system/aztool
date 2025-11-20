@@ -11,7 +11,8 @@ aztool.keyact_seting_key = "press";
 // モーダル用のHTML生成
 aztool.keyact_init = function() {
     // モーダル用HTML登録
-    let html = `
+    let html = "";
+    html += `
         <!-- レイヤー設定用モーダル -->
         <div class="remodal azmodal" data-remodal-id="keyact_modal" 
                 data-remodal-options="hashTracking: false, closeOnOutsideClick: false"
@@ -25,10 +26,10 @@ aztool.keyact_init = function() {
                 <option value="1">通常キー入力</option>
                 <option value="2">テキスト入力</option>
                 <option value="3">レイヤー切り替え</option>
-                <option value="4">WEBフック</option>
+                <option value="4" class='isesp'>WEBフック</option>
                 <option value="5">マウス移動</option>
-                <option value="10">マウス移動(アナログ)</option>
-                <option value="11">Nubkey 調節</option>
+                <option value="10" class='isesp'>マウス移動(アナログ)</option>
+                <option value="11" class='isesp'>Nubkey 調節</option>
                 </select>
                 </div>
                 <div id="key_action_main_box" style="text-align: left; width: 870px; height: 400px; margin: 20px 0;overflow-x: hidden; overflow-y: auto;"></div>
@@ -39,6 +40,9 @@ aztool.keyact_init = function() {
             </div>
         </div>`;
     $("body").append(html);
+    if (!aztool.is_nrf52()) {
+        $(".isesp").hide();
+    }
     // モーダル登録
     aztool.keyact_mdl = $('[data-remodal-id=keyact_modal]').remodal();
     aztool.keyact_mdl.settings.closeOnOutsideClick = false;

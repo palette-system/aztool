@@ -68,6 +68,9 @@ aztool.load_i2c_data = function() {
     } else if (o.type == 6) { // KLEが無いオプションは空を入れておく
         // OLED メイン
         aztool.i2c_option_data[ "o" + o.id ] = "";
+    } else if (o.type == 8) {
+        // トラックパッド CST816
+        aztool.i2c_option_data[ "o" + o.id ] = "[\"\"]";
     }
     // 不明なオプションタイプ
     aztool.i2c_load_index++;

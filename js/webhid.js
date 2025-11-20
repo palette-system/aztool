@@ -97,6 +97,7 @@ webhid.command_id = {
     "set_analog_switch": 0x45, // アナログスイッチの設定をリアルタイム変更
     "get_serial_input": 0x46, // シリアル通信(赤外線)のキー入力取得
     "get_serial_setting": 0x47, // シリアル通信(赤外線)のセッティング情報取得
+    "get_cst816": 0x48, // トラックパッド CST816 情報取得
     "get_firmware_status": 0x60, // ファームウェアの情報取得
     "none": 0x00 // 空送信
 };
@@ -393,6 +394,15 @@ webhid.handle_input_report = function(e) {
         s = webhid.arr2str(get_data);
         r = s.split("-");
         webhid.get_firmware_status_cb({"version": r[0], "eep_data": r[1]});
+
+    } else if (cmd_type == webhid.command_id.get_cst816) {
+        webhid.get_cst816_cb({
+            "gesture_id": get_data[2], // ジェスチャーID (0=none, 1=up, 2=down, 3=left, 4=right, 5=single_click, 6=double_click, 12=long_press)
+            "points": get_data[3], // タッチ数 (1～2まで)
+            "event": get_data[4], // イベント (0=Down, 1=Up, 2=Contact)
+            "x": (get_data[5] << 8) + get_data[6], // x座標
+            "y": (get_data[7] << 8) + get_data[8] // y座標
+        });
 
     }
     
@@ -1018,3 +1028,14 @@ webhid.set_aztool_mode = function(set_flag, cb_func) {
         webhid.view_info("set eztool mode ...");
     });
 };
+
+webhid.get_cst816 = function(cst816_addr, cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.get_cst816_cb = cb_func;
+    // I2C PIM447 の入力要求コマンド送信
+    let cmd = [webhid.command_id.get_cst816, cst816_addr];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("get cst816 key ...");
+    });
+};
+

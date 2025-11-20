@@ -104,6 +104,10 @@ aztool.setopt_optlist_view = function() {
             // 赤外線キーボード
             h += "キー数： " + o.map.length + "<br>";
             h += "キー番号： " + Math.min(...o.map) + " ～ " + Math.max(...o.map);
+        } else if (o.type == 8) {
+            // トラックパッド CST816
+            h += "スピード: " + o.speed + "<br>";
+            h += "向き: " + aztool.cst816_rotate_list[o.rotate];
         }
         h += "</td></tr>";
         h += "<tr><td valign='bottom' align='right'>";
@@ -116,6 +120,7 @@ aztool.setopt_optlist_view = function() {
     if (!h) {
         c = "width: 300px; height: 150px; line-height: 150px; margin: 20px; display: inline-block;";
         h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>AZ1UBALL トラックボール追加</div>";
+        h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 8);'>トラックパッド CST816 追加</div>";
         h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 2);'>ロータリエンコーダ追加</div>";
         h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 1);'>IOエキスパンダ追加</div>";
         h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 5);'>AZエキスパンダ追加</div>";
