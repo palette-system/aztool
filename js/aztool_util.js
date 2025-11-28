@@ -275,3 +275,12 @@ aztool.is_nrf52 = function() {
 aztool.is_default_setting = function() {
     return ("default" in aztool.setting_json_data);
 };
+
+// 該当しない項目は非表示
+aztool.azhide = function() {
+    if (!aztool.is_nrf52()) {
+        $(".isesp").hide();
+    } else {
+        $(".isnrf52").hide();
+    }
+}

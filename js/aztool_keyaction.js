@@ -24,11 +24,12 @@ aztool.keyact_init = function() {
                 <select id="key_action_type_select" style='width: 300px; padding: 10px; font-size: 20px;' onChange='javascript:aztool.keyact_acttype_change();'>
                 <option value="0">動作無し</option>
                 <option value="1">通常キー入力</option>
-                <option value="2">テキスト入力</option>
+                <option value="12" class='isnrf52'>コマンド入力</option>
                 <option value="3">レイヤー切り替え</option>
                 <option value="4" class='isesp'>WEBフック</option>
                 <option value="5">マウス移動</option>
                 <option value="10" class='isesp'>マウス移動(アナログ)</option>
+                <option value="2">テキスト入力</option>
                 <option value="11" class='isesp'>Nubkey 調節</option>
                 </select>
                 </div>
@@ -40,9 +41,7 @@ aztool.keyact_init = function() {
             </div>
         </div>`;
     $("body").append(html);
-    if (!aztool.is_nrf52()) {
-        $(".isesp").hide();
-    }
+    aztool.azhide();
     // モーダル登録
     aztool.keyact_mdl = $('[data-remodal-id=keyact_modal]').remodal();
     aztool.keyact_mdl.settings.closeOnOutsideClick = false;
@@ -58,8 +57,13 @@ aztool.keyact_acttype_change = function() {
     // デフォルトのデータを入れる
     if (press.action_type == 1) {
         // 通常入力
-        if (!press.key) {
+        if (!press.key) { // 設定が無ければ空をセット
             press.key = [];
+        }
+        // 設定内に0が含まれてる、もしくは設定が5個以上であれば 12.コマンド入力 と判断して設定を削除 
+        if (press.key.indexOf(0) >= 0 || press.key.length > 5) {
+            press.key = [];
+            press.repeat_interval = -1;
         }
 
     } else if (press.action_type == 2) {
@@ -96,6 +100,15 @@ aztool.keyact_acttype_change = function() {
         if (!press.move.wheel) press.move.wheel = "0";
         if (!press.move.hWheel) press.move.hWheel = "0";
 
+    } else if (press.action_type == 12) {
+        // 12.コマンド入力
+        if (!press.key) { // 設定が無ければ空をセット
+            press.key = [];
+        }
+        if (press.key.indexOf(0) < 0) { // 設定内に0が無ければ通常入力と判断して設定を削除
+            press.key = [];
+            press.repeat_interval = 0;
+        }
     }
     // 入力フォーム表示
     aztool.keyact_form_view();
@@ -203,6 +216,9 @@ aztool.keyact_close = function(save_flag) {
                 
             }
 
+        } else if (press.action_type == 12) {
+            // 12.コマンド入力 編集配列を直接変更しているので必要なし
+
         }
         // 編集データを反映
         aztool.setting_json_data.layers[k].keys[aztool.keyact_key_id] = aztool.keyact_edit_key;
@@ -245,6 +261,10 @@ aztool.keyact_form_view = function() {
     } else if (press.action_type == 11) {
         // Nubkey 位置調整
         $("#key_action_main_box").html(""); // 設定するパラメータは無し
+
+    } else if (press.action_type == 12) {
+        // 12.コマンド入力
+        aztool.keyact_form_cmdipt_view();
 
     } else {
         // 不明な入力はフォームクリア
@@ -331,13 +351,15 @@ aztool.keyact_get_host_str = function(hold_id) {
 aztool.keyact_key_list_open = function(list_num, hid_id) {
     let b, c, d, h, i, j, k, n;
     let code_list = [];
-    // 長押し設定中であれば長押し側は閉じる
-    if (aztool.keyact_key_list_num == 5) {
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
+    // 長押し設定中であれば長押し側は閉じる(通常入力の時だけ)
+    if (press.action_type == 1 && aztool.keyact_key_list_num == 5) {
         aztool.keyact_key_list_num = -1;
         // ボタンの色を更新
         aztool.keyact_key_hold_btn_color_update();
         // 選択枠を消す
         $("#keyact_form_hold_list").hide();
+        return;
     }
     // 既に選んでいる最中で、同じ所をクリックされたら閉じる
     if (aztool.keyact_key_list_num >= 0 && aztool.keyact_key_list_num == list_num) {
@@ -383,14 +405,49 @@ aztool.keyact_key_list_open = function(list_num, hid_id) {
             let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
             let t = (e.target.id)? e.target.id: e.currentTarget.id; // ka_{hid} が入る
             let s = t.split("_");
-            if (press.key.length > aztool.keyact_key_list_num) {
-                // 既に設定されていたIDの変更
-                press.key[aztool.keyact_key_list_num] = parseInt(s[1]);
-            } else {
-                // 設定されていなかった所の変更はリストに追加
-                if (press.key.length < 5) { // 登録数は5件まで
-                    press.key.push(parseInt(s[1]));
+            let set_int = parseInt(s[1]);
+            let k, o, i;
+            if (press.action_type == 1) { // 1.通常入力
+                if (press.key.length > aztool.keyact_key_list_num) {
+                    // 既に設定されていたIDの変更
+                    press.key[aztool.keyact_key_list_num] = set_int;
+                } else {
+                    // 設定されていなかった所の変更はリストに追加
+                    if (press.key.length < 5) { // 通常入力の登録数は5件まで
+                        press.key.push(set_int);
+                    }
                 }
+
+            } else if (press.action_type == 12) { // 12.コマンド入力
+                if (press.key.length > aztool.keyact_key_list_num) {
+                    // 既に設定されていたIDの変更
+                    if (set_int == 0) {
+                        // 0へ変更する場合はその要素を削除
+                        press.key.splice(aztool.keyact_key_list_num, 1);
+                    } else {
+                        // 1以上へ変更する場合
+                        if (press.key[aztool.keyact_key_list_num] == 0) {
+                            // 変更前の値が0(一旦離す)であれば手前に値を追加する
+                            press.key.splice(aztool.keyact_key_list_num, 0, set_int);
+                        } else {
+                            // 変更前の値が0でなければそれを変更
+                            press.key[aztool.keyact_key_list_num] = set_int;
+                        }
+                    }
+                } else {
+                    // 設定されていなかった所の変更はリストに追加
+                    press.key.push(set_int);
+                    press.key.push(0);
+                }
+                // 0 が連続している所は消す
+                k = [];
+                o = 0;
+                for (i in press.key) {
+                    if (press.key[i] == 0 && o == 0) continue; // 連続0はスキップ
+                    k.push(press.key[i]);
+                    o = press.key[i];
+                }
+                press.key = aztool.clone(k);
             }
             // 選択が終わったら選んでいた番号をリセット
             aztool.keyact_key_list_num = -1;
@@ -398,6 +455,28 @@ aztool.keyact_key_list_open = function(list_num, hid_id) {
             aztool.keyact_form_view();
         });
     }
+};
+
+// 入力コマンドリストから１コマンドを削除
+aztool.keyact_key_list_cmd_del = function(list_num) {
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
+    let start_i, end_i;
+    // コマンドの開始位置を探す
+    start_i = list_num;
+    while (start_i > 0) {
+        if (press.key[start_i - 1] == 0) break;
+        start_i--;
+    }
+    // コマンドの終了位置を探す
+    end_i = list_num;
+    while (end_i < (press.key.length - 1)) {
+        if (press.key[end_i] == 0) break;
+        end_i++;
+    }
+    // コマンド部分を削除
+    press.key.splice(start_i, (end_i - start_i + 1));
+    // 再度フォームを表示
+    aztool.keyact_form_view();
 };
 
 // hold設定ボタンの色と文字を更新
@@ -633,4 +712,41 @@ aztool.keyact_form_mouse_view = function(act_type) {
 
 aztool.keyact_mouse_move = function(chtype) {
     $("#keyact_mouse_"+chtype+"_val").html( $("#keyact_mouse_"+chtype).val() );
+};
+
+// コマンド入力フォーム表示
+aztool.keyact_form_cmdipt_view = function() {
+    let c, d, i, j, n, o, h = "", s;
+    let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
+    h += "<div class='keyaction_form_title'>コマンドリスト</div>";
+    h += "<div id='keyact_form_key_list' style='width: 900px; height: 400px;display: none; position: absolute; overflow-y: scroll; background-color: #f5f5f5;border: solid 2px #888;box-shadow: 3px 3px 4px #aaa;'>";
+    h += "</div>";
+    o = 0;
+    n = 1;
+    j = 0;
+    for (i in press.key) {
+        d = aztool.get_key_data(2, press.key[i]);
+        c = (d.hid)? "#e7fbff": "#f7f7f7";
+        s = (d.hid)? d.str: "";
+        if (o == 0) h += "<div class='keyaction_key_text'>"+n+".</div>";
+        if  (d.hid == 0) {
+            if (j < 4) {
+                h += "<div id='kbn_"+i+"' class='keyaction_key_btn' style='background-color: "+c+"; width: auto; margin: 20px 10px;' onClick='javascript:aztool.keyact_key_list_open("+i+", "+d.hid+");'>&nbsp;同時押し追加&nbsp;</div>";
+            }
+            h += "<div id='kbn_"+i+"' class='keyaction_key_btn' style='background-color: "+c+"; width: auto; margin: 20px 10px;' onClick='javascript:aztool.keyact_key_list_cmd_del("+i+");'>&nbsp;削除&nbsp;</div>";
+            h += "<br>";
+            n++;
+            j = 0;
+
+        } else {
+            if (o > 0) h += "<div class='keyaction_key_text'>＋</div>";
+            h += "<div id='kbn_"+i+"' class='keyaction_key_btn' style='background-color: "+c+"; margin: 20px 10px;' onClick='javascript:aztool.keyact_key_list_open("+i+", "+d.hid+");'>"+s+"</div>";
+            j++;
+        }
+        o = d.hid;
+    }
+    i = press.key.length;
+    h += "<br>";
+    h += "<div id='kbn_"+i+"' class='keyaction_key_btn' style='background-color: #f7f7f7;' onClick='javascript:aztool.keyact_key_list_open("+i+", 0);'>コマンド追加</div>";
+    $("#key_action_main_box").html(h);
 };

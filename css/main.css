@@ -458,7 +458,7 @@ li {
     width: 80px;
     height: 40px;
     line-height: 40px;
-    border: solid 1px #eee;
+    border: solid 1px #7d7d7d;
     display: inline-block;
     padding: 0 10px;
     margin: 0 10px;
@@ -467,6 +467,17 @@ li {
     font-size: 13px;
     cursor: pointer;
 }
+
+.keyaction_key_text {
+    width: 20px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    display: inline-block;
+    margin: 20px 10px;
+    overflow: hidden;
+}
+
 
 .keyaction_stg_btn {
     padding: 6px;

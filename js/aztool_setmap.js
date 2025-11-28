@@ -472,6 +472,10 @@ aztool.setmap_get_key_string = function(key_data) {
         // Nubkey 位置設定
         r = "Nubkey<br>調節";
 
+    } else if (k.action_type == 12) {
+        // 12.コマンド入力
+        r = "CMD";
+
     }
     return "<table cellpadding='0' cellspacing='0' style='user-select: none; width: 100%; height: 100%;font-size: 12px;'><tr><td align='center'>" + r + "</td></tr></table>";
 };
