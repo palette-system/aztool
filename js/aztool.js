@@ -122,12 +122,13 @@ aztool.view_connect_top = function(msg) {
     h += "<h3 style='font-size: 30px; margin: 20px 0 50px 0;'>" + aztool.init_param.board_type + " 用</h3>";
     if (ua_check == 0) {
         // 表示OK
-        h += "<font style='font-size: 16px;'>転送速度</font>　<select id='load_step_select' style='font-size: 16px; width: 100px; text-align: center; padding: 4px;'>";
-        for (i=1; i<=16; i++) {
-            h += "<option value='"+i+"'>"+i+"</option>";
-        }
-        h += "</select><br><br>";
-        h += "<div class='conn_bbutton' onClick='javascript:aztool.connect($(\"#load_step_select\").val());'>キーボードに接続</div>";
+        // h += "<font style='font-size: 16px;'>転送速度</font>　<select id='load_step_select' style='font-size: 16px; width: 100px; text-align: center; padding: 4px;'>";
+        // for (i=1; i<=16; i++) {
+        //     h += "<option value='"+i+"'>"+i+"</option>";
+        // }
+        // h += "</select><br><br>";
+        // h += "<div class='conn_bbutton' onClick='javascript:aztool.connect($(\"#load_step_select\").val());'>キーボードに接続</div>";
+        h += "<div class='conn_bbutton' onClick='javascript:aztool.connect("+webhid.load_step+");'>キーボードに接続</div>";
         h += "<br>";
         if (msg) h += "<br>" + msg;
 
@@ -145,12 +146,19 @@ aztool.view_connect_top = function(msg) {
         h += "<div style='font-size: 20px;'>※ PC Chrome で開いて下さい。</div>";
 
     }
-    h += "<div style='margin: 140px 0 0 0;'>";
+    if (aztool.init_param.board_type == 'nrf52840') {
+        h += "<div style='margin: 100px 0 0 0;'>";
+        h += "<a href='https://palette-system.github.io/azk/nrf52840_org.html' target='_blank'>キーボード用ファームウェアはこちら</a>";
+        h += "</div>";
+    }
+    h += "<div style='margin: 20px 0 0 0;'>";
+    h += "<a href='https://palette-system.booth.pm/' target='_blank'>";
     h += "<img style='width: 147px; height: 147px;' src='./img/logo2.jpg' alt='パレットシステム'>"
+    h += "</a>";
     h += "</div>";
     h += "</div>";
     $("#main_box").html(h);
-    $("#load_step_select").val(webhid.load_step + "");
+    // $("#load_step_select").val(webhid.load_step + "");
 };
 
 // トップメニューの表示

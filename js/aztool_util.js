@@ -268,7 +268,8 @@ aztool.is_actuation_kb = function() {
 
 // nRF52840 系かどうか
 aztool.is_nrf52 = function() {
-    return (aztool.firm_info.eep_data.substring(0,3) == 'AZN');
+    return (aztool.init_param.board_type == 'nrf52840');
+    // return (aztool.firm_info.eep_data.substring(0,3) == 'AZN');
 };
 
 // デフォルトの設定かどうか
