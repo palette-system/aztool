@@ -22,7 +22,10 @@ aztool.addpim447tb_start = function(opt_type) {
         "enable": 1, // 有効かどうか 1=有効
         "addr": 10, // PIM447のアドレス(デフォルト0x0A)
         "rotate": 0, // 向き 0=上 1=右 2=下 3=左
-        "speed": 100, // マウスの移動速度
+        "speed": 120, // マウスの移動速度
+        "read_cycle": 0, // 読み込みサイクル(ミリ秒)
+        "speed_type": 2, // AZTOUCHスピード
+        "drag_flag": 1, // AZTOUCHドラッグを有効化するか
         "map_start": 0, // キー設定の番号いくつからがこのオプションのキー設定か
         "map": [] // キーと読み込んだデータとのマッピング設定
     };
@@ -55,7 +58,7 @@ aztool.addpim447tb_init_html = function() {
 
 // PIM447 1U 設定
 aztool.addpim447tb_setiing_view = function() {
-    let st_th = "width: 100px;text-align: right; padding: 15px 20px;";
+    let st_th = "width: 200px;text-align: right; padding: 15px 20px;";
     let html = `
     <div style="font-size: 26px; color: black; background-color: #bde4ff; padding: 4px 20px;">PIM447 1U トラックボールの設定</div>
     <br>
@@ -64,9 +67,30 @@ aztool.addpim447tb_setiing_view = function() {
         <td style="`+st_th+`">アドレス</td>
         <td>0x <input type="text" id="pim447_addr" value="` + aztool.to_hex(aztool.option_add.addr, 2, "") + `" style="font-size: 26px; width: 80px;"></td>
     </tr>
+    <tr id="tr_read_cycle">
+        <td style="`+st_th+`">リードサイクル</td>
+        <td><input type="text" id="pim447_read_cycle" value="` + aztool.option_add.read_cycle + `" style="font-size: 26px; width: 80px;"> ミリ秒</td>
+    </tr>
     <tr id="tr_speed">
-        <td style="`+st_th+`">スピード</td>
-        <td><input type="text" id="pim447_speed" value="` + aztool.option_add.speed + `" style="font-size: 26px; width: 80px;"></td>
+        <td style="`+st_th+`">スピード(倍率)</td>
+        <td><input type="text" id="pim447_speed" value="` + aztool.option_add.speed + `" style="font-size: 26px; width: 80px;"> ％</td>
+    </tr>
+    <tr id="tr_speed_type" style='display: none;'>
+        <td style="`+st_th+`">AZTOUCHスピード設定</td>
+        <td><select id="pim447_speed_type" style="font-size: 26px; width: 80px;">
+        <option value="0">0</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        </select></td>
+    </tr>
+    <tr id="tr_drag_flag" style='display: none;'>
+        <td style="`+st_th+`">ドラッグ設定</td>
+        <td><select id="pim447_drag_flag" style="font-size: 26px; width: 80px;">
+        <option value="0">オフ</option>
+        <option value="1">オン</option>
+        </select></td>
     </tr>
     <tr>
         <td style="`+st_th+`">向き</td>
@@ -87,8 +111,16 @@ aztool.addpim447tb_setiing_view = function() {
     </div>
     `;
     $("#pim447tb_setting_form").html(html);
-    if (aztool.option_add_type == 4) $("#tr_speed").css({"display": "none"});
+    if (aztool.option_add_type == 4) {
+        $("#tr_speed").hide();
+    }
+    if (aztool.option_add_type == 9) { // AZTOUCH
+        $("#tr_speed_type").show();
+        $("#tr_drag_flag").show();
+    }
     $("#pim447_rotate").val(aztool.option_add.rotate);
+    $("#pim447_speed_type").val(aztool.option_add.speed_type);
+    $("#pim447_drag_flag").val(aztool.option_add.drag_flag);
     aztool.update_step_box(1);
 };
 
@@ -98,6 +130,9 @@ aztool.addpim447tb_setiing_exec = function() {
     let set_addr = aztool.hex_to_int($("#pim447_addr").val());
     let set_speed = parseInt($("#pim447_speed").val());
     let set_rotate = parseInt($("#pim447_rotate").val());
+    let set_read_cycle = parseInt($("#pim447_read_cycle").val());
+    let set_speed_type = parseInt($("#pim447_speed_type").val());
+    let set_drag_flag = parseInt($("#pim447_drag_flag").val());
     if (!set_addr || set_addr < 1 || set_addr > 255) {
         $("#addpim447tb_info").html("アドレスが不正です");
         return;
@@ -114,6 +149,9 @@ aztool.addpim447tb_setiing_exec = function() {
     aztool.option_add.addr = set_addr;
     aztool.option_add.speed = set_speed;
     aztool.option_add.rotate = set_rotate;
+    aztool.option_add.read_cycle = set_read_cycle;
+    aztool.option_add.speed_type = set_speed_type;
+    aztool.option_add.drag_flag = set_drag_flag;
     // 確認ページ表示
     aztool.addpim447tb_check_view();
 };
@@ -221,11 +259,21 @@ aztool.addpim447tb_save = function() {
         "rotate": aztool.option_add.rotate, // 移動する向き
         "map_start": aztool.get_map_start_next() // キー設定番号の開始位置
     };
+    if (aztool.option_add.read_cycle > 0) {
+        set_data["read_cycle"] = aztool.option_add.read_cycle;
+    }
     if (aztool.option_add_type == 3) { // トラックボール
-        set_data["speed"] = aztool.option_add.speed; // カーソルの移動速度
+        set_data["speed"] = aztool.option_add.speed; // カーソルの移動速度％
         set_data["map"] = [7]; // キーと読み込んだデータとのマッピング設定(クリック)
     } else if (aztool.option_add_type == 4) { // スクロール
         set_data["map"] = [2,0,15,1,3]; // キーと読み込んだデータとのマッピング設定(スクロール＆クリック)
+    } else if (aztool.option_add_type == 9) { // AZTOUCH
+        set_data["speed"] = aztool.option_add.speed; // カーソルの移動速度％
+        set_data["speed_type"] = aztool.option_add.speed_type; // AZTOUCHスピード
+        if (aztool.option_add.drag_flag == 0) {
+            set_data["drag_flag"] = aztool.option_add.drag_flag; // AZTOUCHドラッグを有効化するか
+        }
+        set_data["map"] = [7,6]; // キーと読み込んだデータとのマッピング設定(クリック,右クリック)
     }
     aztool.setting_json_data.i2c_option.push(set_data);
     // 設定JSON保存

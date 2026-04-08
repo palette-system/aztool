@@ -15,6 +15,8 @@ aztool.get_opt_name = function(opt_type) {
     if (opt_type == 5) r = "AZエキスパンダ";
     if (opt_type == 6) r = "OLED(メイン)";
     if (opt_type == 7) r = "シリアル通信(赤外線)";
+    if (opt_type == 8) r = "CST816";
+    if (opt_type == 9) r = "AZTOUCH";
     return r;
 };
 
@@ -31,6 +33,8 @@ aztool.view_setopt = function() {
     <a class='leftmenu-button' style='width: 226px;' onClick='javascript:aztool.addopt_start(\"main_box\", 4);'>AZ1UBALL(スクロール) 追加</a><br>
     <a class='leftmenu-button' style='width: 226px;' onClick='javascript:aztool.addopt_start(\"main_box\", 6);'>OLED(メイン)追加</a><br>
     <a class='leftmenu-button' style='width: 226px;' onClick='javascript:aztool.addopt_start(\"main_box\", 7);'>赤外線キーボード追加</a><br>
+    <a class='leftmenu-button' style='width: 226px;' onClick='javascript:aztool.addopt_start(\"main_box\", 8);'>CST816(トラックパッド)</a><br>
+    <a class='leftmenu-button' style='width: 226px;' onClick='javascript:aztool.addopt_start(\"main_box\", 9);'>AZTOUCH</a><br>
     <div id="back_btn_box"></div>
     </td><td valign="top" style="padding: 20px;">
     <div id="opt_list"></div>
@@ -120,6 +124,7 @@ aztool.setopt_optlist_view = function() {
     if (!h) {
         c = "width: 300px; height: 150px; line-height: 150px; margin: 20px; display: inline-block;";
         h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 3);'>AZ1UBALL トラックボール追加</div>";
+        h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 9);'>AZTOUCH 追加</div>";
         h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 8);'>トラックパッド CST816 追加</div>";
         h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 2);'>ロータリエンコーダ追加</div>";
         h += "<div class='conn_bbutton' style='"+c+"' onClick='javascript:aztool.addopt_start(\"main_box\", 1);'>IOエキスパンダ追加</div>";

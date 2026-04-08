@@ -1032,10 +1032,18 @@ webhid.set_aztool_mode = function(set_flag, cb_func) {
 webhid.get_cst816 = function(cst816_addr, cb_func) {
     if (!cb_func) cb_func = function() {};
     webhid.get_cst816_cb = cb_func;
-    // I2C PIM447 の入力要求コマンド送信
+    // I2C CST816 の入力要求コマンド送信
     let cmd = [webhid.command_id.get_cst816, cst816_addr];
     webhid.send_command(cmd).then(() => {
         webhid.view_info("get cst816 key ...");
     });
+};
+
+webhid.i2c_track_read = function() {
+	webhid.i2c_read(0x0A, 5, function(read_length, read_data, raw_data) {
+		$("#main_box").html("x="+read_data[0]+","+read_data[1]+"  y="+read_data[2]+","+read_data[3]+"  t="+read_data[4]+"  ");
+        // $("#main_box").html(JSON.stringify(read_data));
+		setTimeout(webhid.i2c_track_read, 200);
+	});
 };
 
