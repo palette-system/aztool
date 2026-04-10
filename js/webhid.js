@@ -46,6 +46,9 @@ webhid.save_seek = 0;
 // 保存データを送信する時のウェイト
 webhid.save_wait = 0;
 
+// 保存データ要求を受け取った回数
+webhid.save_request = 0;
+
 // データを受信する時のウェイト
 webhid.load_wait = 0;
 
@@ -237,6 +240,7 @@ webhid.handle_input_report = function(e) {
         
     } else if (cmd_type == webhid.command_id.file_save_data) {
         // ファイル保存のデータ要求
+        webhid.save_request++;
         webhid.save_step = get_data[1]; // 送信するステップ数を取得
         s = webhid.save_seek;
         webhid.save_seek = (get_data[2] << 24) + (get_data[3] << 16) + (get_data[4] << 8) + get_data[5]; // 渡すデータの開始位置取得
@@ -275,6 +279,7 @@ webhid.handle_input_report = function(e) {
                 webhid.save_seek = 0; // 送り位置を最初から
                 webhid.save_index = 0; // ステップ位置を0に
                 webhid.save_hash = [];
+                webhid.save_request = 0;
                 webhid.last_save_time = webhid.millis(); // 最後にコマンドを投げた時間
                 webhid.send_save_data(); // 保存データの送信
             }
@@ -554,11 +559,17 @@ webhid.file_save_check = function() {
     if (!webhid.save_file_path) return;
     let t = webhid.millis() - webhid.last_save_time; // 最後に送ってからどれくらい時間がたったか
     if (t > 2000) { // 2秒以上データが受け取れなければもう一回データ送信
-        console.log("save command resend: " + webhid.save_seek);
-        webhid.save_index = 0; // ステップ位置を0に
-        webhid.save_hash = [];
-        webhid.last_save_time = webhid.millis(); // 最後にコマンドを投げた時間
-        webhid.send_save_data(); // 保存データの送信
+        console.log("save command resend: save_seek: " + webhid.save_seek);
+        console.log("save command resend: save_request: " + webhid.save_request);
+        console.log("save command resend: t: " + t);
+        if (webhid.save_request == 0) {
+            webhid.save_file(webhid.save_file_path, webhid.save_data, webhid.save_file_cb_func);
+        } else {
+            webhid.save_index = 0; // ステップ位置を0に
+            webhid.save_hash = [];
+            webhid.last_save_time = webhid.millis(); // 最後にコマンドを投げた時間
+            webhid.send_save_data(); // 保存データの送信
+        }
     }
     // 1秒おきにチェック
     setTimeout(webhid.file_save_check, 1000);
@@ -650,6 +661,7 @@ webhid.save_file = function(file_path, file_data, cb_func) {
     if (!cb_func) cb_func = function() {};
     webhid.save_file_cb_func = cb_func;
     webhid.last_save_time = webhid.millis(); // 最後にコマンドを投げた時間
+    webhid.save_request = 0;
     let file_path_arr = webhid.str2arr(file_path); // ファイルパスをuint8Arrayに変換
     let data_len = webhid.save_data.length; // 保存するファイルの容量
     // コマンド作成

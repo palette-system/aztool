@@ -277,18 +277,23 @@ aztool.addpim447tb_save = function() {
     }
     aztool.setting_json_data.i2c_option.push(set_data);
     // 設定JSON保存
-    $("#pim447tb_setting_form").html("保存中...");
+    $("#pim447tb_setting_form").html("<b>保存中</b><br><div id='trackball_save_info'></div>");
+    webhid.info_div = 'trackball_save_info';
     aztool.update_step_box(3);
-    aztool.setting_json_save(function(stat) {
-        // 保存失敗
-        if (stat != 0) {
-            aztool.addpim447tb_setiing_view();
-            $("#addpim447tb_info").html("保存失敗");
-            return;
-        }
-        $("#pim447tb_setting_form").html("再起動中...");
-        // 保存成功したらキーボードを再起動
-        setTimeout(aztool.option_add_restart, 2000);
-    });
-
+    setTimeout(
+        function() {
+            aztool.setting_json_save(function(stat) {
+                // 保存失敗
+                if (stat != 0) {
+                    aztool.addpim447tb_setiing_view();
+                    $("#addpim447tb_info").html("<b>保存失敗</b>");
+                    return;
+                }
+                $("#pim447tb_setting_form").html("<b>再起動中</b>");
+                // 保存成功したらキーボードを再起動
+                setTimeout(aztool.option_add_restart, 2000);
+            });
+        },
+        2000
+    );
 };
