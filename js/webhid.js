@@ -492,18 +492,22 @@ webhid.load_data_exec = function(get_data) {
 
 // 保存データの送信
 webhid.send_save_data = function() {
-    let data_len = webhid.raw_report_id.out_size - 5; // 1ステップで送るデータの長さ
+    webhid.save_index++;
+    if (webhid.save_index > webhid.save_step) return;
+    let step_index = webhid.save_index - 1;
+    let buf_size = webhid.raw_report_id.out_size;
+    let data_len = buf_size - 5; // 1ステップで送るデータの長さ
     // コマンド作成
     let cmd = [
         webhid.command_id.file_save_data,
-        webhid.save_index,
+        step_index,
         ((webhid.save_seek >> 16) & 0xff),
         ((webhid.save_seek >> 8) & 0xff),
         (webhid.save_seek & 0xff)
     ];
     // コマンドにデータを格納
-    let i = webhid.save_seek + (data_len * webhid.save_index);
-    while (cmd.length < webhid.raw_report_id.out_size) {
+    let i = webhid.save_seek + (data_len * step_index);
+    while (cmd.length < buf_size) {
         if (i >= webhid.save_data.length) {
             cmd.push(0x00);
         } else {
@@ -512,17 +516,14 @@ webhid.send_save_data = function() {
             i++;
         }
     }
-    let p = (webhid.save_seek + (webhid.save_index * (webhid.raw_report_id.out_size - 5)));
+    let p = (webhid.save_seek + (step_index * (buf_size - 5)));
     if (p > webhid.save_data.length) p = webhid.save_data.length;
     webhid.view_info("saving ...  " + p + " / " + webhid.save_data.length);
     // コマンド送信
     // console.log("send");
     // console.log(cmd);
     webhid.send_command(cmd).then(() => {
-        webhid.save_index++;
-        if (webhid.save_index < webhid.save_step) {
-            setTimeout(webhid.send_save_data, webhid.save_wait);
-        }
+        setTimeout(webhid.send_save_data, webhid.save_wait);
     });
 };
 
