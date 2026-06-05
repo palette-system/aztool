@@ -297,3 +297,146 @@ aztool.addpim447tb_save = function() {
         2000
     );
 };
+
+// トラックボール設定モーダルオープン
+aztool.addpim447tb_edit_open = function() {
+    // モーダルを開く
+    let h = "";
+    h += "<div style='text-align: left;'>";
+    h += "<h2>AZTOUCH</h2>";
+    h += "<div id='addpim447tb_edit_box' style='margin: 0;'>";
+
+    h += "<table><tr><td valign='top'>";
+    // 基本設定
+    h += "<table style='display: inline-block; font-size: 16px;'>";
+    h += "<tr><td style='font-size: 18px; text-align: right;'>リードサイクル：</td><td>"
+    h += "<input id='tred_read_cycle' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 80px; text-align: left;'> ミリ秒";
+    h += "</td></tr>";
+    h += "<tr><td style='font-size: 18px; text-align: right;'>スピード(倍率)：</td><td>"
+    h += "<input id='tred_speed' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 80px; text-align: left;'> ％";
+    h += "</td></tr>";
+    h += "<tr><td style='font-size: 18px; text-align: right;'>AZTOUCHスピード設定：</td><td>"
+    h += "　<select id='tred_speed_type' style='font-size: 26px; width: 80px;'>";
+    h += "<option value='0'>0</option>";
+    h += "<option value='1'>1</option>";
+    h += "<option value='2'>2</option>";
+    h += "<option value='3'>3</option>";
+    h += "<option value='4'>4</option>";
+    h += "</select>";
+    h += "</td></tr>";
+    h += "<tr><td style='font-size: 18px; text-align: right;'>ドラッグ：</td><td>"
+    h += "　<select id='tred_drag_flag' style='font-size: 26px; width: 80px;'>";
+    h += "<option value='0'>オフ</option>";
+    h += "<option value='1'>オン</option>";
+    h += "</select>";
+    h += "</td></tr>";
+    h += "<tr><td style='font-size: 18px; text-align: right;'>向き：</td><td>"
+    h += "　<select id='tred_rotate' style='font-size: 26px; width: 80px;'>";
+    h += "<option value='0'>上</option>";
+    h += "<option value='1'>右</option>";
+    h += "<option value='2'>下</option>";
+    h += "<option value='3'>左</option>";
+    h += "</select>";
+    h += "</td></tr>";
+    h += "</table>";
+    h += "</td><td style='width: 50px;'></td><td valign='top'>";
+    h += "<table style='display: inline-block; font-size: 16px;'>";
+    h += "<tr><td style='font-size: 18px; text-align: right;'>drag_touch_time_max：</td><td>"
+    h += "<input id='tred_drag_touch_time_max' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 80px; text-align: left;'> × 5 ミリ秒";
+    h += "</td></tr>";
+    h += "<tr><td style='font-size: 18px; text-align: right;'>drag_interval_time_max：</td><td>"
+    h += "<input id='tred_drag_interval_time_max' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 80px; text-align: left;'> × 5 ミリ秒";
+    h += "</td></tr>";
+    h += "<tr><td style='font-size: 18px; text-align: right;'>tap_touch_time_max：</td><td>"
+    h += "<input id='tred_tap_touch_time_max' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 80px; text-align: left;'> × 5 ミリ秒";
+    h += "</td></tr>";
+    h += "<tr><td style='font-size: 18px; text-align: right;'>move_touch_time_start：</td><td>"
+    h += "<input id='tred_move_touch_time_start' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 80px; text-align: left;'> × 5 ミリ秒";
+    h += "</td></tr>";
+    h += "<tr><td style='font-size: 18px; text-align: right;'>read_wait_time：</td><td>"
+    h += "<input id='tred_read_wait_time' type='text' style='font-size: 20px; margin: 4px 20px; padding: 10px; width: 80px; text-align: left;'> × NOP";
+    h += "</td></tr>";
+    h += "</table>";
+    h += "</td></tr></table>";
+
+    h += "</div>";
+    h += "<div id='addap_btn_box' style='margin: 20px 0 0 0;'>";
+    h += "<a href='#' class='cancel-button' onClick='javascript:aztool.addpim447tb_edit_close(0);'>キャンセル</a>";
+    h += "　　　　<a class='exec-button' onClick='javascript:aztool.addpim447tb_edit_close(1);'>決定</a>";
+    h += "</div>";
+    h += "</div>";
+    aztool.remodal_open(h); // モーダルオープン
+    if (!aztool.option_edit.read_cycle) {
+        $("#tred_read_cycle").val('0');
+    } else {
+        $("#tred_read_cycle").val(aztool.option_edit.read_cycle);
+    }
+    $("#tred_speed").val(aztool.option_edit.speed);
+    $("#tred_speed_type").val(aztool.option_edit.speed_type);
+    if (!aztool.option_edit.drag_flag || aztool.option_edit.drag_flag != 0) {
+        $("#tred_drag_flag").val('1');
+    } else {
+        $("#tred_drag_flag").val('0');
+    }
+    $("#tred_rotate").val(aztool.option_edit.rotate);
+    console.log(aztool.option_edit);
+    // aztool.param_setting_set(); // 設定をフォームに反映
+    aztool.aztouch_status = [35, 2, 100, 40, 20, 20, 40]; // ステータスデフォルト
+    webhid.i2c_aztouch_stat(aztool.option_edit.addr, function(stat, status_data) {
+        if (stat != 0) return;
+        aztool.aztouch_status = status_data;
+        $("#tred_drag_touch_time_max").val(status_data[2]);
+        $("#tred_drag_interval_time_max").val(status_data[3]);
+        $("#tred_tap_touch_time_max").val(status_data[4]);
+        $("#tred_move_touch_time_start").val(status_data[5]);
+        $("#tred_read_wait_time").val(status_data[6]);
+    });
+};
+
+// トラックボール設定モーダルクローズ
+aztool.addpim447tb_edit_close = function(save_flag) {
+    let send_arr = [];
+    if (save_flag) {
+        aztool.option_edit.read_cycle = parseInt($("#tred_read_cycle").val());
+        aztool.option_edit.speed = parseInt($("#tred_speed").val());
+        aztool.option_edit.drag_flag = parseInt($("#tred_drag_flag").val());
+        aztool.option_edit.rotate = parseInt($("#tred_rotate").val());
+        aztool.option_edit.speed_type = parseInt($("#tred_speed_type").val());
+        if (aztool.option_edit.speed_type > 4) aztool.option_edit.speed_type = 4;
+        if (aztool.option_edit.speed_type < 0) aztool.option_edit.speed_type = 0;
+        if (aztool.aztouch_status[1] != aztool.option_edit.speed_type) send_arr.push([0x40, aztool.option_edit.speed_type]);
+        if (aztool.option_edit.read_cycle == 0) delete aztool.option_edit.read_cycle;
+        if (aztool.option_edit.drag_flag == 1) delete aztool.option_edit.drag_flag;
+        let tred_drag_touch_time_max = parseInt($("#tred_drag_touch_time_max").val());
+        if (tred_drag_touch_time_max > 255) tred_drag_touch_time_max = 255;
+        if (tred_drag_touch_time_max < 0) tred_drag_touch_time_max = 0;
+        if (aztool.aztouch_status[2] != tred_drag_touch_time_max) send_arr.push([0x41, tred_drag_touch_time_max]);
+        let tred_drag_interval_time_max = parseInt($("#tred_drag_interval_time_max").val());
+        if (tred_drag_interval_time_max > 255) tred_drag_interval_time_max = 255;
+        if (tred_drag_interval_time_max < 0) tred_drag_interval_time_max = 0;
+        if (aztool.aztouch_status[3] != tred_drag_interval_time_max) send_arr.push([0x42, tred_drag_interval_time_max]);
+        let tred_tap_touch_time_max = parseInt($("#tred_tap_touch_time_max").val());
+        if (tred_tap_touch_time_max > 255) tred_tap_touch_time_max = 255;
+        if (tred_tap_touch_time_max < 0) tred_tap_touch_time_max = 0;
+        if (aztool.aztouch_status[4] != tred_tap_touch_time_max) send_arr.push([0x43, tred_tap_touch_time_max]);
+        let tred_move_touch_time_start = parseInt($("#tred_move_touch_time_start").val());
+        if (tred_move_touch_time_start > 255) tred_move_touch_time_start = 255;
+        if (tred_move_touch_time_start < 0) tred_move_touch_time_start = 0;
+        if (aztool.aztouch_status[5] != tred_move_touch_time_start) send_arr.push([0x44, tred_move_touch_time_start]);
+        let tred_read_wait_time = parseInt($("#tred_read_wait_time").val());
+        if (tred_read_wait_time > 255) tred_read_wait_time = 255;
+        if (tred_read_wait_time < 0) tred_read_wait_time = 0;
+        if (aztool.aztouch_status[6] != tred_read_wait_time) send_arr.push([0x45, tred_read_wait_time]);
+    }
+    if (send_arr.length) {
+        webhid.i2c_write_list(aztool.option_edit.addr, send_arr, function(stat) {
+            // 設定クローズ
+            aztool.setopt_opt_edit_close(save_flag);
+        });
+    } else {
+        // 設定クローズ
+        aztool.setopt_opt_edit_close(save_flag);
+    }
+    // モーダルクローズ
+    aztool.remodal_close();
+};

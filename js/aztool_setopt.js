@@ -63,13 +63,15 @@ aztool.setopt_optlist_view = function() {
         c = (o.enable)? "#f0fff2": "#ededed";
         n = (o.enable)? "0": "1";
         console.log(o);
-        h += "<div style='width: 400px; background-color: "+c+"; border: solid 2px #aaa;display: inline-block; margin: 10px; padding: 20px;cursor: pointer;'";
-        h += " onClick='javascript:aztool.setopt_opt_enable(\""+o.id+"\", "+n+");' >";
+        h += "<div style='width: 400px; background-color: "+c+"; border: solid 2px #aaa;display: inline-block; margin: 10px; padding: 20px;'>";
         h += "<table width='400'>";
         h += "<tr><td rowspan='2' width='200'><div id='ov_"+o.id+"' style='width: 170px; height: 200px; border: solid 1px #888'></div></td><td valign='top'>";
         h += "<b>" + aztool.get_opt_name(o.type) + "</b><br>";
         h += "ID: " + o.id + "<br>";
-        h += (o.enable)? "設定：有効<br>": "設定：無効<br>";
+        h += "設定：";
+        h += "<font style='cursor: pointer;' onClick='javascript:aztool.setopt_opt_enable(\""+o.id+"\", "+n+");'>";
+        h += (o.enable)? "有効": "無効";
+        h += "</font><br>";
         if (o.type == 1) {
             h += "アドレス： ";
             // IOエキスパンダ
@@ -115,6 +117,9 @@ aztool.setopt_optlist_view = function() {
         }
         h += "</td></tr>";
         h += "<tr><td valign='bottom' align='right'>";
+        if (o.type == 9) {
+            h += "<a class='exec-button' onClick='javascript:aztool.setopt_opt_edit_open("+i+");' style='margin: 5px 0px;'>編集</a><br>";
+        }
         h += "<a class='exec-button' onClick='javascript:aztool.setopt_opt_remove(\""+o.id+"\");'>削除</a>";
         h += "</td></tr>";
         h += "</table>";
@@ -157,6 +162,31 @@ aztool.setopt_opt_enable = function(option_id, settype) {
     }
     // オプションリスト表示
     aztool.view_setopt();
+};
+
+// オプション編集モーダルオープン
+aztool.setopt_opt_edit_open = function(option_index) {
+    aztool.option_edit = aztool.clone(aztool.setting_json_data.i2c_option[option_index]);
+    // AZTOUCH
+    webhid.set_aztool_mode(1, function() {
+        if (aztool.option_edit.type == 9) {
+            aztool.addpim447tb_edit_open();
+        }
+    });
+};
+
+// オプション編集モーダルクローズ
+aztool.setopt_opt_edit_close = function(save_flag) {
+    let i;
+    console.log(save_flag);
+    if (save_flag) {
+        for (i in aztool.setting_json_data.i2c_option) {
+            if (aztool.setting_json_data.i2c_option[i].id == aztool.option_edit.id) {
+                aztool.setting_json_data.i2c_option[i] = aztool.clone(aztool.option_edit);
+            }
+        }
+    }
+    webhid.set_aztool_mode(0, function() {});
 };
 
 // オプションを削除

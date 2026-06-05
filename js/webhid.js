@@ -1060,3 +1060,269 @@ webhid.i2c_track_read = function() {
 	});
 };
 
+webhid.i2c_aztouch_reset = function() {
+    xa_max = 0;
+    xa_min = 1000;
+    xb_max = 0;
+    xb_min = 1000;
+    ya_max = 0;
+    ya_min = 1000;
+    yb_max = 0;
+    yb_min = 1000;
+    fa_max = 0;
+    fa_min = 1000;
+    fb_max = 0;
+    fb_min = 1000;
+    fc_max = 0;
+    fc_min = 1000;
+    fd_max = 0;
+    fd_min = 1000;
+    fe_max = 0;
+    fe_min = 1000;
+    xl_max = 0;
+    xl_min = 1000;
+    xc_max = 0;
+    xc_min = 1000;
+    xr_max = 0;
+    xr_min = 1000;
+    xall_max = 0;
+    xall_min = 1000;
+};
+
+// AZTOUCHの詳細設定読み込み
+webhid.i2c_aztouch_stat = function(i2c_addr, cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.i2c_aztouch_stat_cb = cb_func;
+    let write_data = [0x30];
+    webhid.i2c_write(i2c_addr, write_data, function(stat, raw_data) {
+        // 書き込み失敗したらここで終了
+        if (stat != 0) {
+            cb_func(stat);
+            return;
+        }
+        // 書き込み成功したら読み込みに行く
+        webhid.i2c_read(i2c_addr, 7, function(read_length, read_data, raw_data) {
+            cb_func(0, read_data);
+        });
+    });
+};
+
+let xa_max = 0;
+let xa_min = 1000;
+let xb_max = 0;
+let xb_min = 1000;
+let ya_max = 0;
+let ya_min = 1000;
+let yb_max = 0;
+let yb_min = 1000;
+
+let fa_max = 0;
+let fa_min = 1000;
+let fb_max = 0;
+let fb_min = 1000;
+let fc_max = 0;
+let fc_min = 1000;
+let fd_max = 0;
+let fd_min = 1000;
+let fe_max = 0;
+let fe_min = 1000;
+
+let xl_max = 0;
+let xl_min = 1000;
+let xc_max = 0;
+let xc_min = 1000;
+let xr_max = 0;
+let xr_min = 1000;
+let xall_max = 0;
+let xall_min = 1000;
+
+webhid.i2c_az1upad = function() {
+    webhid.i2c_read(0x0A, 18, function(read_length, read_data, raw_data) {
+        let c, xa, xb, ya, yb, fa, fb, fc, fd, fe;
+        let h = "";
+        xa = (read_data[0] << 8) + read_data[1];
+        xb = (read_data[6] << 8) + read_data[7];
+        ya = (read_data[4] << 8) + read_data[5];
+        yb = (read_data[2] << 8) + read_data[3];
+        fa = (read_data[8] << 8) + read_data[9];
+        fb = (read_data[10] << 8) + read_data[11];
+        fc = (read_data[12] << 8) + read_data[13];
+        fd = (read_data[14] << 8) + read_data[15];
+        fe = (read_data[16] << 8) + read_data[17];
+        // console.log(xa + " " + xb + " " + ya + " " + yb);
+        if (xa_max < xa) xa_max = xa;
+        if (xa_min > xa) xa_min = xa;
+        if (xb_max < xb) xb_max = xb;
+        if (xb_min > xb) xb_min = xb;
+        if (ya_max < ya) ya_max = ya;
+        if (ya_min > ya) ya_min = ya;
+        if (yb_max < yb) yb_max = yb;
+        if (yb_min > yb) yb_min = yb;
+        if (fa_max < fa) fa_max = fa;
+        if (fa_min > fa) fa_min = fa;
+        if (fb_max < fb) fb_max = fb;
+        if (fb_min > fb) fb_min = fb;
+        if (fc_max < fc) fc_max = fc;
+        if (fc_min > fc) fc_min = fc;
+        if (fd_max < fd) fd_max = fd;
+        if (fd_min > fd) fd_min = fd;
+        if (fe_max < fe) fe_max = fe;
+        if (fe_min > fe) fe_min = fe;
+        let xa_p = parseInt( ((xa - xa_min) / (xa_max - xa_min)) * 1000 );
+        let xb_p = parseInt( ((xb - xb_min) / (xb_max - xb_min)) * 1000 );
+        let ya_p = parseInt( ((ya - ya_min) / (ya_max - ya_min)) * 1000 );
+        let yb_p = parseInt( ((yb - yb_min) / (yb_max - yb_min)) * 1000 );
+        let fa_p = parseInt( ((fa - fa_min) / (fa_max - fa_min)) * 1000 );
+        let fb_p = parseInt( ((fb - fb_min) / (fb_max - fb_min)) * 1000 );
+        let fc_p = parseInt( ((fc - fc_min) / (fc_max - fc_min)) * 1000 );
+        let fd_p = parseInt( ((fd - fd_min) / (fd_max - fd_min)) * 1000 );
+        let fe_p = parseInt( ((fe - fe_min) / (fe_max - fe_min)) * 1000 );
+        let x_px = (yb_p - ya_p);
+        let y_px = (xb_p - xa_p);
+        let xl = fa_p + fb_p + fe_p;
+        let xc = xa_p + xb_p + fc_p;
+        let xr = yb_p + ya_p + fd_p;
+        let xall = xl + xc + xr;
+        if (xl_max < xl) xl_max = xl;
+        if (xl_min > xl) xl_min = xl;
+        if (xc_max < xc) xc_max = xc;
+        if (xc_min > xc) xc_min = xc;
+        if (xr_max < xr) xr_max = xr;
+        if (xr_min > xr) xr_min = xr;
+        if (xall_max < xall) xall_max = xall;
+        if (xall_min > xall) xall_min = xall;
+        let xl_p = parseInt( ((xl - xl_min) / (xl_max - xl_min)) * 1000 );
+        let xc_p = parseInt( ((xc - xc_min) / (xc_max - xc_min)) * 1000 );
+        let xr_p = parseInt( ((xr - xr_min) / (xr_max - xr_min)) * 1000 );
+        let xall_p = parseInt( ((xall - xall_min) / (xall_max - xall_min)) * 1000 );
+        let xt_a = parseInt((xl * 1000) / (xc + xl));
+        let xt_b = parseInt((xr * 1000) / (xc + xr));
+        let xt_m = parseInt((xt_a * 1000) / (xt_a + xt_b));
+        let xp_a = (xt_a) * ((xl+xc) / xall);
+        let xp_b = (xt_b) * ((xr+xc) / xall);
+        let xl_t = parseInt((xl_p * 1000) / (xc_p + xl_p));
+        let xr_t = parseInt((xr_p * 1000) / (xc_p + xr_p));
+// fa xa yb
+// fb xb ya
+// fe fc fd
+
+        h += "<table><tr><td valign='top'>";
+
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fa_p < 64)? '0': '') + parseInt(fa_p / 4).toString(16))+"00;display: inline-block;'></div>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((xa_p < 64)? '0': '') + parseInt(xa_p / 4).toString(16))+"00;display: inline-block;'></div>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((yb_p < 64)? '0': '') + parseInt(yb_p / 4).toString(16))+"00;display: inline-block;'></div>";
+        h += "<br>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fb_p < 64)? '0': '') + parseInt(fb_p / 4).toString(16))+"00;display: inline-block;'></div>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((xb_p < 64)? '0': '') + parseInt(xb_p / 4).toString(16))+"00;display: inline-block;'></div>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((ya_p < 64)? '0': '') + parseInt(ya_p / 4).toString(16))+"00;display: inline-block;'></div>";
+        h += "<br>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fe_p < 64)? '0': '') + parseInt(fe_p / 4).toString(16))+"00;display: inline-block;'></div>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fc_p < 64)? '0': '') + parseInt(fc_p / 4).toString(16))+"00;display: inline-block;'></div>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fd_p < 64)? '0': '') + parseInt(fd_p / 4).toString(16))+"00;display: inline-block;'></div>";
+        h += "<br>";
+        h += "<br>";
+        h += xl_t + "<br>";
+        h += xr_t + "<br>";
+        h += "<br>";
+        let xxx = (xall > 1000)? (xr_t - xl_t): 0;
+        h += xxx + "<br>";
+        h += "<br>";
+        h += "<br>";
+ 
+        h += "</td><td valign='top'>";
+
+        h += "<div style='height: 20px; width: "+(xa_min - 400)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(xa - xa_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(xa_max - xa)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += xa + "( "+xa_min+" / "+xa_max+" )";
+        h += "<br><br>";
+        h += "<div style='height: 20px; width: "+(xb_min - 400)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(xb - xb_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(xb_max - xb)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += xb + "( "+xb_min+" / "+xb_max+" )";
+        h += "<br><br>";
+        h += "<div style='height: 20px; width: "+(ya_min - 400)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(ya - ya_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(ya_max - ya)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += ya + "( "+ya_min+" / "+ya_max+" )";
+        h += "<br><br>";
+        h += "<div style='height: 20px; width: "+(yb_min - 400)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(yb - yb_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(yb_max - yb)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += yb + "( "+yb_min+" / "+yb_max+" )";
+        h += "<br><br>";
+
+        h += "<div style='height: 20px; width: "+(fa_min - 400)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(fa - fa_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(fa_max - fa)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += fa + "( "+fa_min+" / "+fa_max+" )";
+        h += "<br><br>";
+
+        h += "<div style='height: 20px; width: "+(fb_min - 400)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(fb - fb_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(fb_max - fb)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += fb + "( "+fb_min+" / "+fb_max+" )";
+        h += "<br><br>";
+
+        h += "<div style='height: 20px; width: "+(fc_min - 400)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(fc - fc_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(fc_max - fc)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += fc + "( "+fc_min+" / "+fc_max+" )";
+        h += "<br><br>";
+
+        h += "<div style='height: 20px; width: "+(fd_min - 400)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(fd - fd_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(fd_max - fd)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += fd + "( "+fd_min+" / "+fd_max+" )";
+        h += "<br><br>";
+
+        h += "<div style='height: 20px; width: "+(fe_min - 400)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(fe - fe_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(fe_max - fe)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += fe + "( "+fe_min+" / "+fe_max+" )";
+        h += "<br><br>";
+        h += "<br><br>";
+
+        h += "<div style='height: 20px; width: "+parseInt(xl_min / 30)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+parseInt((xl - xl_min) / 30)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+parseInt((xl_max - xl) / 30)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += xl + "( "+xl_min+" / "+xl_max+" )";
+        h += "<br><br>";
+
+        h += "<div style='height: 20px; width: "+parseInt(xc_min / 30)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+parseInt((xc - xc_min) / 30)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+parseInt((xc_max - xc) / 30)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += xc + "( "+xc_min+" / "+xc_max+" )";
+        h += "<br><br>";
+
+        h += "<div style='height: 20px; width: "+parseInt(xr_min / 30)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+parseInt((xr - xr_min) / 30)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+parseInt((xr_max - xr) / 30)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += xr + "( "+xr_min+" / "+xr_max+" )";
+        h += "<br><br>";
+
+        h += "<div style='height: 20px; width: "+parseInt(xall_min / 90)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+parseInt((xall - xall_min) / 90)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+parseInt((xall_max - xall) / 90)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += xall + "( "+xall_min+" / "+xall_max+" )";
+        h += "<br><br>";
+        
+        h += "</td></tr></table>";
+
+// fa xa yb
+// fb xb ya
+// fe fc fd
+
+        // h += "x = " + x_px + " ; y = " + y_px ;
+        if (!$("#drow_box").length) {
+            let main_html = "";
+            main_html += "<input type='button' value='リセット' onClick='javascript:webhid.i2c_aztouch_reset();'><br><br>";
+            main_html += "<div id='drow_box'></div>";
+            $("#main_box").html(main_html);
+        }
+
+        $("#drow_box").html(h);
+        setTimeout(webhid.i2c_az1upad, 50);
+    });
+
+}
