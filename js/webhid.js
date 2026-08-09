@@ -1154,6 +1154,11 @@ let ym_min = 1000;
 let yd_max = 0;
 let yd_min = 1000;
 
+let pold = [];
+let pcolor = ["#cbdfff", "#a8c9ff", "#79acff", "#5f9cff", "#498fff", "#297bff"];
+let mouse_x = 0;
+let mouse_y = 0;
+/*
         xa_min = 638; xa_max = 752;
         xb_min = 599; xb_max = 729;
         ya_min = 607; ya_max = 731;
@@ -1163,6 +1168,7 @@ let yd_min = 1000;
         fc_min = 609; fc_max = 727;
         fd_min = 594; fd_max = 713;
         fe_min = 640; fe_max = 741;
+*/
         xl_min = 0; xl_max = 3000;
         xc_min = 0; xc_max = 3000;
         xr_min = 0; xr_max = 3000;
@@ -1170,19 +1176,28 @@ let yd_min = 1000;
        ym_min = 0; ym_max = 3000;
        yd_min = 0; yd_max = 3000;
 
+let pin_wrk = [113, 115, 115,  124, 122, 125,  104, 122, 125];
+let pin_min = [617, 628, 617,  600, 599, 599,  637, 603, 588];
+let pin_max = [730, 743, 732,  724, 721, 724,  741, 725, 713];
+
+pin_min = [3000,3000,3000,3000,3000,3000,3000,3000,3000];
+pin_max = [0,0,0,0,0,0,0,0,0];
+
 webhid.i2c_az1upad = function() {
     webhid.i2c_read(0x0A, 18, function(read_length, read_data, raw_data) {
-        let c, xa, xb, ya, yb, fa, fb, fc, fd, fe;
+        let i, c;
+        let r = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let p = [0, 0, 0, 0, 0, 0, 0, 0, 0];
         let h = "";
-        xa = (read_data[0] << 8) + read_data[1];
-        xb = (read_data[6] << 8) + read_data[7];
-        ya = (read_data[4] << 8) + read_data[5];
-        yb = (read_data[2] << 8) + read_data[3];
-        fa = (read_data[8] << 8) + read_data[9];
-        fb = (read_data[10] << 8) + read_data[11];
-        fc = (read_data[12] << 8) + read_data[13];
-        fd = (read_data[14] << 8) + read_data[15];
-        fe = (read_data[16] << 8) + read_data[17];
+        r[0] = (read_data[0] << 8) + read_data[1]; // 1
+        r[1] = (read_data[2] << 8) + read_data[3]; // 4
+        r[2] = (read_data[4] << 8) + read_data[5]; // 3
+        r[3] = (read_data[6] << 8) + read_data[7]; // 2
+        r[4] = (read_data[8] << 8) + read_data[9]; // 5
+        r[5] = (read_data[10] << 8) + read_data[11]; // 6
+        r[6] = (read_data[12] << 8) + read_data[13]; // 7
+        r[7] = (read_data[14] << 8) + read_data[15]; // 8
+        r[8] = (read_data[16] << 8) + read_data[17]; // 9
         // console.log(xa + " " + xb + " " + ya + " " + yb);
         /*
         if (xa_max < xa) xa_max = xa;
@@ -1204,71 +1219,98 @@ webhid.i2c_az1upad = function() {
         if (fe_max < fe) fe_max = fe;
         if (fe_min > fe) fe_min = fe;
         */
-        let xa_p = parseInt( ((xa - xa_min) / (xa_max - xa_min)) * 1000 );
-        let xb_p = parseInt( ((xb - xb_min) / (xb_max - xb_min)) * 1000 );
-        let ya_p = parseInt( ((ya - ya_min) / (ya_max - ya_min)) * 1000 );
-        let yb_p = parseInt( ((yb - yb_min) / (yb_max - yb_min)) * 1000 );
-        let fa_p = parseInt( ((fa - fa_min) / (fa_max - fa_min)) * 1000 );
-        let fb_p = parseInt( ((fb - fb_min) / (fb_max - fb_min)) * 1000 );
-        let fc_p = parseInt( ((fc - fc_min) / (fc_max - fc_min)) * 1000 );
-        let fd_p = parseInt( ((fd - fd_min) / (fd_max - fd_min)) * 1000 );
-        let fe_p = parseInt( ((fe - fe_min) / (fe_max - fe_min)) * 1000 );
-        let xl = fa_p + fb_p + fe_p;
-        let xc = xa_p + xb_p + fc_p;
-        let xr = yb_p + ya_p + fd_p;
-        let yt = fa_p + xa_p + yb_p;
-        let ym = fb_p + xb_p + ya_p;
-        let yd = fe_p + fc_p + fd_p;
-        let tp = fa_p + xa_p + yb_p +  fb_p + xb_p + ya_p +  fe_p + fc_p + fd_p;
-        /*
-        if (xl_max < xl) xl_max = xl;
-        if (xl_min > xl) xl_min = xl;
-        if (xc_max < xc) xc_max = xc;
-        if (xc_min > xc) xc_min = xc;
-        if (xr_max < xr) xr_max = xr;
-        if (xr_min > xr) xr_min = xr;
-        */
-        /*
-        if (yt_max < yt) yt_max = yt;
-        if (yt_min > yt) yt_min = yt;
-        if (ym_max < ym) ym_max = ym;
-        if (ym_min > ym) ym_min = ym;
-        if (yd_max < yd) yd_max = yd;
-        if (yd_min > yd) yd_min = yd;
-        */
-
-
-        let xl_p = parseInt( ((xl - xl_min) / (xl_max - xl_min)) * 1000 );
-        let xc_p = parseInt( ((xc - xc_min) / (xc_max - xc_min)) * 1000 );
-        let xr_p = parseInt( ((xr - xr_min) / (xr_max - xr_min)) * 1000 );
-        let xl_t = parseInt((xl_p * 1000) / (xc_p + xl_p));
-        let xr_t = parseInt((xr_p * 1000) / (xc_p + xr_p));
-        let xxx =  (xr_t - xl_t);
-
-        let yt_p = parseInt( ((yt - yt_min) / (yt_max - yt_min)) * 1000 );
-        let ym_p = parseInt( ((ym - ym_min) / (ym_max - ym_min)) * 1000 );
-        let yd_p = parseInt( ((yd - yd_min) / (yd_max - yd_min)) * 1000 );
-        let yt_t = parseInt((yt_p * 1000) / (ym_p + yt_p));
-        let ym_t = parseInt((yd_p * 1000) / (ym_p + yd_p));
-        let yyy =  (ym_t - yt_t);
-
-        if (tp < 1000) {
-            xxx = 0;
-            yyy = 0;
+        // xa_min = 638; xa_max = 752; // 114
+        // xb_min = 599; xb_max = 729; // 130
+        // ya_min = 607; ya_max = 731; // 124
+        // yb_min = 622; yb_max = 746; // 124
+        // fa_min = 622; fa_max = 736; // 114
+        // fb_min = 606; fb_max = 731; // 125
+        // fc_min = 609; fc_max = 727; // 118
+        // fd_min = 594; fd_max = 713; // 119
+        // fe_min = 640; fe_max = 741; // 101
+        for (i=0; i<9; i++) {
+            if (r[i] < pin_min[i]) r[i] = pin_min[i];
+            if (r[i] > pin_max[i]) r[i] = pin_max[i];
+            p[i] = parseInt( (r[i] - pin_min[i]) * 128 / pin_wrk[i] );
         }
+
+
+        let sp = 128;
+        let xl = p[0] + p[3] + p[6];
+        let xc = p[1] + p[4] + p[7];
+        let xr = p[2] + p[5] + p[8];
+
+        let yt = p[0] + p[1] + p[2];
+        let ym = p[3] + p[4] + p[5];
+        let yb = p[6] + p[7] + p[8];
+
+        let xxx = 0;
+        let yyy = 0;
+        let tp = 0;
+        if ((xc + xl) > 100 && (xc + xr) > 100 && (yt + ym) > 100 && (yb + ym) > 100) {
+            let xl_t = parseInt(xl * 128 / (xc + xl));
+            let xr_t = parseInt(xr * 128 / (xc + xr));
+            xxx =  (xr_t - xl_t);
+            // let xxx = parseInt((sp * xc * (xr -xl)) / ((xc + xr) * (xc + xl)));
+            // let xxx = parseInt(((xr - xl) * sp) / xc);
+
+            let yt_t = parseInt(yt * 128 / (ym + yt));
+            let ym_t = parseInt(yb * 128 / (ym + yb));
+            yyy =  (ym_t - yt_t);
+            // let yyy = parseInt((sp * ym * (yd - yt)) / ((ym + yd) * (ym + yt)));
+            // let yyy = parseInt(((yd - yt) * sp) / ym);
+            tp = yt + ym + yb;
+        }
+
+        if (tp < 120) {
+             xxx = 0;
+              yyy = 0;
+              tp = 0;
+        }
+        pold.push([xxx, yyy, tp]);
+        if (pold.length > 5) pold.shift();
+
+        let mv_x = 0;
+        let mv_y = 0;
+        let ch_i = 0;
+        let ch_x, ch_y;
+        let ch_html = "";
+        for(i in pold) {
+            if (pold[i][2] > 80) {
+                if (ch_i > 0 && pold[i - 1][2] > 80 && pold[i][2] > 80) {
+                    ch_x = pold[i][0] - pold[i - 1][0];
+                    ch_y = pold[i][1] - pold[i - 1][1];
+                    if (ch_x > -400 && ch_y > -400 && ch_x < 400 && ch_y < 400
+                        // && !((ch_x > -1 && ch_x < 1) || (ch_y > -1 && ch_y < 1))
+                    ) {
+                        mv_x += ch_x;
+                        mv_y += ch_y;
+                        ch_html += ch_x + " - " + ch_y + "<br>";
+                    }
+                }
+                ch_i++;
+            } else {
+                ch_i = 0;
+            }
+        }
+            mouse_x += mv_x / 4;
+            mouse_y += mv_y / 4;
+        $("#mouse_obj").css("top", mouse_y + "px");
+        $("#mouse_obj").css("left", mouse_x + "px");
 
 // fa xa yb
 // fb xb ya
 // fe fc fd
-        if (!parseInt(fa_p)) fa_p = 0;
-        if (!parseInt(xa_p)) xa_p = 0;
-        if (!parseInt(yb_p)) yb_p = 0;
-        if (!parseInt(fb_p)) fb_p = 0;
-        if (!parseInt(xb_p)) xb_p = 0;
-        if (!parseInt(ya_p)) ya_p = 0;
-        if (!parseInt(fe_p)) fe_p = 0;
-        if (!parseInt(fc_p)) fc_p = 0;
-        if (!parseInt(fd_p)) fd_p = 0;
+        /*
+        if (!parseInt(fa_p) || fa_p < 0) fa_p = 0;
+        if (!parseInt(xa_p) || xa_p < 0) xa_p = 0;
+        if (!parseInt(yb_p) || yb_p < 0) yb_p = 0;
+        if (!parseInt(fb_p) || fb_p < 0) fb_p = 0;
+        if (!parseInt(xb_p) || xb_p < 0) xb_p = 0;
+        if (!parseInt(ya_p) || ya_p < 0) ya_p = 0;
+        if (!parseInt(fe_p) || fe_p < 0) fe_p = 0;
+        if (!parseInt(fc_p) || fc_p < 0) fc_p = 0;
+        if (!parseInt(fd_p) || fd_p < 0) fd_p = 0;
 
         if (fa_p > 1275) fa_p = 1275;
         if (xa_p > 1275) xa_p = 1275;
@@ -1279,25 +1321,45 @@ webhid.i2c_az1upad = function() {
         if (fe_p > 1275) fe_p = 1275;
         if (fc_p > 1275) fc_p = 1275;
         if (fd_p > 1275) fd_p = 1275;
+        */
 
         h += "<table><tr><td valign='top'>";
+        h += " ";
+/*
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fa_p < 64)? '0': '') + parseInt(fa_p).toString(16))+"00;display: inline-block;'></div>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((xa_p < 64)? '0': '') + parseInt(xa_p).toString(16))+"00;display: inline-block;'></div>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((yb_p < 64)? '0': '') + parseInt(yb_p).toString(16))+"00;display: inline-block;'></div>";
+        h += "<br>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fb_p < 64)? '0': '') + parseInt(fb_p).toString(16))+"00;display: inline-block;'></div>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((xb_p < 64)? '0': '') + parseInt(xb_p).toString(16))+"00;display: inline-block;'></div>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((ya_p < 64)? '0': '') + parseInt(ya_p).toString(16))+"00;display: inline-block;'></div>";
+        h += "<br>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fe_p < 64)? '0': '') + parseInt(fe_p).toString(16))+"00;display: inline-block;'></div>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fc_p < 64)? '0': '') + parseInt(fc_p).toString(16))+"00;display: inline-block;'></div>";
+        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fd_p < 64)? '0': '') + parseInt(fd_p).toString(16))+"00;display: inline-block;'></div>";
+        h += "<br>";
+        h += "<br>";
+        h += "<br>";
+*/
 
-        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fa_p < 64)? '0': '') + parseInt(fa_p / 5).toString(16))+"00;display: inline-block;'></div>";
-        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((xa_p < 64)? '0': '') + parseInt(xa_p / 5).toString(16))+"00;display: inline-block;'></div>";
-        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((yb_p < 64)? '0': '') + parseInt(yb_p / 5).toString(16))+"00;display: inline-block;'></div>";
-        h += "<br>";
-        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fb_p < 64)? '0': '') + parseInt(fb_p / 5).toString(16))+"00;display: inline-block;'></div>";
-        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((xb_p < 64)? '0': '') + parseInt(xb_p / 5).toString(16))+"00;display: inline-block;'></div>";
-        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((ya_p < 64)? '0': '') + parseInt(ya_p / 5).toString(16))+"00;display: inline-block;'></div>";
-        h += "<br>";
-        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fe_p < 64)? '0': '') + parseInt(fe_p / 5).toString(16))+"00;display: inline-block;'></div>";
-        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fc_p < 64)? '0': '') + parseInt(fc_p / 5).toString(16))+"00;display: inline-block;'></div>";
-        h += "<div style='height: 80px; width: 80px; background-color: #00"+(((fd_p < 64)? '0': '') + parseInt(fd_p / 5).toString(16))+"00;display: inline-block;'></div>";
-        h += "<br>";
-        h += "<br>";
-        h += "x : " + xr_t + " - " + xl_t + "<br>";
-        h += "x : " + ym_t + " - " + yt_t + "<br>";
-        h += "<br>";
+
+        h += "</td><td valign='top'>";
+
+        h += "<div style='position: absolute; background-color: #ececec; width: 350px; height: 350px;'> </div>";
+        
+        
+        for(i in pold) {
+            if (pold[i][2] > 80) {
+                h += "<div style='position: absolute; top: "+((pold[i][1]) + 130)+"px; left: "+((pold[i][0]) + 130)+"px; font-size: 100px; color: "+pcolor[i]+";'>●</div>";
+            }
+            // h += pold[i]["x"] + " - " + pold[i]["y"] + "<br>";
+        }
+
+        h += "<div style='width: 350px; height: 350px;'> </div>";
+
+        h += "</td><td valign='top'>";
+        h += " ";
+
         h += tp + "<br>";
         h += "<br>";
         h += xxx + "<br>";
@@ -1305,35 +1367,61 @@ webhid.i2c_az1upad = function() {
         h += "<br>";
         h += "<br>";
 
+        h += "<table>";
+        h += "<tr>";
+        c = (((255 - p[0] < 16)? '0': '') + parseInt(255 - p[0]).toString(16));
+        h += "<td style='height: 50px; width: 50px; background-color: #"+c+c+"ff; text-align: center;'>" + p[0] + "</td>";
+        c = (((255 - p[1] < 16)? '0': '') + parseInt(255 - p[1]).toString(16));
+        h += "<td style='height: 50px; width: 50px; background-color: #"+c+c+"ff; text-align: center;'>" + p[1] + "</td>";
+        c = (((255 - p[2] < 16)? '0': '') + parseInt(255 - p[2]).toString(16));
+        h += "<td style='height: 50px; width: 50px; background-color: #"+c+c+"ff; text-align: center;'>" + p[2] + "</td>";
+        h += "</tr>";
+        h += "<tr>";
+        c = (((255 - p[3] < 16)? '0': '') + parseInt(255 - p[3]).toString(16));
+        h += "<td style='height: 50px; width: 50px; background-color: #"+c+c+"ff; text-align: center;'>" + p[3] + "</td>";
+        c = (((255 - p[4] < 16)? '0': '') + parseInt(255 - p[4]).toString(16));
+        h += "<td style='height: 50px; width: 50px; background-color: #"+c+c+"ff; text-align: center;'>" + p[4] + "</td>";
+        c = (((255 - p[5] < 16)? '0': '') + parseInt(255 - p[5]).toString(16));
+        h += "<td style='height: 50px; width: 50px; background-color: #"+c+c+"ff; text-align: center;'>" + p[5] + "</td>";
+        h += "</tr>";
+        h += "<tr>";
+        c = (((255 - p[6] < 16)? '0': '') + parseInt(255 - p[6]).toString(16));
+        h += "<td style='height: 50px; width: 50px; background-color: #"+c+c+"ff; text-align: center;'>" + p[6] + "</td>";
+        c = (((255 - p[7] < 16)? '0': '') + parseInt(255 - p[7]).toString(16));
+        h += "<td style='height: 50px; width: 50px; background-color: #"+c+c+"ff; text-align: center;'>" + p[7] + "</td>";
+        c = (((255 - p[8] < 16)? '0': '') + parseInt(255 - p[8]).toString(16));
+        h += "<td style='height: 50px; width: 50px; background-color: #"+c+c+"ff; text-align: center;'>" + p[8] + "</td>";
+        h += "</tr>";
+        h += "</table>";
+        h += "<br>";
+
+        for(i in pold) {
+            h += pold[i][0] + " - " + pold[i][1] + " - " + pold[i][2] + "<br>";
+        }
+        h += "[<br>" + ch_html + "<br>]<br>";
+
+/*
         h += "</td><td valign='top'>";
-
-        h += "<div style='position: absolute; background-color: #d3f3ff; width: 350px; height: 350px;'> </div>";
-        
-        h += "<div style='position: relative; top: "+((yyy / 6) + 130)+"px; left: "+((xxx / 8) + 130)+"px; font-size: 100px;'>●<div>"
-
-        h += "<div style='width: 350px; height: 350px;'> </div>";
-
-        h += "</td><td valign='top'>";
-
         h += "<div style='height: 20px; width: "+(xa_min - 400)+"px; background-color: black;display: inline-block;'></div>";
         h += "<div style='height: 20px; width: "+(xa - xa_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
         h += "<div style='height: 20px; width: "+(xa_max - xa)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
         h += xa + "( "+xa_min+" / "+xa_max+" )";
         h += "<br><br>";
-        h += "<div style='height: 20px; width: "+(xb_min - 400)+"px; background-color: black;display: inline-block;'></div>";
-        h += "<div style='height: 20px; width: "+(xb - xb_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
-        h += "<div style='height: 20px; width: "+(xb_max - xb)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
-        h += xb + "( "+xb_min+" / "+xb_max+" )";
+        h += "<div style='height: 20px; width: "+(yb_min - 400)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(yb - yb_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(yb_max - yb)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += yb + "( "+yb_min+" / "+yb_max+" )";
         h += "<br><br>";
+
         h += "<div style='height: 20px; width: "+(ya_min - 400)+"px; background-color: black;display: inline-block;'></div>";
         h += "<div style='height: 20px; width: "+(ya - ya_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
         h += "<div style='height: 20px; width: "+(ya_max - ya)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
         h += ya + "( "+ya_min+" / "+ya_max+" )";
         h += "<br><br>";
-        h += "<div style='height: 20px; width: "+(yb_min - 400)+"px; background-color: black;display: inline-block;'></div>";
-        h += "<div style='height: 20px; width: "+(yb - yb_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
-        h += "<div style='height: 20px; width: "+(yb_max - yb)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
-        h += yb + "( "+yb_min+" / "+yb_max+" )";
+        h += "<div style='height: 20px; width: "+(xb_min - 400)+"px; background-color: black;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(xb - xb_min)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+        h += "<div style='height: 20px; width: "+(xb_max - xb)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+        h += xb + "( "+xb_min+" / "+xb_max+" )";
         h += "<br><br>";
 
         h += "<div style='height: 20px; width: "+(fa_min - 400)+"px; background-color: black;display: inline-block;'></div>";
@@ -1366,6 +1454,7 @@ webhid.i2c_az1upad = function() {
         h += fe + "( "+fe_min+" / "+fe_max+" )";
         h += "<br><br>";
         h += "<br><br>";
+*/
 
         /*
         h += "<div style='height: 20px; width: "+parseInt(xl_min / 30)+"px; background-color: black;display: inline-block;'></div>";
@@ -1396,6 +1485,7 @@ webhid.i2c_az1upad = function() {
         // h += "x = " + x_px + " ; y = " + y_px ;
         if (!$("#drow_box").length) {
             let main_html = "";
+            main_html += "<div id='mouse_obj' style='position: absolute; top: 0px; left: 0px; font-size: 50px; z-index: 100;'>⭐</div>"
             main_html += "<input type='button' value='リセット' onClick='javascript:webhid.i2c_aztouch_reset();'><br><br>";
             main_html += "<div id='drow_box'></div>";
             $("#main_box").html(main_html);
@@ -1406,3 +1496,80 @@ webhid.i2c_az1upad = function() {
     });
 
 }
+
+
+
+webhid.i2c_az1upad_v = function() {
+    webhid.i2c_read(0x0A, 18, function(read_length, read_data, raw_data) {
+        let i, c;
+        let r = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let h = "";
+        r[0] = (read_data[0] << 8) + read_data[1]; // 1
+        r[1] = (read_data[2] << 8) + read_data[3]; // 4
+        r[2] = (read_data[4] << 8) + read_data[5]; // 3
+        r[3] = (read_data[6] << 8) + read_data[7]; // 2
+        r[4] = (read_data[8] << 8) + read_data[9]; // 5
+        r[5] = (read_data[10] << 8) + read_data[11]; // 6
+        r[6] = (read_data[12] << 8) + read_data[13]; // 7
+        r[7] = (read_data[14] << 8) + read_data[15]; // 8
+        r[8] = (read_data[16] << 8) + read_data[17]; // 9
+
+        for (i=0; i<9; i++) {
+            if (r[i] < pin_min[i]) pin_min[i] = r[i];
+            if (r[i] > pin_max[i]) pin_max[i] = r[i];
+        }
+
+
+        for (i=0; i<9; i++) {
+            h += "<div style='height: 20px; width: "+(pin_min[i] / 2)+"px; background-color: black;display: inline-block;'></div>";
+            h += "<div style='height: 20px; width: "+((r[i] - pin_min[i]) / 2)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+            h += "<div style='height: 20px; width: "+((pin_max[i] - r[i]) / 2)+"px; background-color: #dcdcdc;display: inline-block;'></div>";
+            h += r[i] + "( "+pin_min[i]+" / "+pin_max[i]+" )";
+            h += "<br><br>";
+        }
+
+
+        if (!$("#drow_box").length) {
+            let main_html = "";
+            main_html += "<div id='drow_box'></div>";
+            $("#main_box").html(main_html);
+        }
+
+        $("#drow_box").html(h);
+        setTimeout(webhid.i2c_az1upad_v, 10);
+    });
+
+}
+
+
+
+webhid.i2c_az1uball_t = function() {
+    webhid.i2c_read(0x0A, 5, function(read_length, read_data, raw_data) {
+        let i, c;
+        let r = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let h = "";
+        for (i=0; i<5; i++) {
+          r[i] = read_data[i];
+        }
+
+        for (i=0; i<4; i++) {
+            h += "<div style='height: 20px; width: "+(r[i] * 20)+"px; background-color: #5d5dfc;display: inline-block;'></div>";
+            h += r[i] + "";
+            h += "<br><br>";
+        }
+
+
+        if (!$("#drow_box").length) {
+            let main_html = "";
+            main_html += "<div id='drow_box'></div>";
+            $("#main_box").html(main_html);
+        }
+
+        $("#drow_box").html(h);
+        setTimeout(webhid.i2c_az1uball_t, 10);
+    });
+
+}
+
+
+

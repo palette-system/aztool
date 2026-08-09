@@ -2,10 +2,12 @@
 
 webble = {};
 
-// UUID
+// カスタム UUID
 webble.custam_service_id = "0000ff14-0000-1000-8000-00805f9b34fb";
-webble.custam_input_id = "0000ff15-0000-1000-8000-00805f9b34fb";
-webble.custam_output_id = "0000ff16-0000-1000-8000-00805f9b34fb";
+webble.custam_input_id = "0000ff15-0000-1000-8000-00805f9b34fb"; // datasize: 32 byte 用
+webble.custam_output_id = "0000ff16-0000-1000-8000-00805f9b34fb"; // datasize: 32 byte 用
+webble.custam_input_id_20 = "0000ff17-0000-1000-8000-00805f9b34fb"; // datasize: 20 byte 用
+webble.custam_output_id_20 = "0000ff18-0000-1000-8000-00805f9b34fb"; // datasize: 20 byte 用
 
 // デバイス検索オプション
 webble.device_search_option = {
@@ -17,7 +19,7 @@ webble.device_search_option = {
 // WEB Bluetooth モードかどうか
 webble.webble_mode = false;
 
-// 送受信のパケットサイズ
+// 送受信のパケットサイズ(デフォルト)
 webble.command_size = 32;
 
 // 受信、送信用 Characteristic
@@ -92,7 +94,12 @@ webble.connect = function(cb_func) {
         webble.ble_service = service;
         console.log("service");
         console.log(service);
-        return webble.ble_service.getCharacteristic(webble.custam_input_id); // シリアル 受信
+        // シリアル 受信
+        return webble.ble_service.getCharacteristic(webble.custam_input_id).catch(error => {
+            console.log("サービス0000ff15が無ければ0000ff17を試す");
+            webhid.raw_report_id.in_size = 20;
+            return webble.ble_service.getCharacteristic(webble.custam_input_id_20);
+        });
     })
     .then(characteristic_input => {
         webble.ble_input = characteristic_input;
@@ -106,7 +113,12 @@ webble.connect = function(cb_func) {
         // イベントの種類
         // https://webbluetoothcg.github.io/web-bluetooth/#eventdef-bluetoothremotegattcharacteristic-characteristicvaluechanged
         webble.ble_input.addEventListener('characteristicvaluechanged', webble.handle_input_report); // 通知受け取った時に実行する関数登録
-        return webble.ble_service.getCharacteristic(webble.custam_output_id); // シリアル 送信
+        // シリアル 送信
+        return webble.ble_service.getCharacteristic(webble.custam_output_id).catch(error => {
+            console.log("サービス0000ff16が無ければ0000ff18を試す");
+            webhid.raw_report_id.out_size = 20;
+            return webble.ble_service.getCharacteristic(webble.custam_output_id_20);
+        });
     })
     .then(characteristic_output => {
         webble.ble_output = characteristic_output;
@@ -130,9 +142,9 @@ webble.close = function(cb_func) {
 // コマンドを送信
 webble.send_command = function(arr) {
     var i;
-    var b = new ArrayBuffer(webble.command_size);
+    var b = new ArrayBuffer(webhid.raw_report_id.out_size);
     var u = new Uint8Array(b);
-    for (i=0; i<webble.command_size; i++) {
+    for (i=0; i<webhid.raw_report_id.out_size; i++) {
         if (i >= arr.length) {
             u[i] = 0;
         } else {
