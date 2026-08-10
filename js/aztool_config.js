@@ -48,6 +48,9 @@ aztool.main_kle["azpocket"] = `[{x:1},"2"],[{x:1},"4"],["5","3"],["0","1"]`;
 // XIAO nRF52840
 aztool.main_kle["xiao_ble"] = `["0"]`;
 
+// HY0020
+aztool.main_kle["hy0020"] = `["0"]`;
+
 // レイヤー切り替えの種類
 // https://qiita.com/chesscommands/items/3e7e02d025f261bf6134
 aztool.layer_move_type_list = [
