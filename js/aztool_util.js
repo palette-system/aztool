@@ -272,6 +272,11 @@ aztool.is_nrf52 = function() {
     // return (aztool.firm_info.eep_data.substring(0,3) == 'AZN');
 };
 
+// HY0020 かどうか
+aztool.is_hy0020 = function() {
+    return (aztool.setting_json_data.keyboard_type == 'hy0020');
+};
+
 // デフォルトの設定かどうか
 aztool.is_default_setting = function() {
     return ("default" in aztool.setting_json_data);

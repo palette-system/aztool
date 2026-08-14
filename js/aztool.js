@@ -119,7 +119,11 @@ aztool.view_connect_top = function(msg) {
     let ua_check = aztool.check_device();
     h += "<div style='text-align: center; margin: 100px 0;'>";
     h += "<h2 style='font-size: 80px; margin: 40px 0 10px 0;'>⌨ AZTOOL</h2>";
-    h += "<h3 style='font-size: 30px; margin: 20px 0 50px 0;'>" + aztool.init_param.board_type + " 用</h3>";
+    if (aztool.is_nrf52()) {
+        h += "<h3 style='font-size: 30px; margin: 20px 0 50px 0;'>nRF52840 / HY0020 用</h3>";
+    } else {
+        h += "<h3 style='font-size: 30px; margin: 20px 0 50px 0;'>" + aztool.init_param.board_type + " 用</h3>";
+    }
     if (ua_check == 0) {
         // 表示OK
         // h += "<font style='font-size: 16px;'>転送速度</font>　<select id='load_step_select' style='font-size: 16px; width: 100px; text-align: center; padding: 4px;'>";

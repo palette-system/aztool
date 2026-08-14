@@ -61,29 +61,36 @@ aztool.addcustam_layout_view = function() {
 // エキスパンダ設定画面表示
 aztool.addcustam_ioset_view = function() {
     let st_th = "width: 150px;text-align: right; padding: 15px 20px;";
-    let h = `
+    let h = "";
+    h += `
         <div style="color: #000; font-size: 18px;font-weight: bold;">■ IOピンの設定</div>
-        <br><br>
+        <br><br>`;
+    if (aztool.is_hy0020()) {
+        h += "<table><tr><td>";
+        h += "<img src='./img/hy0020_gpio.png' width='250' height='355'>";
+        h += "</td><td>"
+    }
+    h += `
         <table>
         <tr>
             <td style="`+st_th+`">ステータスLEDピン</td>
-            <td><input type="text" id="pin_stat" value="" style="font-size: 26px; width: 500px;"></td>
+            <td><input type="text" id="pin_stat" value="" style="font-size: 26px; width: 350px;"></td>
         </tr>
         <tr>
             <td style="`+st_th+`">ダイレクト入力ピン</td>
-            <td><input type="text" id="pin_direct" value="" style="font-size: 26px; width: 500px;"></td>
+            <td><input type="text" id="pin_direct" value="" style="font-size: 26px; width: 350px;"></td>
         </tr>
         <tr id="touch_box">
             <td style="`+st_th+`">タッチピン</td>
-            <td><input type="text" id="pin_touch" value="" style="font-size: 26px; width: 500px;"></td>
+            <td><input type="text" id="pin_touch" value="" style="font-size: 26px; width: 350px;"></td>
         </tr>
         <tr>
             <td style="`+st_th+`">COL ピン</td>
-            <td><input type="text" id="pin_col" value="" style="font-size: 26px; width: 500px;"></td>
+            <td><input type="text" id="pin_col" value="" style="font-size: 26px; width: 350px;"></td>
         </tr>
         <tr>
             <td style="`+st_th+`">ROW ピン</td>
-            <td><input type="text" id="pin_row" value="" style="font-size: 26px; width: 500px;"></td>
+            <td><input type="text" id="pin_row" value="" style="font-size: 26px; width: 350px;"></td>
         </tr>
         <tr>
             <td style="`+st_th+`">I2C ピン</td>
@@ -92,7 +99,7 @@ aztool.addcustam_ioset_view = function() {
             SCL <input type="text" id="pin_scl" value="" style="font-size: 26px; width: 80px;">
             </td>
         </tr>
-        <tr>
+        <tr id="power_box">
             <td style="`+st_th+`">電源ピン</td>
             <td><input type="text" id="pin_power" value="" style="font-size: 26px; width: 80px;"></td>
         </tr>
@@ -100,7 +107,11 @@ aztool.addcustam_ioset_view = function() {
         <div id="pin_error" style="color: #ff5656; font-size: 15px;"></div>
         <br><br>
         <div id="ioset_info_box" style="color: #888; font-size: 14px;"></div>
-        <br><br>
+        <br><br>`;
+    if (aztool.is_hy0020()) {
+        h += "</td></tr></table>";
+    }
+    h += `
         <div style="text-align: right; width: 800px;">
         <a class="cancel-button" onClick="javascript:aztool.addcustam_layout_view();">戻る</a>　
         <a class="exec-button" onClick="javascript:aztool.addcustam_ioset_set();">次へ</a>
@@ -118,11 +129,17 @@ aztool.addcustam_ioset_view = function() {
     $("#kle_view_box").hide();
     $("#kle_view_box_info").hide();
     let info_html = "";
-    if (aztool.is_nrf52()) {
+    if (aztool.is_hy0020()) {
+        // HY0020 の場合はタッチ入力無し
+        $("#touch_box").hide();
+        $("#power_box").hide();
+        info_html += "※ 使用するピン番号をカンマ区切りで入力して下さい。<br>";
+        
+    } else if (aztool.is_nrf52()) {
         // nRF52 の場合タッチ入力は無し
         $("#touch_box").hide();
         // nRF52 用のインフォメーション
-        info_html += "※ ピン番号をカンマ区切りで入力して下さい。<br>";
+        info_html += "※ 使用するピン番号をカンマ区切りで入力して下さい。<br>";
         info_html += "※ GPIO のピン番号<br>";
         info_html += "　　0「GPIO 0 (P0.2)」、1「GPIO 1 (P0.3)」、2「GPIO 2 (P0.28)」、3「GPIO 3 (P0.29)」<br>";
         info_html += "　　4「GPIO 4 (P0.4)」、5「GPIO 5 (P0.5)」、6「GPIO 6 (P1.11)」、7「GPIO 7 (P1.12)」<br>";
@@ -137,7 +154,7 @@ aztool.addcustam_ioset_view = function() {
                         
     } else {
         // ESP32 用のインフォメーション
-        info_html += "※ ピン番号をカンマ区切りで入力して下さい。<br>";
+        info_html += "※ 使用するピン番号をカンマ区切りで入力して下さい。<br>";
         info_html += "※ EN、SD0、SD1、SD2、SD3、CMD、CLK はIOピンとして使用できません。<br>";
         info_html += "※ 0、1(TX)、3(RX) はIOピンですがファームウェア書込み時に使用するので非推薦です。<br>";
         info_html += "※ 34、35、36(VP)、39(VN)は入力専用のためダイレクトピン、rowピンでのみ使用できます。<br>　　(内部プルアップが無いので使用時はプルアップして下さい)<br>";
