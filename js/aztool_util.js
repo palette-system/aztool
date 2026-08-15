@@ -284,9 +284,12 @@ aztool.is_default_setting = function() {
 
 // 該当しない項目は非表示
 aztool.azhide = function() {
-    if (!aztool.is_nrf52()) {
+    if (aztool.is_nrf52() || aztool.is_hy0020()) {
+        // nrf52840 or HY0020 ならばESP用の要素は表示しない
         $(".isesp").hide();
     } else {
+        // ESP32 なら nrf52 系の要素は表示しない
         $(".isnrf52").hide();
+        $(".ishy").hide();
     }
 }
