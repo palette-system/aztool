@@ -17,6 +17,7 @@ aztool.addcustam_start = function() {
         "kle": aztool.get_main_kle(), // 現在の本体KLE
         "status_pin": ("status_pin" in aztool.setting_json_data)? aztool.setting_json_data.status_pin: -1,
         "power_pin": ("power_pin" in aztool.setting_json_data)? aztool.setting_json_data.power_pin: -1,
+        "read_type": ("read_type" in aztool.setting_json_data)? aztool.setting_json_data.read_type: 0,
         "keyboard_pin": aztool.clone(aztool.setting_json_data.keyboard_pin), // 現在の本体のピン設定
         "i2c_set": aztool.clone(i2c_set), // 現在の本体のピン設定
         "map": [] // キーと読み込んだデータとのマッピング設定
@@ -92,6 +93,15 @@ aztool.addcustam_ioset_view = function() {
             <td style="`+st_th+`">ROW ピン</td>
             <td><input type="text" id="pin_row" value="" style="font-size: 26px; width: 350px;"></td>
         </tr>
+        <tr id="read_type_box">
+            <td style="`+st_th+`">スキャン</td>
+            <td>
+                <select id="read_type" style="font-size: 22px; width: 300px; text-align: center;">
+                <option value="0">マトリックス</option>
+                <option value="1">ダブルマトリックス</option>
+                </select>
+            </td>
+        </tr>
         <tr>
             <td style="`+st_th+`">I2C ピン</td>
             <td>
@@ -124,6 +134,7 @@ aztool.addcustam_ioset_view = function() {
     $("#pin_touch").val(d.touch.join(", "));
     $("#pin_col").val(d.col.join(", "));
     $("#pin_row").val(d.row.join(", "));
+    $("#read_type").val(aztool.option_add.read_type);
     $("#pin_sda").val(aztool.option_add.i2c_set[0]);
     $("#pin_scl").val(aztool.option_add.i2c_set[1]);
     $("#kle_view_box").hide();
@@ -153,6 +164,7 @@ aztool.addcustam_ioset_view = function() {
         info_html += "　　11「LED RED」、12「LED BLUE」、13「LED GREEN」<br>";
                         
     } else {
+        $("#read_type_box").hide();
         // ESP32 用のインフォメーション
         info_html += "※ 使用するピン番号をカンマ区切りで入力して下さい。<br>";
         info_html += "※ EN、SD0、SD1、SD2、SD3、CMD、CLK はIOピンとして使用できません。<br>";
@@ -171,9 +183,9 @@ aztool.addcustam_ioset_check = function(check_data) {
     let ks = ["direct", "touch", "col", "row"];
     let ts = [0, 2, 4, 12, 13, 14, 15, 27, 32, 33]; // タッチで使用できるピン
     // ノーマルESP32 のみ 用 let as = [0, 1, 2, 3, 4, 5, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33, 34, 35, 36, 39]; // 使用できるピン全て
-    let as = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 32, 33, 34, 35, 36, 39, 40, 41, 42, 43, 44, 46]; // 使用できるピン全て(S3も含む)
+    let as = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 32, 33, 34, 35, 36, 39, 40, 41, 42, 43, 44, 46]; // ESP32 使用できるピン全て(S3も含む)
     let rs = [34, 35, 36, 39]; // 読み込み専用ピン
-    let nr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32];
+    let nr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]; // nrf52 使用できるピン全て
     let c, i, j, x;
     // 指定したすべての番号の配列を作成
     c = [];
@@ -272,6 +284,9 @@ aztool.addcustam_ioset_set = function() {
     // 電源ピン
     x = $("#pin_power").val();
     if (x.length && parseInt(x) >= 0) check_data.power_pin = parseInt(x);
+    // スキャンタイプ
+    x = $("#read_type").val();
+    if (x.length && parseInt(x) > 0) check_data.keyboard_pin.read_type = parseInt(x);
     console.log(check_data);
     // 入力チェック
     c = aztool.addcustam_ioset_check(check_data);

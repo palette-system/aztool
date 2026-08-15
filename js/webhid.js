@@ -921,8 +921,14 @@ webhid.set_pin_set = function(pin_setting, cb_func) {
     for (i in pin_setting.row) {
         cmd.push(pin_setting.row[i]);
     }
+    // スキャンタイプ（0=マトリックス / 1=ダブルマトリックス）
+    if ("read_type" in pin_setting) {
+        cmd.push(pin_setting.read_type);
+    } else {
+        cmd.push(0);
+    }
     // コマンドのサイズチェック
-    if (cmd.length > 32) {
+    if (cmd.length > webhid.raw_report_id.out_size) {
         webhid.set_pin_set_cb(1, null);
         return;
     }
