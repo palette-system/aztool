@@ -9,15 +9,23 @@ webble.custam_output_id = "0000ff16-0000-1000-8000-00805f9b34fb"; // datasize: 3
 webble.custam_input_id_20 = "0000ff17-0000-1000-8000-00805f9b34fb"; // datasize: 20 byte 用
 webble.custam_output_id_20 = "0000ff18-0000-1000-8000-00805f9b34fb"; // datasize: 20 byte 用
 
+webble.uart_service_id = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"; // BLE UART
+webble.uart_rx_id = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"; // BLE UART RX
+webble.uart_tx_id = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"; // BLE UART TX
+
 // デバイス検索オプション
 webble.device_search_option = {
-    filters: [
-        { services: [webble.custam_service_id]}
-    ]
+  filters: [
+    {services: [webble.custam_service_id] }, // AZK 
+    {"services": [webble.uart_service_id]} // BLE Uart
+  ]
 };
 
 // WEB Bluetooth モードかどうか
 webble.webble_mode = false;
+
+// BLE UART モードかどうか
+webble.ble_uart_flag = false;
 
 // 送受信のパケットサイズ(デフォルト)
 webble.command_size = 32;
@@ -88,12 +96,23 @@ webble.connect = function(cb_func) {
         webble.ble_server = server;
         console.log("server");
         console.log(server);
-        return webble.ble_server.getPrimaryService(webble.custam_service_id); // サービス取得
+        // サービス取得
+        return webble.ble_server.getPrimaryService(webble.custam_service_id).catch(error => {
+            console.log("AZK サービスが無ければ BLE UART サービス");
+            webble.ble_uart_flag = true;
+            webhid.raw_report_id.in_size = 20;
+            webhid.raw_report_id.out_size = 20;
+            return webble.ble_server.getPrimaryService(webble.uart_service_id);
+        });
     })
     .then(service => {
         webble.ble_service = service;
         console.log("service");
         console.log(service);
+        if (webble.ble_uart_flag) {
+            // BLE Uart フラグがあれば BLE Uart RX
+            return webble.ble_service.getCharacteristic(webble.uart_tx_id);
+        }
         // シリアル 受信
         return webble.ble_service.getCharacteristic(webble.custam_input_id).catch(error => {
             console.log("サービス0000ff15が無ければ0000ff17を試す");
@@ -113,6 +132,10 @@ webble.connect = function(cb_func) {
         // イベントの種類
         // https://webbluetoothcg.github.io/web-bluetooth/#eventdef-bluetoothremotegattcharacteristic-characteristicvaluechanged
         webble.ble_input.addEventListener('characteristicvaluechanged', webble.handle_input_report); // 通知受け取った時に実行する関数登録
+        if (webble.ble_uart_flag) {
+            // BLE Uart フラグがあれば BLE Uart TX
+            return webble.ble_service.getCharacteristic(webble.uart_rx_id);
+        }
         // シリアル 送信
         return webble.ble_service.getCharacteristic(webble.custam_output_id).catch(error => {
             console.log("サービス0000ff16が無ければ0000ff18を試す");

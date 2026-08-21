@@ -101,6 +101,8 @@ webhid.command_id = {
     "get_serial_input": 0x46, // シリアル通信(赤外線)のキー入力取得
     "get_serial_setting": 0x47, // シリアル通信(赤外線)のセッティング情報取得
     "get_cst816": 0x48, // トラックパッド CST816 情報取得
+    "get_ble_uart_list_start": 0x49, // BLE UART クライアントリスト取得
+    "get_ble_uart_list": 0x50, // BLE UART クライアントリスト取得
     "get_firmware_status": 0x60, // ファームウェアの情報取得
     "none": 0x00 // 空送信
 };
@@ -407,6 +409,26 @@ webhid.handle_input_report = function(e) {
             "event": get_data[4], // イベント (0=Down, 1=Up, 2=Contact)
             "x": (get_data[5] << 8) + get_data[6], // x座標
             "y": (get_data[7] << 8) + get_data[8] // y座標
+        });
+
+    } else if (cmd_type == webhid.command_id.get_ble_uart_list_start) {
+        webhid.get_ble_uart_list_start_cb();
+
+    } else if (cmd_type == webhid.command_id.get_ble_uart_list) {
+        // ファイルリスト取得開始
+        // ファイルリストのサイズ取得
+        s = (get_data[1] << 24) + (get_data[2] << 16) + (get_data[3] << 8) + get_data[4];
+        // 読み込み開始
+        webhid.load_start_exec(s, function(stat, res) {
+            if (stat == 0) {
+                p = webhid.arr2str(res);
+                console.log(p);
+                r =  JSON.parse(p);
+                console.log(r);
+                webhid.get_ble_uart_list_cb(stat, r);
+            } else {
+                webhid.get_ble_uart_list_cb(stat, res);
+            }
         });
 
     }
@@ -1055,6 +1077,24 @@ webhid.get_cst816 = function(cst816_addr, cb_func) {
     let cmd = [webhid.command_id.get_cst816, cst816_addr];
     webhid.send_command(cmd).then(() => {
         webhid.view_info("get cst816 key ...");
+    });
+};
+
+webhid.get_ble_uart_list_start = function(cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.get_ble_uart_list_start_cb = cb_func;
+    let cmd = [webhid.command_id.get_ble_uart_list_start];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("get ble uart list start ...");
+    });
+};
+
+webhid.get_ble_uart_list = function(cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.get_ble_uart_list_cb = cb_func;
+    let cmd = [webhid.command_id.get_ble_uart_list];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("get ble uart list ...");
     });
 };
 
