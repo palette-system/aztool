@@ -21,6 +21,13 @@ webble.device_search_option = {
   ]
 };
 
+// 分割：子 検索オプション
+webble.child_search_option = {
+  filters: [
+    {"services": [webble.uart_service_id]} // BLE Uart
+  ]
+};
+
 // WEB Bluetooth モードかどうか
 webble.webble_mode = false;
 
@@ -187,3 +194,114 @@ webble.handle_input_report = function(event) {
     });
 };
 
+// 分割：子 に接続
+webble.connect_child = function(cb_func) {
+    if (!cb_func) cb_func = function() {};
+    navigator.bluetooth.requestDevice(webble.child_search_option)
+    .then(device => {
+        webble.child_device = device;
+        // 接続が切れた時のイベント登録
+        webble.child_device.addEventListener("gattserverdisconnected", webble.child_disconnect);
+        // デバイスへ接続
+        return webble.child_device.gatt.connect();
+    })
+    .then(server => {
+        webble.child_server = server;
+        console.log("server");
+        console.log(server);
+        // サービス取得
+        return webble.child_server.getPrimaryService(webble.uart_service_id);
+    })
+    .then(service => {
+        webble.child_service = service;
+        console.log("service");
+        console.log(service);
+        // BLE Uart フラグがあれば BLE Uart RX
+        return webble.child_service.getCharacteristic(webble.uart_tx_id);
+    })
+    .then(characteristic_input => {
+        webble.child_input = characteristic_input;
+        console.log("characteristic_input");
+        console.log(characteristic_input);
+        return webble.child_input.startNotifications(); // 通知開始
+    })
+    .then(n => {
+        console.log("n");
+        console.log(n);
+        // イベントの種類
+        // https://webbluetoothcg.github.io/web-bluetooth/#eventdef-bluetoothremotegattcharacteristic-characteristicvaluechanged
+        webble.child_input.addEventListener('characteristicvaluechanged', webble.child_input_report); // 通知受け取った時に実行する関数登録
+        // BLE Uart フラグがあれば BLE Uart TX
+        return webble.child_service.getCharacteristic(webble.uart_rx_id);
+    })
+    .then(characteristic_output => {
+        webble.child_output = characteristic_output;
+        console.log("characteristic_output");
+        console.log(characteristic_output);
+        // コールバック実行
+        cb_func(0); // 0 = 成功
+    })
+    .catch(error => {
+        console.log(error);
+        cb_func(2); // 2 = 接続失敗
+    });
+};
+
+// 分割：子 端末切断
+webble.child_disconnect = function() {
+    console.log("child_disconnect");
+};
+
+webble.child_name_buf = [];
+webble.child_name = "";
+
+// 分割：子 データを受け取った時のイベント
+webble.child_input_report = function(event) {
+    // console.log(event);
+    let get_data = new Uint8Array(event.target.value.buffer);
+    let command_id = get_data[0];
+    let str_buf = [];
+    let i;
+
+    console.log(get_data);
+    if (command_id == webhid.command_id.get_device_name) {
+        if (get_data[2] == 0) {
+            webble.child_name_buf = []; // 先頭データ取得の場合バッファをクリア
+            webble.child_name = "";
+        }
+        i = 3;
+        for (i=3; i<20; i++) {
+            if (get_data[i]) webble.child_name_buf.push(get_data[i]);
+        }
+        // デバイス名が17バイト以上なら続きのデータを要求
+        if (get_data[2] == 0 && get_data[1] > 17) {
+            webble.child_send_command([webhid.command_id.get_device_name, 17]);
+        } else {
+            webble.child_name = webhid.arr2str(webble.child_name_buf);
+            console.log("device_name:");
+            console.log(webble.child_name_buf);
+            console.log(webble.child_name);
+            webble.child_server.disconnect();
+            aztool.addcustam_get_child_device_name_cb(webble.child_name);
+
+        }
+
+    }
+
+};
+
+// 分割：子 コマンドを送信
+webble.child_send_command = function(arr) {
+    var i;
+    var b = new ArrayBuffer(20);
+    var u = new Uint8Array(b);
+    for (i=0; i<20; i++) {
+        if (i >= arr.length) {
+            u[i] = 0;
+        } else {
+            u[i] = arr[i];
+        }
+    }
+    console.log(u);
+    return webble.child_output.writeValue(b);
+};

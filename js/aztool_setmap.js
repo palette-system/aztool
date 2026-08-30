@@ -18,10 +18,10 @@ aztool.view_setmap = function() {
     if (aztool.is_vertical()) {
         // スマホなどの縦長の場合
         h += `
-        <div class='menu_bbutton' onClick='javascript:aztool.setmap_all_set(0);'>一括設定</div>
-        <div class='menu_bbutton' onClick='javascript:aztool.setmap_layer_set();'>レイヤー設定</div>
-        <div class='menu_bbutton' onClick='javascript:aztool.setmap_layer_copy();'>コピーレイヤーを作成</div>
-        <div id='menu_actuation_btn' class='menu_bbutton' style='display: none;' onClick='javascript:aztool.actuation_setting();'>アクチュエーション</div>
+        <div class='menu_bbutton is_host' onClick='javascript:aztool.setmap_all_set(0);'>一括設定</div>
+        <div class='menu_bbutton is_host' onClick='javascript:aztool.setmap_layer_set();'>レイヤー設定</div>
+        <div class='menu_bbutton is_host' onClick='javascript:aztool.setmap_layer_copy();'>コピーレイヤーを作成</div>
+        <div id='menu_actuation_btn is_host' class='menu_bbutton' style='display: none;' onClick='javascript:aztool.actuation_setting();'>アクチュエーション</div>
         <div class='menu_bbutton' onClick='javascript:aztool.view_setmap_end();'>戻る</div>
         <br>
         <div id='save_btn_box'></div>
@@ -39,10 +39,10 @@ aztool.view_setmap = function() {
         h += `
         <div  style="width: 1400px;">
         <table><tr><td class="leftmenu-box">
-        <div class='menu_bbutton' onClick='javascript:aztool.setmap_all_set(0);'>一括設定</div>
-        <div class='menu_bbutton' onClick='javascript:aztool.setmap_layer_set();'>レイヤー設定</div>
-        <div class='menu_bbutton' onClick='javascript:aztool.setmap_layer_copy();'>コピーレイヤーを作成</div>
-        <div id='menu_actuation_btn' class='menu_bbutton' style='display: none;' onClick='javascript:aztool.actuation_setting();'>アクチュエーション</div>
+        <div class='menu_bbutton is_host' onClick='javascript:aztool.setmap_all_set(0);'>一括設定</div>
+        <div class='menu_bbutton is_host' onClick='javascript:aztool.setmap_layer_set();'>レイヤー設定</div>
+        <div class='menu_bbutton is_host' onClick='javascript:aztool.setmap_layer_copy();'>コピーレイヤーを作成</div>
+        <div id='menu_actuation_btn is_host' class='menu_bbutton' style='display: none;' onClick='javascript:aztool.actuation_setting();'>アクチュエーション</div>
         <div class='menu_bbutton' onClick='javascript:aztool.view_setmap_end();'>戻る</div>
         <br>
         <div id='save_btn_box'></div>
@@ -67,6 +67,13 @@ aztool.view_setmap = function() {
     // 対応キーボードだけアクチュエーション設定ボタンを表示
     if (aztool.is_actuation_kb()) {
         $("#menu_actuation_btn").show();
+    }
+    // 分割：子の場合キー設定はできない
+    if (aztool.is_child()) {
+        $(".is_host").hide();
+        $("#key_set_list").html("");
+        $("#layer_header_left").html("※ キーマップの設定は 分割：親 のキーボードで行って下さい。");
+        $("#lang_select").hide();
     }
 };
 
@@ -217,7 +224,7 @@ aztool.view_key_layout = function() {
         if (!aztool.on_i2coption(o)) continue; // 有効でないオプションは無視
         h += "<div id='odiv_"+o.id+"' style='position: relative; display: inline-block;'></div>"; // オプションのキー配列用
     }
-    h += "<table style='width: "+mw+";'><tr><td align='left' valign='top'>";
+    h += "<table style='width: "+mw+";'><tr><td id='layer_header_left' align='left' valign='top'>";
     h += "<div id='layer_title_info' class='layer_title'>レイヤー名</div>";
     h += "</td><td align='right'  valign='top'>";
     h += "<select id='lang_select' style='width: 170px; margin: 14px 0; font-size: 15px; padding: 6px 20px;' onChange='aztool.change_language();'>";
@@ -269,49 +276,51 @@ aztool.view_key_layout = function() {
         });
     }
     // ボタンのクリックイベント
-    for (i in aztool.key_layout_data) { // kleのデータループ
-        s = aztool.key_layout_data[i].kle;
-        o = aztool.key_layout_data[i].option;
-        for (j in s.keys) { // kle のキー分ループ
-            // ボタンのhover時のマウスカーソルをポインタにする
-            $("#sw_"+o.id+"_"+j).css({"cursor": "pointer"});
-            // ボタンにクリックイベント登録
-            $("#sw_"+o.id+"_"+j).click(function(e) {
-                // ドラッグ処理から10ミリ秒以下ならばドラッグ処理でのクリックなので何もしない
-                if ((aztool.millis() - aztool.setmap_dragg_last_time) < 10) {
-                    return;
-                }
-                // クリックされたdivのid取得
-                let t = (e.target.id)? e.target.id: e.currentTarget.id;
-                // クリックしたボタンのキー設定
-                aztool.key_btn_click(t);
-            });
-            // ボタンをドロップボックスにする(コードリストからドラッグしてきたコードを受け取る用)
-            $("#sw_"+o.id+"_"+j).droppable({
-                "drop": function(event, ui) { // アイテムをドロップされた
-                    let s = ui.draggable[0].id.split("_"); // idにks_00 が入って来る
-                    if (s[0] != "ks") return; // キーコード以外のドラッグは無視
-                    let hid = parseInt(s[1]);
-                    let k = aztool.get_key_id($(this).attr("id"));
-                    console.log(aztool.setmap_select_layer + "[" + k + "] = " + hid);
-                    // 入力データを設定
-                    let sl = aztool.setmap_select_layer; // 選択中のレイヤーのキー名
-                    let input_key = aztool.get_key_data(2, hid); // 押されたキーの情報を取得
-                    aztool.setting_json_data.layers[sl].keys[k] = aztool.setmap_create_one_key_data(input_key);
-                    // ボタンの文字と色を更新
-                    aztool.setmap_key_string_update();
-                },
-                "over": function(event, ui) { // ドラッグしたアイテムが重なった時
-                    let s = ui.draggable[0].id.split("_"); // idにks_00 が入って来る
-                    if (s[0] != "ks") return; // キーコード以外のドラッグは無視
-                    $(this).css({"background-color": "#979797"});
-                },
-                "out": function(event, ui) { // ドラッグしたアイテムが離れた時
-                    let s = ui.draggable[0].id.split("_"); // idにks_00 が入って来る
-                    if (s[0] != "ks") return; // キーコード以外のドラッグは無視
-                    $(this).css({"background-color": aztool.key_color});
-                }
-            });
+    if (!aztool.is_child()) { // 分割：子 は キー設定できない
+        for (i in aztool.key_layout_data) { // kleのデータループ
+            s = aztool.key_layout_data[i].kle;
+            o = aztool.key_layout_data[i].option;
+            for (j in s.keys) { // kle のキー分ループ
+                // ボタンのhover時のマウスカーソルをポインタにする
+                $("#sw_"+o.id+"_"+j).css({"cursor": "pointer"});
+                // ボタンにクリックイベント登録
+                $("#sw_"+o.id+"_"+j).click(function(e) {
+                    // ドラッグ処理から10ミリ秒以下ならばドラッグ処理でのクリックなので何もしない
+                    if ((aztool.millis() - aztool.setmap_dragg_last_time) < 10) {
+                        return;
+                    }
+                    // クリックされたdivのid取得
+                    let t = (e.target.id)? e.target.id: e.currentTarget.id;
+                    // クリックしたボタンのキー設定
+                    aztool.key_btn_click(t);
+                });
+                // ボタンをドロップボックスにする(コードリストからドラッグしてきたコードを受け取る用)
+                $("#sw_"+o.id+"_"+j).droppable({
+                    "drop": function(event, ui) { // アイテムをドロップされた
+                        let s = ui.draggable[0].id.split("_"); // idにks_00 が入って来る
+                        if (s[0] != "ks") return; // キーコード以外のドラッグは無視
+                        let hid = parseInt(s[1]);
+                        let k = aztool.get_key_id($(this).attr("id"));
+                        console.log(aztool.setmap_select_layer + "[" + k + "] = " + hid);
+                        // 入力データを設定
+                        let sl = aztool.setmap_select_layer; // 選択中のレイヤーのキー名
+                        let input_key = aztool.get_key_data(2, hid); // 押されたキーの情報を取得
+                        aztool.setting_json_data.layers[sl].keys[k] = aztool.setmap_create_one_key_data(input_key);
+                        // ボタンの文字と色を更新
+                        aztool.setmap_key_string_update();
+                    },
+                    "over": function(event, ui) { // ドラッグしたアイテムが重なった時
+                        let s = ui.draggable[0].id.split("_"); // idにks_00 が入って来る
+                        if (s[0] != "ks") return; // キーコード以外のドラッグは無視
+                        $(this).css({"background-color": "#979797"});
+                    },
+                    "out": function(event, ui) { // ドラッグしたアイテムが離れた時
+                        let s = ui.draggable[0].id.split("_"); // idにks_00 が入って来る
+                        if (s[0] != "ks") return; // キーコード以外のドラッグは無視
+                        $(this).css({"background-color": aztool.key_color});
+                    }
+                });
+            }
         }
     }
     // それぞれの表示位置を保存されていた位置に移動
@@ -386,6 +395,7 @@ aztool.setmap_get_layer_name = function(layer_num) {
 
 // 選択してるレイヤーの設定をボタンに表示する
 aztool.setmap_key_string_update = function() {
+    if (aztool.is_child()) return; // 分割：子の場合は表示しない
     let d, h, i, j, k, l, o, s;
     let str;
     l = aztool.setmap_select_layer; // 選択中のレイヤーのキー名

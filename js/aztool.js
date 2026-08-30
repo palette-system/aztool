@@ -27,6 +27,9 @@ aztool.step_index = 0; // 今のステップ
 // ファームウェアの情報
 aztool.firm_info = {"version": "000000", "eep_data": "AZC000"};
 
+// キーボードのタイプ
+aztool.ble_type_list = ["シングル", "分割：親", "分割：子"];
+
 // aztool初期化
 aztool.init = function(init_param) {
     aztool.init_param = init_param;
@@ -182,8 +185,11 @@ aztool.view_top_menu = function() {
     h += "<tr><td valign='top' align='center'>";
     h += "<div style='text-align: left; display: inline-block; margin: 0 0 40px 0;'>";
     h += "<table cellpadding='4' cellspacing='0' border='0' class='keystatus'>";
-    h += "<tr><th>VendorId / ProductId</th><td>" + k.vendorId + " / " + k.productId + "</td></tr>";
     h += "<tr><th>キーボード名</th><td>" + kname + "</td></tr>";
+    h += "<tr><th>起動タイプ</th><td>" + ((k.ble)? aztool.ble_type_list[k.ble]: aztool.ble_type_list[0]) + "</td></tr>";
+    if (k.ble == 1) {
+        h += "<tr><th>子キーボード</th><td>" + ((k.child)? k.child: "未設定") + "</td></tr>";
+    }
     x = [];
     if (k.keyboard_pin.row && k.keyboard_pin.row.length) x.push("row = " + k.keyboard_pin.row.join(","));
     if (k.keyboard_pin.col && k.keyboard_pin.col.length) x.push("col = " + k.keyboard_pin.col.join(","));
@@ -204,6 +210,7 @@ aztool.view_top_menu = function() {
         h += "<tr><th>シリアル(赤外線)ピン</th><td>　</td></tr>";
     }
     h += "<tr><th>ディスク使用量</th><td> " + aztool.disk_data.used.toLocaleString() + " / " + aztool.disk_data.total.toLocaleString() + " </td></tr>";
+    h += "<tr><th>VendorId / ProductId</th><td>" + k.vendorId + " / " + k.productId + "</td></tr>";
     t = " style='font-size: 40px; margin: 0 0 16px 0; display: block; height: 70px; line-height: 70px;'";
     tm = " style='font-size: 40px; margin: 0 0 16px 0; display: block; height: 50px; line-height: 70px;'";
     h += "</table>";
@@ -253,8 +260,11 @@ aztool.view_top_menu_mobile = function() {
 
     h += "<div style='text-align: left; display: inline-block; margin: 0 0 40px 0;'>";
     h += "<table cellpadding='4' cellspacing='0' border='0' class='keystatus'>";
-    h += "<tr><th>VendorId / ProductId</th><td>" + k.vendorId + " / " + k.productId + "</td></tr>";
     h += "<tr><th>キーボード名</th><td>" + kname + "</td></tr>";
+    h += "<tr><th>起動タイプ</th><td>" + ((k.ble)? aztool.ble_type_list[k.ble]: aztool.ble_type_list[0]) + "</td></tr>";
+    if (k.ble == 1) {
+        h += "<tr><th>子キーボード</th><td>" + ((k.child)? k.child: "未設定") + "</td></tr>";
+    }
     x = [];
     if (k.keyboard_pin.row && k.keyboard_pin.row.length) x.push("row = " + k.keyboard_pin.row.join(","));
     if (k.keyboard_pin.col && k.keyboard_pin.col.length) x.push("col = " + k.keyboard_pin.col.join(","));
@@ -275,6 +285,7 @@ aztool.view_top_menu_mobile = function() {
         h += "<tr><th>シリアル(赤外線)ピン</th><td>　</td></tr>";
     }
     h += "<tr><th>ディスク使用量</th><td> " + aztool.disk_data.used.toLocaleString() + " / " + aztool.disk_data.total.toLocaleString() + " </td></tr>";
+    h += "<tr><th>VendorId / ProductId</th><td>" + k.vendorId + " / " + k.productId + "</td></tr>";
     t = " style='font-size: 40px; margin: 0 0 16px 0; display: block; height: 70px; line-height: 70px;'";
     tm = " style='font-size: 40px; margin: 0 0 16px 0; display: block; height: 50px; line-height: 70px;'";
     h += "</table>";

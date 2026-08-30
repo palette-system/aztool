@@ -293,3 +293,8 @@ aztool.azhide = function() {
         $(".ishy").hide();
     }
 }
+
+// 分割：子かどうか
+aztool.is_child = function() {
+    return ("ble" in aztool.setting_json_data && aztool.setting_json_data.ble == 2);
+}

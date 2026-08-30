@@ -9,11 +9,15 @@ aztool.addcustam_start = function() {
     aztool.option_add_name = "IOピン";
     // HTML 作成
     aztool.addopt_init_html();
+    $("#stepbox_2").html("キーボードの設定");
     // データの準備
     aztool.step_max = 6;
     aztool.step_index = 0;
     var i2c_set = (aztool.setting_json_data.i2c_set)? aztool.setting_json_data.i2c_set: [-1, -1, 0];
     aztool.option_add = {
+        "keyboard_name": aztool.setting_json_data.keyboard_name,
+        "ble": ("ble" in aztool.setting_json_data)? aztool.setting_json_data.ble: 0,
+        "child": ("child" in aztool.setting_json_data)? aztool.setting_json_data.child: "",
         "kle": aztool.get_main_kle(), // 現在の本体KLE
         "status_pin": ("status_pin" in aztool.setting_json_data)? aztool.setting_json_data.status_pin: -1,
         "power_pin": ("power_pin" in aztool.setting_json_data)? aztool.setting_json_data.power_pin: -1,
@@ -59,12 +63,40 @@ aztool.addcustam_layout_view = function() {
     aztool.option_add_kle_change();
 };
 
+// 分割：子 からデバイス名を取得要求を送信
+aztool.addcustam_get_child_device_name = function() {
+    $("#child_name").html("子端末：接続中");
+    webble.connect_child(function(stat) {
+        if (stat != 0) {
+            $("#child_name").html("子端末：接続失敗");
+            return;
+        }
+        // デバイス取得コマンド送信
+        setTimeout(function() {
+            webble.child_send_command([webhid.command_id.get_device_name, 0x00]);
+        }, 100);
+    });
+};
+
+// 分割：子 からデバイス名を取得した
+aztool.addcustam_get_child_device_name_cb = function(child_device_name) {
+    aztool.option_add.child = child_device_name;
+    if (child_device_name.length) {
+        $("#child_name").html("子端末：" + child_device_name);
+        $("#child_name_btn").html("変更");
+    } else {
+        $("#child_name").html("子端末：未設定");
+        $("#child_name_btn").html("選択");
+    }
+
+};
+
 // エキスパンダ設定画面表示
 aztool.addcustam_ioset_view = function() {
     let st_th = "width: 150px;text-align: right; padding: 15px 20px;";
     let h = "";
     h += `
-        <div style="color: #000; font-size: 18px;font-weight: bold;">■ IOピンの設定</div>
+        <div style="color: #000; font-size: 18px;font-weight: bold;">■ キーボードの設定</div>
         <br><br>`;
     if (aztool.is_hy0020()) {
         h += "<table><tr><td>";
@@ -73,6 +105,29 @@ aztool.addcustam_ioset_view = function() {
     }
     h += `
         <table>
+        <tr>
+            <td style="`+st_th+`">キーボード名</td>
+            <td><input type="text" id="keyboard_name" value="" style="font-size: 26px; width: 350px;"></td>
+        </tr>
+        <tr>
+            <td style="`+st_th+`">起動 タイプ</td>
+            <td>
+                <select id="ble_type" style="font-size: 22px; width: 200px; text-align: center;" onChange="javascript: aztool.addcustam_ble_type_change();">
+                <option value="0">シングル</option>
+                <option value="1">分割：親</option>
+                <option value="2">分割：子</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td style="`+st_th+`">　</td>
+            <td>
+                <div id="select_child_box">
+                    <div id="child_name" style="display: inline-block; font-size: 20px;">子端末</div>　
+                    <div id="child_name_btn" class="cancel-button" style="width: 80px;" onClick="javascript:aztool.addcustam_get_child_device_name();">選択</div>
+                </div>
+            </td>
+        </tr>
         <tr>
             <td style="`+st_th+`">ステータスLEDピン</td>
             <td><input type="text" id="pin_stat" value="" style="font-size: 26px; width: 350px;"></td>
@@ -128,6 +183,8 @@ aztool.addcustam_ioset_view = function() {
         </div>`;
     $("#option_setting_form").html(h);
     let d = aztool.option_add.keyboard_pin;
+    $("#keyboard_name").val(aztool.option_add.keyboard_name);
+    $("#ble_type").val(aztool.option_add.ble);
     $("#pin_stat").val(aztool.option_add.status_pin);
     $("#pin_power").val(aztool.option_add.power_pin);
     $("#pin_direct").val(d.direct.join(", "));
@@ -175,6 +232,19 @@ aztool.addcustam_ioset_view = function() {
     }
     $("#ioset_info_box").html(info_html);
     aztool.update_step_box(2);
+    aztool.addcustam_ble_type_change();
+    aztool.addcustam_get_child_device_name_cb(aztool.option_add.child);
+};
+
+aztool.addcustam_ble_type_change = function() {
+    let ble_type = $("#ble_type").val();
+    if (parseInt(ble_type) == 1) {
+        // 分割：親 を選択されたら 子端末選択ボックス表示
+        $("#select_child_box").show();
+    } else {
+        // シングル／分割：子 を選択されたら 子端末選択ボックス非表示
+        $("#select_child_box").hide();
+    }
 };
 
 // 入力されたピン内容をチェック
@@ -247,6 +317,10 @@ aztool.addcustam_ioset_check = function(check_data) {
     // col か row かどちらかしか入力してない
     if (check_data.keyboard_pin.row.length && !check_data.keyboard_pin.col.length) return "col ピンが指定されていません";
     if (!check_data.keyboard_pin.row.length && check_data.keyboard_pin.col.length) return "row ピンが指定されていません";
+    // キーボード名チェック
+    if (!check_data.keyboard_name.match(/^[A-Za-z0-9-_ =#/!&@()]*$/)) return "キーボード名は 半角英数字 で指定して下さい";
+    if (check_data.keyboard_name.length > 32) return "キーボード名は 32 文字以内で指定して下さい";
+    if (!check_data.keyboard_name.length) return "キーボード名を指定して下さい";
     // 全てのチェック完了したらエラーなし
     return "";
 };
@@ -278,6 +352,11 @@ aztool.addcustam_ioset_set = function() {
     check_data.i2c_set[0] = (x.length)? parseInt(x): -1;
     x = $("#pin_scl").val();
     check_data.i2c_set[1] = (x.length)? parseInt(x): -1;
+    // キーボード名
+    check_data.keyboard_name = $("#keyboard_name").val();
+    // BLE タイプ
+    x = $("#ble_type").val();
+    if (x.length && parseInt(x) >= 0) check_data.ble = parseInt(x);
     // ステータスピン
     x = $("#pin_stat").val();
     if (x.length && parseInt(x) >= 0) check_data.status_pin = parseInt(x);
@@ -295,6 +374,8 @@ aztool.addcustam_ioset_set = function() {
         return;
     }
     // 編集中の変数へ入力内容を格納
+    aztool.option_add.keyboard_name = check_data.keyboard_name;
+    aztool.option_add.ble = check_data.ble;
     aztool.option_add.keyboard_pin = check_data.keyboard_pin;
     aztool.option_add.i2c_set[0] = check_data.i2c_set[0];
     aztool.option_add.i2c_set[1] = check_data.i2c_set[1];
@@ -508,6 +589,16 @@ aztool.option_addcustam_save = function() {
                 // 電源ピンステータスピン
                 if ("status_pin" in aztool.option_add) aztool.setting_json_data.status_pin = aztool.option_add.status_pin;
                 if ("power_pin" in aztool.option_add) aztool.setting_json_data.power_pin = aztool.option_add.power_pin;
+                // キーボード名
+                aztool.setting_json_data.keyboard_name = aztool.option_add.keyboard_name;
+                // BLE タイプ
+                if ("ble" in aztool.setting_json_data) delete aztool.setting_json_data.ble; // 一旦今設定されているのがあればキーごと削除
+                if (aztool.option_add.ble > 0) aztool.setting_json_data.ble = aztool.option_add.ble; // 1:親,2:子 であれば値を入れる
+                // 子端末
+                if ("child" in aztool.setting_json_data) delete aztool.setting_json_data.child; // 一旦今設定されているのがあればキーごと削除
+                if (aztool.option_add.ble == 1 && aztool.option_add.child.length) {
+                    aztool.setting_json_data.child = aztool.option_add.child; // 1:親で子端末が設定してあれば子端末を設定
+                }
                 // 設定JSON保存
                 setTimeout(function() {
                     aztool.setting_json_save(function(stat) {

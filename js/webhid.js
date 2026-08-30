@@ -61,6 +61,9 @@ webhid.save_hash = [];
 // 保存中のファイルパス
 webhid.save_file_path = "";
 
+// スキャンしたデータ
+webhid.scan_list = [];
+
 // HID の usage ID
 webhid.hid_usage = 0x61;
 webhid.hid_usage_page = 0xff60;
@@ -101,9 +104,14 @@ webhid.command_id = {
     "get_serial_input": 0x46, // シリアル通信(赤外線)のキー入力取得
     "get_serial_setting": 0x47, // シリアル通信(赤外線)のセッティング情報取得
     "get_cst816": 0x48, // トラックパッド CST816 情報取得
-    "get_ble_uart_list_start": 0x49, // BLE UART クライアントリスト取得
-    "get_ble_uart_list": 0x50, // BLE UART クライアントリスト取得
+    "get_ble_scan_start": 0x49, // BLE UART スキャン開始
+    "get_ble_scan_end": 0x4A, // BLE UART スキャン終了
+    "get_scan_addr": 0x4B, // スキャン中のアドレス取得
+    "get_scan_data_end": 0x4C, // スキャン中に接続した端末からデータ抽出完了を送る
+    "get_child_file": 0x4D, // 子端末にあるファイルを読み込み開始
     "get_firmware_status": 0x60, // ファームウェアの情報取得
+    "get_ble_info": 0x61, // BLE 情報取得
+    "get_device_name": 0x62, // BLE デバイス名取得
     "none": 0x00 // 空送信
 };
 
@@ -296,7 +304,7 @@ webhid.handle_input_report = function(e) {
         }
     } else if (cmd_type == webhid.command_id.file_remove) {
         // ファイル削除の結果取得
-        webhid.file_remove_cb_func(get_data[1]);
+        webhid.file_remove_cb_func(0, get_data[1]);
 
     } else if (cmd_type == webhid.command_id.all_remove) {
         // 全ファイル削除の結果取得
@@ -411,26 +419,44 @@ webhid.handle_input_report = function(e) {
             "y": (get_data[7] << 8) + get_data[8] // y座標
         });
 
-    } else if (cmd_type == webhid.command_id.get_ble_uart_list_start) {
-        webhid.get_ble_uart_list_start_cb();
+    } else if (cmd_type == webhid.command_id.get_ble_scan_start) {
+        webhid.get_ble_scan_start_cb();
 
-    } else if (cmd_type == webhid.command_id.get_ble_uart_list) {
-        // ファイルリスト取得開始
-        // ファイルリストのサイズ取得
-        s = (get_data[1] << 24) + (get_data[2] << 16) + (get_data[3] << 8) + get_data[4];
+    } else if (cmd_type == webhid.command_id.get_ble_scan_end) {
+        // スキャン終了したよを受け取った
+        webhid.get_ble_scan_end_cb();
+
+    } else if (cmd_type == webhid.command_id.get_child_file) {
+        s = (get_data[2] << 24) + (get_data[3] << 16) + (get_data[4] << 8) + get_data[5];
         // 読み込み開始
         webhid.load_start_exec(s, function(stat, res) {
             if (stat == 0) {
                 p = webhid.arr2str(res);
                 console.log(p);
-                r =  JSON.parse(p);
-                console.log(r);
-                webhid.get_ble_uart_list_cb(stat, r);
+                webhid.get_child_file_cb(stat, p);
             } else {
-                webhid.get_ble_uart_list_cb(stat, res);
+                webhid.get_child_file_cb(stat, res);
             }
         });
 
+    } else if (cmd_type == webhid.command_id.get_scan_addr) {
+        // スキャン中に端末と接続した
+        webhid.load_start_exec(get_data[1], function(stat, res) {
+            if (stat == 0) {
+                p = JSON.parse(webhid.arr2str(res));
+                // p = {"addr":[176,35,16,151,150,245],"model":"N005","name":"HY0020"}
+                webhid.get_child_file("/kle.json", function(stat, res) {
+                    p.kle = res;
+                    webhid.send_command([webhid.command_id.get_scan_data_end]).then(() => {
+                        console.log("p = " + p);
+                        webhid.scan_list.push(p);
+                    });
+                });
+            } else {
+                webhid.send_command([webhid.command_id.get_scan_data_end]); // データ取得終了を送る
+            }
+        });
+        
     }
     
 };
@@ -568,6 +594,7 @@ webhid.file_load_check = function() {
             0x00, 0x00, 0x00, 0x00 ]; // ハッシュ値0でハッシュチェック関係なく指定したアドレスのデータを要求できる
         // コマンド送信
         webhid.last_load_time = webhid.millis(); // 最後にコマンドを投げた時間
+        console.log("webhid.file_load_check");
         webhid.send_command(cmd).then(() => {
             webhid.view_info("loading... [ "+webhid.last_load_point+" / "+webhid.load_length+" ]");
         });
@@ -1080,23 +1107,41 @@ webhid.get_cst816 = function(cst816_addr, cb_func) {
     });
 };
 
-webhid.get_ble_uart_list_start = function(cb_func) {
+webhid.get_ble_scan_start = function(cb_func) {
     if (!cb_func) cb_func = function() {};
-    webhid.get_ble_uart_list_start_cb = cb_func;
-    let cmd = [webhid.command_id.get_ble_uart_list_start];
+    webhid.get_ble_scan_start_cb = cb_func;
+    webhid.scan_list = []; // スキャンしたキーボードリスト初期化
+    let cmd = [webhid.command_id.get_ble_scan_start];
     webhid.send_command(cmd).then(() => {
         webhid.view_info("get ble uart list start ...");
     });
 };
 
-webhid.get_ble_uart_list = function(cb_func) {
+webhid.get_ble_scan_end = function(cb_func) {
     if (!cb_func) cb_func = function() {};
-    webhid.get_ble_uart_list_cb = cb_func;
-    let cmd = [webhid.command_id.get_ble_uart_list];
+    webhid.get_ble_scan_end_cb = cb_func;
+    let cmd = [webhid.command_id.get_ble_scan_end];
     webhid.send_command(cmd).then(() => {
         webhid.view_info("get ble uart list ...");
     });
 };
+
+webhid.get_child_file = function(file_path, cb_func) {
+    let file_path_arr = webhid.str2arr(file_path);
+    let i;
+    if (!cb_func) cb_func = function() {};
+    webhid.get_child_file_cb = cb_func;
+    let cmd = [webhid.command_id.get_child_file];
+    // ファイル名をコマンドに入れる
+    for (i=0; i<file_path_arr.length; i++) {
+        cmd.push(file_path_arr[i]);
+    }
+    cmd.push(0x00); // 区切り
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("get child file start ...");
+    });
+};
+
 
 webhid.i2c_track_read = function() {
 	webhid.i2c_read(0x0A, 5, function(read_length, read_data, raw_data) {

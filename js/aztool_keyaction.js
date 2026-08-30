@@ -116,6 +116,7 @@ aztool.keyact_acttype_change = function() {
 
 // キーの動作を設定するモーダルを開く
 aztool.keyact_open = function(key_id) {
+    let i;
     let k = aztool.setmap_select_layer; // 選択中のレイヤーのキー名
     // 設定中のキーID
     aztool.keyact_key_id = key_id;
@@ -125,6 +126,21 @@ aztool.keyact_open = function(key_id) {
     } else {
         // データが無ければ空データを入れる
         aztool.keyact_edit_key = {"press": {"action_type": 0}};
+    }
+    // nrf52 だけ action_type の省略があるので、省略されてる場合に action_type を設定する
+    if (aztool.is_nrf52()) {
+        for (i in ["press"]) {
+            if (!aztool.keyact_edit_key[i]) continue;
+            // at があれば action_type の省略なので action_type にする
+            if ("at" in aztool.keyact_edit_key[i]) {
+                aztool.keyact_edit_key[i].action_type = aztool.keyact_edit_key[i].at;
+                delete aztool.keyact_edit_key[i].at;
+            }
+            // action_type が無ければデフォルト 1 なので 1 を入れる
+            if (!("action_type" in aztool.keyact_edit_key[i])) {
+                aztool.keyact_edit_key[i].action_type = 1;
+            }
+        }
     }
     // 入力フォーム表示
     if ("act" in aztool.keyact_edit_key.press && aztool.keyact_edit_key.press.act == 2) {
@@ -219,6 +235,13 @@ aztool.keyact_close = function(save_flag) {
         } else if (press.action_type == 12) {
             // 12.コマンド入力 編集配列を直接変更しているので必要なし
 
+        }
+        // nrf52 系は action_type のデフォルトが1なので、1の場合は action_type を消す + action_type を at に省略
+        if (aztool.is_nrf52()) {
+            if (press.action_type != 1) { // 1 意外は at に省略
+                press.at = press.action_type;
+            }
+            delete press.action_type; // action_type は入れない
         }
         // 編集データを反映
         aztool.setting_json_data.layers[k].keys[aztool.keyact_key_id] = aztool.keyact_edit_key;
