@@ -109,7 +109,7 @@ aztool.addcustam_ioset_view = function() {
             <td style="`+st_th+`">キーボード名</td>
             <td><input type="text" id="keyboard_name" value="" style="font-size: 26px; width: 350px;"></td>
         </tr>
-        <tr>
+        <tr class="isnrf52">
             <td style="`+st_th+`">起動 タイプ</td>
             <td>
                 <select id="ble_type" style="font-size: 22px; width: 200px; text-align: center;" onChange="javascript: aztool.addcustam_ble_type_change();">
@@ -119,7 +119,7 @@ aztool.addcustam_ioset_view = function() {
                 </select>
             </td>
         </tr>
-        <tr>
+        <tr class="isnrf52">
             <td style="`+st_th+`">　</td>
             <td>
                 <div id="select_child_box">
@@ -231,6 +231,7 @@ aztool.addcustam_ioset_view = function() {
         info_html += "※ ESP32-WROVER で 16、17 は使用できないので注意です。<br>";
     }
     $("#ioset_info_box").html(info_html);
+    aztool.azhide();
     aztool.update_step_box(2);
     aztool.addcustam_ble_type_change();
     aztool.addcustam_get_child_device_name_cb(aztool.option_add.child);
@@ -599,21 +600,27 @@ aztool.option_addcustam_save = function() {
                 if (aztool.option_add.ble == 1 && aztool.option_add.child.length) {
                     aztool.setting_json_data.child = aztool.option_add.child; // 1:親で子端末が設定してあれば子端末を設定
                 }
-                // 設定JSON保存
-                setTimeout(function() {
-                    aztool.setting_json_save(function(stat) {
-                        // 保存失敗
-                        if (stat != 0) {
-                            $("#console_div").html("設定JSONの保存に失敗しました");
-                            return;
-                        }
-                        // 保存成功したら再起動(一応画面が確認できるよう2秒くらい待ってから)
-                        $("#console_div").html("保存完了しました。");
+                // 子端末 アドレスキャッシュ ファイル削除
+                webhid.file_remove(
+                    aztool.child_addr_path, // 子端末のアドレスファイル
+                    function() {
+                        // 設定JSON保存
                         setTimeout(function() {
-                            aztool.keyboard_restart(0); // キーボードを再起動
-                        }, 3000);
-                    });
-                }, 1000);
+                            aztool.setting_json_save(1, function(stat) {
+                                // 保存失敗
+                                if (stat != 0) {
+                                    $("#console_div").html("設定JSONの保存に失敗しました");
+                                    return;
+                                }
+                                // 保存成功したら再起動(一応画面が確認できるよう2秒くらい待ってから)
+                                $("#console_div").html("保存完了しました。");
+                                setTimeout(function() {
+                                    aztool.keyboard_restart(0); // キーボードを再起動
+                                }, 3000);
+                            });
+                        }, 1000);
+                    }
+                );
             }
         );
     }, 3000);

@@ -29,6 +29,10 @@ aztool.irtest_init = function() {
 
 // シリアル通信(赤外線)の動作を確認するモーダルを開く
 aztool.irtest_open = function(key_id) {
+    if (!aztool.is_seri_pin()) {
+        aztool.alert("シリアル ピンの設定を行って下さい。");
+        return;
+    }
     webhid.set_aztool_mode(2, function() { // eztoolモード入力テスト中
         // モーダルを開く
         aztool.irtest_mdl.open();

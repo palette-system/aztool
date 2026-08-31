@@ -518,8 +518,9 @@ aztool.option_addazxp_save = function() {
             // オプション配列が無ければオプション配列作成
             if (!aztool.setting_json_data.i2c_option) aztool.setting_json_data.i2c_option = [];
             aztool.setting_json_data.i2c_option.push(set_data); // オプションにデータを追加
+            aztool.i2c_option_data[ "o" + aztool.option_add.id ] = aztool.option_add.kle; // kle データ配列に保存(kall.jsonに書き出すため)
             // 設定JSON保存
-            aztool.setting_json_save(function(stat) {
+            aztool.setting_json_save(1, function(stat) {
                 // 保存失敗
                 if (stat != 0) {
                     $("#btncheck_info").html("設定JSONの保存に失敗しました");

@@ -276,13 +276,23 @@ aztool.addpim447tb_save = function() {
         set_data["map"] = [7,6]; // キーと読み込んだデータとのマッピング設定(クリック,右クリック)
     }
     aztool.setting_json_data.i2c_option.push(set_data);
+    if (set_data.type == 3) {
+        // PIM447 トラックボール
+        aztool.i2c_option_data[ "o" + set_data.id ] = "[\"0\"]";
+    } else if (set_data.type == 4) {
+        // PIM447 ロータリー
+        aztool.i2c_option_data[ "o" + set_data.id ] = "[{x:1},\"0\"],[\"1\",\"2\",\"3\"],[{x:1},\"4\"]";
+    } else if (set_data.type == 9) {
+        // AZTOUCH
+        aztool.i2c_option_data[ "o" + set_data.id ] = "[\"0\", \"1\"]";
+    }
     // 設定JSON保存
     $("#pim447tb_setting_form").html("<b>保存中</b><br><div id='trackball_save_info'></div>");
     webhid.info_div = 'trackball_save_info';
     aztool.update_step_box(3);
     setTimeout(
         function() {
-            aztool.setting_json_save(function(stat) {
+            aztool.setting_json_save(1, function(stat) {
                 // 保存失敗
                 if (stat != 0) {
                     aztool.addpim447tb_setiing_view();

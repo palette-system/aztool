@@ -288,7 +288,7 @@ aztool.option_addirkb_save = function() {
             if (!aztool.setting_json_data.i2c_option) aztool.setting_json_data.i2c_option = [];
             aztool.setting_json_data.i2c_option.push(set_data); // オプションにデータを追加
             // 設定JSON保存
-            aztool.setting_json_save(function(stat) {
+            aztool.setting_json_save(1, function(stat) {
                 // 保存失敗
                 if (stat != 0) {
                     $("#btncheck_info").html("設定JSONの保存に失敗しました");

@@ -195,10 +195,11 @@ aztool.addcst816_save = function() {
     set_data["speed"] = aztool.option_add.speed; // カーソルの移動速度
     set_data["map"] = [7]; // キーと読み込んだデータとのマッピング設定(クリック)
     aztool.setting_json_data.i2c_option.push(set_data);
+    aztool.i2c_option_data[ "o" + set_data.id ] = "[\"0\"]"; // kle データ配列に保存(kall.jsonに書き出すため)
     // 設定JSON保存
     $("#cst816_setting_form").html("保存中...");
     aztool.update_step_box(3);
-    aztool.setting_json_save(function(stat) {
+    aztool.setting_json_save(1, function(stat) {
         // 保存失敗
         if (stat != 0) {
             aztool.addcst816_setiing_view();

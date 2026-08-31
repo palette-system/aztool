@@ -61,19 +61,19 @@ aztool.load_i2c_data = function() {
         return;
     } else if (o.type == 3) {
         // PIM447 トラックボール
-        aztool.i2c_option_data[ "o" + o.id ] = "[\"\"]";
+        aztool.i2c_option_data[ "o" + o.id ] = "[\"0\"]";
     } else if (o.type == 4) {
         // PIM447 ロータリー
-        aztool.i2c_option_data[ "o" + o.id ] = "[{x:1},\"\"],[\"\",\"\",\"\"],[{x:1},\"\"]";
+        aztool.i2c_option_data[ "o" + o.id ] = "[{x:1},\"0\"],[\"1\",\"2\",\"3\"],[{x:1},\"4\"]";
     } else if (o.type == 6) { // KLEが無いオプションは空を入れておく
         // OLED メイン
         aztool.i2c_option_data[ "o" + o.id ] = "";
     } else if (o.type == 8) {
         // トラックパッド CST816
-        aztool.i2c_option_data[ "o" + o.id ] = "[\"\"]";
+        aztool.i2c_option_data[ "o" + o.id ] = "[\"0\"]";
     } else if (o.type == 9) {
         // AZTOUCH
-        aztool.i2c_option_data[ "o" + o.id ] = "[\"\", \"\"]";
+        aztool.i2c_option_data[ "o" + o.id ] = "[\"0\", \"1\"]";
     }
     // 不明なオプションタイプ
     aztool.i2c_load_index++;
@@ -100,6 +100,8 @@ aztool.set_firmware_status = function(firm_info) {
     aztool.firm_info = firm_info;
     // nRF52系であればESP用のメニューを非表示にする
     if (aztool.is_nrf52()) $(".only_esp").css({"display": "none"});
+    // 子端末の設定があれば子端末データをロード
+    aztool.load_setting_json_child_start();
 };
 
 // ディスク情報の取得

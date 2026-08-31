@@ -53,7 +53,7 @@ aztool.keyact_init = function() {
 aztool.keyact_acttype_change = function() {
     let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
     // 動作タイプ変更
-    press.action_type = $("#key_action_type_select").val();
+    press.action_type = parseInt($("#key_action_type_select").val());
     // デフォルトのデータを入れる
     if (press.action_type == 1) {
         // 通常入力
@@ -116,7 +116,7 @@ aztool.keyact_acttype_change = function() {
 
 // キーの動作を設定するモーダルを開く
 aztool.keyact_open = function(key_id) {
-    let i;
+    let i, x;
     let k = aztool.setmap_select_layer; // 選択中のレイヤーのキー名
     // 設定中のキーID
     aztool.keyact_key_id = key_id;
@@ -129,16 +129,18 @@ aztool.keyact_open = function(key_id) {
     }
     // nrf52 だけ action_type の省略があるので、省略されてる場合に action_type を設定する
     if (aztool.is_nrf52()) {
-        for (i in ["press"]) {
-            if (!aztool.keyact_edit_key[i]) continue;
+        let key_list = ["press","sub"];
+        for (i in key_list) {
+            x = key_list[i];
+            if (!aztool.keyact_edit_key[x]) continue;
             // at があれば action_type の省略なので action_type にする
-            if ("at" in aztool.keyact_edit_key[i]) {
-                aztool.keyact_edit_key[i].action_type = aztool.keyact_edit_key[i].at;
-                delete aztool.keyact_edit_key[i].at;
+            if ("at" in aztool.keyact_edit_key[x]) {
+                aztool.keyact_edit_key[x].action_type = aztool.keyact_edit_key[x].at;
+                delete aztool.keyact_edit_key[x].at;
             }
             // action_type が無ければデフォルト 1 なので 1 を入れる
-            if (!("action_type" in aztool.keyact_edit_key[i])) {
-                aztool.keyact_edit_key[i].action_type = 1;
+            if (!("action_type" in aztool.keyact_edit_key[x])) {
+                aztool.keyact_edit_key[x].action_type = 1;
             }
         }
     }
@@ -186,6 +188,7 @@ aztool.keyact_close = function(save_flag) {
     let press = aztool.keyact_edit_key[aztool.keyact_seting_key];
     let k = aztool.setmap_select_layer; // 選択中のレイヤーのキー名
     let t, s;
+    console.log(press);
     if (save_flag) { // 変更内容を反映
         if (press.action_type == 1) {
             // 通常キー入力

@@ -22,6 +22,11 @@ aztool.get_opt_name = function(opt_type) {
 
 // オプション設定メインページ表示
 aztool.view_setopt = function() {
+    // I2Cピンが設定されていなければオプション設定できない
+    if (!aztool.is_i2c_pin()) {
+        aztool.alert("I2C ピンの設定を行って下さい。");
+        return;
+    }
     let h = `
     <div  style="width: 1400px;">
     <table style="min-height: 700px;">
@@ -256,7 +261,7 @@ aztool.setopt_layout_remove = function(option_id) {
 aztool.setopt_save_back = function() {
     // 設定を保存
     $("#main_box").html("保存中<br><div id='console_div'></div>");
-    aztool.setting_json_save(function(stat) {
+    aztool.setting_json_save(1, function(stat) {
         // 保存失敗
         console.log("setting_json_save: " + stat);
         if (stat != 0) {

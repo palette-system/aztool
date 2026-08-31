@@ -192,7 +192,9 @@ aztool.on_i2coption = function(option_data) {
 
 // キーボタンをクリック
 aztool.key_btn_click = function(div_id) {
+    console.log("aztool.key_btn_click: " + div_id);
     let key_id = aztool.get_key_id(div_id);
+    console.log("key_id: " + key_id);
     if (aztool.setmap_stat == 0) {
         // キー設定モーダル表示
         aztool.keyact_open(key_id);
@@ -210,19 +212,27 @@ aztool.view_key_layout = function() {
     let kle = "";
     let cnf = 44;
     let pos = (aztool.setting_json_data.layout && aztool.setting_json_data.layout.position)? aztool.setting_json_data.layout.position: null;
-    var mw = "970px", mh = "600px";
+    let map_index = 0;
+    let mw = "970px", mh = "600px";
     // スマホの場合のモーダルのサイズ
     if (aztool.is_vertical()) {
         mw = "90%";
         mh = "80%";
         cnf = 100; // １キーのサイズ
     }
-    // キー配列を表示する枠を表示
+    // キー配列を表示する枠を表示(本体)
     h += "<div id='odiv_0' style='position: relative; top: 250px; display: inline-block;'></div>"; // 本体のキー配列用
+    // キー配列を表示する枠を表示(オプション)
     for (i in aztool.setting_json_data.i2c_option) {
         o = aztool.setting_json_data.i2c_option[i];
         if (!aztool.on_i2coption(o)) continue; // 有効でないオプションは無視
         h += "<div id='odiv_"+o.id+"' style='position: relative; display: inline-block;'></div>"; // オプションのキー配列用
+    }
+    // キー配列を表示する枠を表示(分割：子)
+    for (i in aztool.main_kle_data_child) {
+        o = aztool.main_kle_data_child[i];
+        o.id = (o.i && o.i != "0")? o.i: 1000;
+        h += "<div id='odiv_"+o.id+"' style='position: relative; display: inline-block;'></div>"; // 分割：子 のキー配列用
     }
     h += "<table style='width: "+mw+";'><tr><td id='layer_header_left' align='left' valign='top'>";
     h += "<div id='layer_title_info' class='layer_title'>レイヤー名</div>";
@@ -241,21 +251,42 @@ aztool.view_key_layout = function() {
     kle = aztool.get_main_kle(); // 本体のKLE文字列取得
     if (kle) {
         aztool.key_layout_data.push({
-            "option": {"id": 0, "map_start": 0},
+            "option": {"id": "0", "map_start": 0},
             "kle": aztool.kle_view(kle, "#odiv_0", false, cnf, "sw_0_")
         });
-        $("#odiv_0_title").html("本体");
+        if (aztool.is_host()) {
+            $("#odiv_0_title").html("親：本体");
+        } else {
+            $("#odiv_0_title").html("本体");
+        }
     }
     // オプションのキー配列を表示
     for (i in aztool.setting_json_data.i2c_option) {
-        o = aztool.setting_json_data.i2c_option[i];
+        o = aztool.clone(aztool.setting_json_data.i2c_option[i]);
         if (!aztool.on_i2coption(o)) continue; // 有効でないオプションは無視
         if (!aztool.i2c_option_data["o"+o.id]) continue; // KLEが無いオプションは無視
         aztool.key_layout_data.push({
-            "option": aztool.setting_json_data.i2c_option[i],
+            "option": o,
             "kle": aztool.kle_view(aztool.i2c_option_data["o"+o.id], "#odiv_"+o.id, false, cnf, "sw_" + o.id + "_")
         });
         $("#odiv_"+o.id+"_title").html(aztool.get_opt_name(o.type) + " ["+o.id+"]");
+    }
+    // 分割：子 のキー配列を表示
+    map_index = aztool.ble_stat.host_input_length;
+    for (i in aztool.main_kle_data_child) {
+        o = aztool.main_kle_data_child[i];
+        o.id = (o.i && o.i != "0")? o.i: "1000";
+        o.type = o.t;
+        aztool.key_layout_data.push({
+            "option": {"id": o.id, "map_start": map_index},
+            "kle": aztool.kle_view(o.k, "#odiv_"+o.id, false, cnf, "sw_" + o.id + "_")
+        });
+        map_index += o.s;
+        if (o.type == 0) {
+            $("#odiv_"+o.id+"_title").html("子：本体");
+        } else {
+            $("#odiv_"+o.id+"_title").html("子：" + aztool.get_opt_name(o.type) + " ["+o.id+"]");
+        }
     }
     // それぞれのオプションをドラッグで移動できるようにする
     for (i in aztool.key_layout_data) {
@@ -366,25 +397,16 @@ aztool.setmap_get_layout_data = function(optid) {
 aztool.get_key_id = function(div_id) {
     let s = div_id.split("_"); // setmap_setting_one_target に sw_0_0 が入ってる
     let ms = 0; // マッピングスタートの位置
-    let i, label_str;
-    // 本体のキーだった場合
-    if (s[1] == "0") {
-        label_str = $("#" + div_id).attr("data_label");
-        if (aztool.is_num(label_str)) {
-            return "key_" + label_str; // ラベルが数字ならばラベルをキーIDとして利用
-        } else {
-            return "key_" + s[2]; // 分からんラベルが入ってたらKLEの番号をキーIDとして利用
+    let i, n, label_str;
+    label_str = $("#" + div_id).attr("data_label");
+    n = (aztool.is_num(label_str))? parseInt(label_str): parseInt(s[2]);
+    for (i in aztool.key_layout_data) {
+        if (aztool.key_layout_data[i].option.id == s[1]) {
+            return "key_" + (aztool.key_layout_data[i].option.map_start + n);
         }
     }
-    // i2cオプションだった場合
-    for (i in aztool.setting_json_data.i2c_option) { // 該当のオプションを探す
-        if (aztool.setting_json_data.i2c_option[i].id == s[1]) {
-            ms = aztool.setting_json_data.i2c_option[i].map_start; // 該当のオプションのマッピングスタート位置を取得
-            break;
-        }
-    }
-    // keyidの番号を計算して返す
-    return "key_" + (ms + parseInt(s[2]));
+    // 番号が無い
+    return "key_0";
 };
 
 // 指定したレイヤー番号のレイヤー名を取得する
@@ -449,8 +471,9 @@ aztool.setmap_key_string_update = function() {
 aztool.setmap_get_key_string = function(key_data) {
     let i, d;
     let k = key_data.press;
+    let at = ("action_type" in k)? k.action_type: (!aztool.is_nrf52())? 0: ("at" in k)? k.at: 1; // アクションタイプ取得(nrf52系はデフォルト1: それ以外は0)(nrf52系は at も見る)
     let r = "&nbsp;";
-    if (k.action_type == 1) {
+    if (at == 1) {
         // 通常入力
         r = "";
         for (i in k.key) {
@@ -458,31 +481,31 @@ aztool.setmap_get_key_string = function(key_data) {
             d = aztool.get_key_data(2, k.key[i]); // hid コードからキーデータ取得
             r += d.str;
         }
-    } else if (k.action_type == 2) {
+    } else if (at == 2) {
         // テキスト入力
         r = "text";
 
-    } else if (k.action_type == 3) {
+    } else if (at == 3) {
         // レイヤー切り替え
         r = "layer";
 
-    } else if (k.action_type == 4) {
+    } else if (at == 4) {
         // WEBフック
         r = "WEB";
 
-    } else if (k.action_type == 5) {
+    } else if (at == 5) {
         // マウス移動
         r = "mouse";
  
-    } else if (k.action_type == 10) {
+    } else if (at == 10) {
         // マウス移動
         r = "analog<br>mouse";
 
-    } else if (k.action_type == 11) {
+    } else if (at == 11) {
         // Nubkey 位置設定
         r = "Nubkey<br>調節";
 
-    } else if (k.action_type == 12) {
+    } else if (at == 12) {
         // 12.コマンド入力
         r = "CMD";
 
@@ -531,19 +554,38 @@ aztool.setmap_all_set_view = function() {
 
 // 1キーの入力データ作成
 aztool.setmap_create_one_key_data = function(keycode_data) {
-    if (keycode_data.hid) {
-        return {
-            "press":{
-                "action_type":1,
-                "key":[keycode_data.hid]
-            }
-        };
+    if (aztool.is_nrf52()) {
+        // nrf52 系は action_type のデフォルトが 1 キー名を at に省略できる
+        if (keycode_data.hid) {
+            return {
+                "press":{
+                    "key":[keycode_data.hid]
+                }
+            };
+        } else {
+            return {
+                "press":{
+                    "at":0
+                }
+            };
+        }
+
     } else {
-        return {
-            "press":{
-                "action_type":0
-            }
-        };
+        // ESP32 系のデータ
+        if (keycode_data.hid) {
+            return {
+                "press":{
+                    "action_type":1,
+                    "key":[keycode_data.hid]
+                }
+            };
+        } else {
+            return {
+                "press":{
+                    "action_type":0
+                }
+            };
+        }
     }
 };
 

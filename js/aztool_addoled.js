@@ -287,7 +287,7 @@ aztool.addoled_setiing_exec = function() {
     $("#addoled_info").html("保存中...");
     $("#addoled_btn_box").hide();
     aztool.update_step_box(2);
-    aztool.setting_json_save(function(stat) {
+    aztool.setting_json_save(1, function(stat) {
         // 保存失敗
         if (stat != 0) {
             $("#addoled_info").html("保存失敗");

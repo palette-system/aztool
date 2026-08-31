@@ -10,8 +10,14 @@ if (!window.aztool) aztool = {};
 // KLEデータのファイルパス
 aztool.kle_json_path = "/kle.json";
 
+// 全KLEデータのファイルパス
+aztool.kle_all_json_path = "/kall.json";
+
 // 設定JSONファイルのパス
 aztool.setting_json_path = "/setting.json";
+
+// 子端末のアドレス保存キャッシュファイル
+aztool.child_addr_path = "/child";
 
 // 設定JSONのデータ
 aztool.setting_json_txt = ""; // テキスト
@@ -155,7 +161,9 @@ aztool.view_connect_top = function(msg) {
     }
     if (aztool.init_param.board_type == 'nrf52840') {
         h += "<div style='margin: 100px 0 0 0;'>";
-        h += "<a href='https://palette-system.github.io/azk/nrf52840_org.html' target='_blank'>キーボード用ファームウェアはこちら</a>";
+        h += "<a href='https://palette-system.github.io/azk/nrf52840_org.html' target='_blank'>nrf52840 用ファームウェア</a>";
+        h += "<br><br>";
+        h += "<a href='https://palette-system.github.io/azk/hy0020.html' target='_blank'>HY0020 用ファームウェア</a>";
         h += "</div>";
     }
     h += "<div style='margin: 20px 0 0 0;'>";
@@ -354,25 +362,34 @@ aztool.edit_setting_json = function() {
 };
 
 // 設定配列に反映した内容をJSONにして保存
-aztool.setting_json_save = function(cb_func) {
+aztool.setting_json_save = function(all_kle_save_flag, cb_func) {
     // デフォルトフラグがあればフラグを削除
     if (aztool.is_default_setting()) {
         delete aztool.setting_json_data.default;
     }
     // 設定JSONデータ作成
     let save_data = JSON.stringify(aztool.setting_json_data);
+    let all_kle_save_func = function(stat) {
+        // setting.json 保存失敗していればエラーで返す
+        if (stat || !all_kle_save_flag) {
+            cb_func(stat);
+            return;
+        }
+        // kall.json の保存処理
+        aztool.save_kle_all(cb_func);
+    }
     // 保存
     webhid.save_file(
         aztool.setting_json_path, // 保存先
         save_data, // 保存データ
-        cb_func);
+        all_kle_save_func);
 };
 
 // 設定を保存して再起動
 aztool.save = function() {
     // 設定を保存
     aztool.view_message("<div id='save_info'>保存中</div><br><br><br><div id='console_div'></div>");
-    aztool.setting_json_save(function(stat) {
+    aztool.setting_json_save(0, function(stat) {
         // 保存失敗
         if (stat != 0) {
             $("#save_info").html("設定JSONの保存に失敗しました。<br><br><br><br><div class='conn_bbutton' onClick='javascript:aztool.view_top_menu();'>戻る</div>");
@@ -383,6 +400,40 @@ aztool.save = function() {
             aztool.keyboard_restart(0); // キーボードモードで再起動
         }, 500);
     });
+};
+
+// 全KLEデータを保存
+aztool.save_kle_all = function(cb_func) {
+    let i, o;
+    let kle_all_data = [];
+    let kle_all_data_json = "";
+    // 本体のKLE
+    kle_all_data.push({
+        "i": "0",
+        "t": 0,
+        "s": aztool.get_main_input_key_length(), // 本体のキー数取得
+        "k": aztool.get_main_kle() // 本体のKLE
+    });
+    // オプションのKLE
+    for (i in aztool.setting_json_data.i2c_option) { // 順番がオプション配列順になるのでオプション配列を見る
+        o = aztool.setting_json_data.i2c_option[i];
+        if (!aztool.on_i2coption(o)) continue; // 有効でないオプションは無視
+        if (!aztool.i2c_option_data["o"+o.id]) continue; // KLE が無いオプションは無視
+        kle_all_data.push({
+            "i": o.id,
+            "t": o.type,
+            "s": ("map" in o)? o.map.length: 0,
+            "k": aztool.i2c_option_data["o"+o.id]
+        });
+    }
+    // JSONデータ作成
+    kle_all_data_json = JSON.stringify(kle_all_data);
+    console.log(kle_all_data_json);
+    // 保存
+    webhid.save_file(
+        aztool.kle_all_json_path, // 保存先
+        kle_all_data_json, // 保存データ
+        cb_func);
 };
 
 // 設定を初期化

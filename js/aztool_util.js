@@ -249,6 +249,18 @@ aztool.get_disp_rotation = function() {
     return -1;
 };
 
+// オプションを含まない本体の読み込みキー数を取得
+aztool.get_main_input_key_length = function() {
+    let pin = aztool.setting_json_data.keyboard_pin;
+    let i;
+    i = (pin.col.length * pin.row.length) + pin.direct.length + pin.touch.length;
+    // col row のスキャン方法がダブルマトリックスの場合マトリックス分追加
+    if (("read_type" in pin) && pin.read_type == 1) {
+        i += (pin.col.length * pin.row.length);
+    }
+    return i;
+}
+
 // 本体のKLEを取得
 aztool.get_main_kle = function() {
     // ロードしたkle.json データがあればそれを返す
@@ -292,9 +304,35 @@ aztool.azhide = function() {
         $(".isnrf52").hide();
         $(".ishy").hide();
     }
-}
+};
+
+// I2Cピンが設定されているかどうか
+aztool.is_i2c_pin = function() {
+    return (
+        "i2c_set" in aztool.setting_json_data && 
+        aztool.setting_json_data.i2c_set.length == 3
+    );
+};
+
+// シリアルピンが設定されているかどうか
+aztool.is_seri_pin = function() {
+    return (
+        "seri_set" in aztool.setting_json_data && 
+        aztool.setting_json_data.seri_set.length == 3
+    );
+};
 
 // 分割：子かどうか
 aztool.is_child = function() {
     return ("ble" in aztool.setting_json_data && aztool.setting_json_data.ble == 2);
-}
+};
+
+// 分割：親 かどうか
+aztool.is_host = function() {
+    return ("ble" in aztool.setting_json_data && aztool.setting_json_data.ble == 1);
+};
+
+// 分割：親 で 子端末が設定されているか
+aztool.is_child_setting = function() {
+    return ("child" in aztool.setting_json_data && aztool.setting_json_data.child.length && aztool.is_host());
+};

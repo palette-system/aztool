@@ -410,6 +410,18 @@ webhid.handle_input_report = function(e) {
         r = s.split("-");
         webhid.get_firmware_status_cb({"version": r[0], "eep_data": r[1]});
 
+    } else if (cmd_type == webhid.command_id.get_ble_info) {
+        // BLE 情報取得
+        r = {
+            "host_addr": [get_data[1], get_data[2], get_data[3], get_data[4], get_data[5], get_data[6]],
+            "is_scan": get_data[7], // BLE スキャン中かどうか
+            "is_child_connect": get_data[8], // 子端末と接続しているかどうか
+            "host_input_length": (get_data[9] << 8) + get_data[10], // 親 端末のキー数
+            "child_input_length": (get_data[11] << 8) + get_data[12], // 子 端末のキー数
+            "key_input_length": (get_data[13] << 8) + get_data[14] // 合計 端末のキー数
+        };
+        webhid.get_ble_info_cb(r);
+
     } else if (cmd_type == webhid.command_id.get_cst816) {
         webhid.get_cst816_cb({
             "gesture_id": get_data[2], // ジェスチャーID (0=none, 1=up, 2=down, 3=left, 4=right, 5=single_click, 6=double_click, 12=long_press)
@@ -430,13 +442,7 @@ webhid.handle_input_report = function(e) {
         s = (get_data[2] << 24) + (get_data[3] << 16) + (get_data[4] << 8) + get_data[5];
         // 読み込み開始
         webhid.load_start_exec(s, function(stat, res) {
-            if (stat == 0) {
-                p = webhid.arr2str(res);
-                console.log(p);
-                webhid.get_child_file_cb(stat, p);
-            } else {
-                webhid.get_child_file_cb(stat, res);
-            }
+            webhid.get_child_file_cb(stat, res);
         });
 
     } else if (cmd_type == webhid.command_id.get_scan_addr) {
@@ -446,7 +452,7 @@ webhid.handle_input_report = function(e) {
                 p = JSON.parse(webhid.arr2str(res));
                 // p = {"addr":[176,35,16,151,150,245],"model":"N005","name":"HY0020"}
                 webhid.get_child_file("/kle.json", function(stat, res) {
-                    p.kle = res;
+                    p.kle = webhid.arr2str(res);
                     webhid.send_command([webhid.command_id.get_scan_data_end]).then(() => {
                         console.log("p = " + p);
                         webhid.scan_list.push(p);
@@ -1086,6 +1092,16 @@ webhid.get_firmware_status = function(cb_func) {
     });
 };
 
+// BLE の情報取得
+webhid.get_ble_info = function(cb_func) {
+    if (!cb_func) cb_func = function() {};
+    webhid.get_ble_info_cb = cb_func;
+    let cmd = [webhid.command_id.get_ble_info];
+    webhid.send_command(cmd).then(() => {
+        webhid.view_info("get_ble_info ...");
+    });
+};
+
 // eztoolモードのフラグ設定
 webhid.set_aztool_mode = function(set_flag, cb_func) {
     if (!cb_func) cb_func = function() {};
@@ -1097,6 +1113,7 @@ webhid.set_aztool_mode = function(set_flag, cb_func) {
     });
 };
 
+// CST816 の入力データを取得する
 webhid.get_cst816 = function(cst816_addr, cb_func) {
     if (!cb_func) cb_func = function() {};
     webhid.get_cst816_cb = cb_func;
@@ -1107,6 +1124,7 @@ webhid.get_cst816 = function(cst816_addr, cb_func) {
     });
 };
 
+// BLE 端末をスキャン開始
 webhid.get_ble_scan_start = function(cb_func) {
     if (!cb_func) cb_func = function() {};
     webhid.get_ble_scan_start_cb = cb_func;
@@ -1117,6 +1135,7 @@ webhid.get_ble_scan_start = function(cb_func) {
     });
 };
 
+// BLE 端末のスキャン終了
 webhid.get_ble_scan_end = function(cb_func) {
     if (!cb_func) cb_func = function() {};
     webhid.get_ble_scan_end_cb = cb_func;
@@ -1126,6 +1145,7 @@ webhid.get_ble_scan_end = function(cb_func) {
     });
 };
 
+// 子端末内のファイルを取得する
 webhid.get_child_file = function(file_path, cb_func) {
     let file_path_arr = webhid.str2arr(file_path);
     let i;
