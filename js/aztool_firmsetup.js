@@ -54,14 +54,14 @@ aztool.firm_setup = function() {
     h += "<div id='keyboard_list_box'>";
 
     h += "<div class='setup_menu_btn' onClick='javascript:aztool.setup_default();'>";
-    h += "<img class='setup_menu_img' style='height: 120px;' src='./img/custam_icon.jpg'><br>";
+    h += "<img class='setup_menu_img' style='height: 120px;' src='./img/default_icon.jpg'><br>";
     h += "<div class='setup_menu_title'>このまま使う</div>";
     h += "<div style='margin: 0 10px;'>初期設定のままキーボードを使用します。</div>";
     h += "</div>";
 
     h += "<div class='setup_menu_btn' onClick='javascript:aztool.addopt_start(\"main_box\", 100);'>";
     h += "<img class='setup_menu_img' style='height: 120px;' src='./img/custam_icon.jpg'><br>";
-    h += "<div class='setup_menu_title'>新規作成</div>";
+    h += "<div class='setup_menu_title'>カスタム設定</div>";
     h += "<div style='margin: 0 10px;'>配列とピンを指定で新しいキーボード設定を行います。</div>";
     h += "</div>";
 
@@ -70,6 +70,8 @@ aztool.firm_setup = function() {
     h += "<div class='setup_menu_title'>ZIP インポート</div>";
     h += "<div style='margin: 0 10px;'>配布されている ZIP ファイルからキーボード設定を行います。</div>";
     h += "</div>";
+
+    h += "<br>";
 
     for (i in aztool.setup_keyboard_list) {
         k = aztool.setup_keyboard_list[i];
