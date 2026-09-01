@@ -46,6 +46,7 @@ aztool.main_kle["azcard"] = `["3","7","11"],["0","4","8"],["1","5","9"],["2","6"
 aztool.main_kle["azpocket"] = `[{x:1},"2"],[{x:1},"4"],["5","3"],["0","1"]`;
 
 // XIAO nRF52840
+aztool.main_kle["nrf52840"] = `["0"]`;
 aztool.main_kle["xiao_ble"] = `["0"]`;
 
 // HY0020
