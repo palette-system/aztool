@@ -278,13 +278,13 @@ aztool.addpim447tb_save = function() {
     aztool.setting_json_data.i2c_option.push(set_data);
     if (set_data.type == 3) {
         // PIM447 トラックボール
-        aztool.i2c_option_data[ "o" + set_data.id ] = "[\"0\"]";
+        aztool.i2c_option_data[ "o" + set_data.id ] = "[\"\"]";
     } else if (set_data.type == 4) {
         // PIM447 ロータリー
-        aztool.i2c_option_data[ "o" + set_data.id ] = "[{x:1},\"0\"],[\"1\",\"2\",\"3\"],[{x:1},\"4\"]";
+        aztool.i2c_option_data[ "o" + set_data.id ] = "[{x:1},\"\"],[\"\",\"\",\"\"],[{x:1},\"\"]";
     } else if (set_data.type == 9) {
         // AZTOUCH
-        aztool.i2c_option_data[ "o" + set_data.id ] = "[\"0\", \"1\"]";
+        aztool.i2c_option_data[ "o" + set_data.id ] = "[\"\", \"\"]";
     }
     // 設定JSON保存
     $("#pim447tb_setting_form").html("<b>保存中</b><br><div id='trackball_save_info'></div>");

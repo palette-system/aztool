@@ -53,6 +53,12 @@ aztool.firm_setup = function() {
 
     h += "<div id='keyboard_list_box'>";
 
+    h += "<div class='setup_menu_btn' onClick='javascript:aztool.setup_default();'>";
+    h += "<img class='setup_menu_img' style='height: 120px;' src='./img/custam_icon.jpg'><br>";
+    h += "<div class='setup_menu_title'>このまま使う</div>";
+    h += "<div style='margin: 0 10px;'>初期設定のままキーボードを使用します。</div>";
+    h += "</div>";
+
     h += "<div class='setup_menu_btn' onClick='javascript:aztool.addopt_start(\"main_box\", 100);'>";
     h += "<img class='setup_menu_img' style='height: 120px;' src='./img/custam_icon.jpg'><br>";
     h += "<div class='setup_menu_title'>新規作成</div>";
@@ -62,7 +68,7 @@ aztool.firm_setup = function() {
     h += "<div class='setup_menu_btn' onClick='javascript:aztool.file_import_modal_open();'>";
     h += "<img class='setup_menu_img' style='height: 120px;' src='./img/zipimport_icon.jpg'><br>";
     h += "<div class='setup_menu_title'>ZIP インポート</div>";
-    h += "<div style='margin: 0 10px;'>エクスポートした ZIP ファイルや、配布されている ZIP ファイルを指定してキーボード設定を行います。</div>";
+    h += "<div style='margin: 0 10px;'>配布されている ZIP ファイルからキーボード設定を行います。</div>";
     h += "</div>";
 
     for (i in aztool.setup_keyboard_list) {
@@ -80,4 +86,12 @@ aztool.firm_setup = function() {
     h += "</div>";
     $("#main_box").html(h);
 
+};
+
+// デフォルト設定のままキーボードを使用する
+aztool.setup_default = function() {
+    // デフォルトフラグを下げる
+    delete aztool.setting_json_data.default;
+    // ロード処理の続きに戻る (I2C ロード処理)
+    aztool.load_i2c_data();
 };

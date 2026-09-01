@@ -61,19 +61,19 @@ aztool.load_i2c_data = function() {
         return;
     } else if (o.type == 3) {
         // PIM447 トラックボール
-        aztool.i2c_option_data[ "o" + o.id ] = "[\"0\"]";
+        aztool.i2c_option_data[ "o" + o.id ] = "[\"\"]";
     } else if (o.type == 4) {
         // PIM447 ロータリー
-        aztool.i2c_option_data[ "o" + o.id ] = "[{x:1},\"0\"],[\"1\",\"2\",\"3\"],[{x:1},\"4\"]";
+        aztool.i2c_option_data[ "o" + o.id ] = "[{x:1},\"\"],[\"\",\"\",\"\"],[{x:1},\"\"]";
     } else if (o.type == 6) { // KLEが無いオプションは空を入れておく
         // OLED メイン
         aztool.i2c_option_data[ "o" + o.id ] = "";
     } else if (o.type == 8) {
         // トラックパッド CST816
-        aztool.i2c_option_data[ "o" + o.id ] = "[\"0\"]";
+        aztool.i2c_option_data[ "o" + o.id ] = "[\"\"]";
     } else if (o.type == 9) {
         // AZTOUCH
-        aztool.i2c_option_data[ "o" + o.id ] = "[\"0\", \"1\"]";
+        aztool.i2c_option_data[ "o" + o.id ] = "[\"\", \"\"]";
     }
     // 不明なオプションタイプ
     aztool.i2c_load_index++;

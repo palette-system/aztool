@@ -397,12 +397,23 @@ aztool.setmap_get_layout_data = function(optid) {
 aztool.get_key_id = function(div_id) {
     let s = div_id.split("_"); // setmap_setting_one_target に sw_0_0 が入ってる
     let ms = 0; // マッピングスタートの位置
-    let i, n, label_str;
+    let i, oid, label_str;
     label_str = $("#" + div_id).attr("data_label");
-    n = (aztool.is_num(label_str))? parseInt(label_str): parseInt(s[2]);
     for (i in aztool.key_layout_data) {
-        if (aztool.key_layout_data[i].option.id == s[1]) {
-            return "key_" + (aztool.key_layout_data[i].option.map_start + n);
+        oid = aztool.key_layout_data[i].option.id;
+        if (oid == s[1]) {
+            if (oid == "0" || oid == "1000") { // 本体 / 子：本体
+                if (label_str && aztool.is_num(label_str)) {
+                    // ラベルが数字ならラベルの番号を使用
+                    return "key_" + (aztool.key_layout_data[i].option.map_start + parseInt(label_str));
+                } else {
+                    // ラベルが空
+                    return "key_" + (aztool.key_layout_data[i].option.map_start + parseInt(s[2]));
+                }
+            } else {
+                // オプション / 子：オプション
+                return "key_" + (aztool.key_layout_data[i].option.map_start + parseInt(s[2]));
+            }
         }
     }
     // 番号が無い
