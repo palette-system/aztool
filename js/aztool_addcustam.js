@@ -569,6 +569,7 @@ aztool.option_addcustam_save = function() {
         </div>`;
     $("#option_setting_form").html(h);
     aztool.update_step_box(6);
+    aztool.main_kle_data = aztool.option_add.kle;
     // KLE データをファイルに出力
     setTimeout(function() {
         webhid.save_file(
