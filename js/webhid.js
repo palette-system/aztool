@@ -109,6 +109,10 @@ webhid.command_id = {
     "get_scan_addr": 0x4B, // スキャン中のアドレス取得
     "get_scan_data_end": 0x4C, // スキャン中に接続した端末からデータ抽出完了を送る
     "get_child_file": 0x4D, // 子端末にあるファイルを読み込み開始
+    "fast_get_file_start": 0x50, // ファイルを高速送信します宣言
+    "fast_get_file_data": 0x51, // 1回ずつチェックしないで一気にファイルデータを送信する
+    "fast_get_file_data_one": 0x52, // 高速送信で取りこぼしたデータを取得
+    "fast_get_file_end": 0x53, // 高速送信受け取り終わりました
     "get_firmware_status": 0x60, // ファームウェアの情報取得
     "get_ble_info": 0x61, // BLE 情報取得
     "get_device_name": 0x62, // BLE デバイス名取得
@@ -230,7 +234,7 @@ webhid.handle_input_report = function(e) {
     console.log(get_data);
     let cmd_type = get_data[0];
     let cmd;
-    let i, h, p, r, u, s;
+    let i, h, m, p, r, u, s;
     if (cmd_type == webhid.command_id.file_load_start) {
         // ファイル読み込み開始(ファイル有無と容量が帰って来る)
         if (!get_data[1]) { // ファイルが無い
@@ -247,7 +251,65 @@ webhid.handle_input_report = function(e) {
     } else if (cmd_type == webhid.command_id.file_load_data) {
         // データロード処理
         webhid.load_data_exec(get_data);
-        
+
+    } else if (cmd_type == webhid.command_id.fast_get_file_start) {
+        // ファイル高速読み込み開始
+        if (!get_data[1]) { // ファイルが無い
+            webhid.load_file_path = ""; // 読み込み終わり
+            webhid.view_info("ファイルが存在しませんでした。");
+            webhid.get_file_cb_func(2, []);
+            return;
+        }
+        // ファイルの容量取得
+        s = (get_data[2] << 24) + (get_data[3] << 16) + (get_data[4] << 8) + get_data[5];
+        // ロードするサイズ
+        webhid.load_length = s;
+        // 空のロードデータを作成(ここにデータを入れていく)
+        webhid.load_data = [];
+        for (i=0; i<webhid.load_length; i++) webhid.load_data.push(0x00);
+        webhid.load_data_p = []; // 取得した位置リスト
+        // 最後にコマンドを投げた時間
+        webhid.last_load_time = webhid.millis();
+        // 高速読み込みが終わったか監視する
+        webhid.file_data_check();
+
+
+    } else if (cmd_type == webhid.command_id.fast_get_file_data) {
+        // ファイル高速取得
+        m = webhid.raw_report_id.in_size - 4; // 受け取ったデータのサイズ取得-4はコマンドと開始位置分
+        p = (get_data[1] << 16) + (get_data[2] << 8) + get_data[3]; // 受け取ったデータの開始位置取得
+        webhid.load_data_p.push(p); // 受け取ったリストに追加
+        // 受け取ったデータをバッファに入れる
+        if ((p + i) >= webhid.load_length) m = webhid.load_length - p;
+        for (i=0; i<m; i++) {
+            webhid.load_data[p + i] = get_data[4 + i];
+        }
+        // 最後にコマンドを投げた時間
+        webhid.last_load_time = webhid.millis();
+        // ロード進捗を表示
+        webhid.view_info("loading...  "+(m + p)+" / "+webhid.load_length+" ");
+
+
+    } else if (cmd_type == webhid.command_id.fast_get_file_data_one) {
+        // ファイル高速読み込みで取りこぼしたデータを取得する
+        // ファイルの容量取得
+        m = webhid.raw_report_id.in_size - 4; // 受け取ったデータのサイズ取得-4はコマンドと開始位置分
+        p = (get_data[1] << 16) + (get_data[2] << 8) + get_data[3]; // 受け取ったデータの開始位置取得
+        webhid.load_data_p.push(p); // 受け取ったリストに追加
+        // 受け取ったデータをバッファに入れる
+        if ((p + i) >= webhid.load_length) m = webhid.load_length - p;
+        for (i=0; i<m; i++) {
+            webhid.load_data[p + i] = get_data[4 + i];
+        }
+        // 他に取りこぼしたデータがないかチェック
+        webhid.file_data_check();
+
+
+    } else if (cmd_type == webhid.command_id.fast_get_file_end) {
+        // ファイル高速読み込みの終了を受け取りました
+        webhid.get_file_cb_func(0, webhid.load_data);
+
+
     } else if (cmd_type == webhid.command_id.file_save_data) {
         // ファイル保存のデータ要求
         webhid.save_request++;
@@ -629,7 +691,41 @@ webhid.file_save_check = function() {
     }
     // 1秒おきにチェック
     setTimeout(webhid.file_save_check, 1000);
-}
+};
+
+// 高速読み込み抜けデータがないかチェック
+webhid.file_data_check = function() {
+    if ((webhid.last_load_time + 300) > webhid.millis()) {
+        // 最後にデータ受け取ったのが300ミリ秒以内であれば送信が終わるまで待つ
+        setTimeout(webhid.file_data_check, 50);
+        return;
+    }
+    let i, m;
+    let cmd;
+    m = webhid.raw_report_id.in_size - 4; // 1回分のデータサイズ
+    // 受け取ったデータをバッファに入れる
+    // if ((p + i) >= webhid.load_length) m = webhid.load_length - p;
+    for (i=0; i<webhid.load_length; i+=m) {
+        // 1回分のデータ内にデータがあるか確認
+        if (webhid.load_data_p.indexOf(i) < 0) { // データを受け取ってない
+            // ピンポイントデータ取得コマンド送信
+            cmd = [
+                webhid.command_id.fast_get_file_data_one,
+                ((i >> 16) & 0xff),
+                ((i >> 8) & 0xff),
+                (i & 0xff)
+            ];
+            webhid.send_command(cmd);
+            return;
+        }
+    }
+    // 読み込みが全部終わっていればコールバックを実行
+    webhid.save_file_path = "";
+    cmd = [webhid.command_id.fast_get_file_end];
+    webhid.send_command(cmd);
+    // webhid.get_file_cb_func(0, webhid.load_data);
+};
+
 
 // HID機器へ接続
 webhid.connect = function(cb_func) {
