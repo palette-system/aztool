@@ -25,9 +25,13 @@ aztool.file_export_all = function() {
 
 // ファイルを取得してZIPデータに追加
 aztool.file_add_file_zip = function() {
-    $("#export_info").html("データ取得中　残り " + aztool.file_list.length + " ファイル");
+    if (!aztool.file_list) { // スマホからやると undefind になる時があるのでそもそも配列があるかチェック
+        $("#export_info").html("データ取得中　残り 0 ファイル");
+    } else {
+        $("#export_info").html("データ取得中　残り " + aztool.file_list.length + " ファイル");
+    }
     // 全ファイル圧縮し終えたらダウンロード
-    if (!aztool.file_list.length) {
+    if (!aztool.file_list || !aztool.file_list.length) {
         let comp = aztool.file_zip.compress();
         let file_name = aztool.setting_json_data.keyboard_name + ".zip";
         aztool.data_download(file_name, comp, "application/zip");

@@ -271,7 +271,7 @@ webhid.handle_input_report = function(e) {
         // 最後にコマンドを投げた時間
         webhid.last_load_time = webhid.millis();
         // 高速読み込みが終わったか監視する
-        webhid.file_data_check();
+        setTimeout(webhid.file_data_check(), 300);
 
 
     } else if (cmd_type == webhid.command_id.fast_get_file_data) {
@@ -695,7 +695,7 @@ webhid.file_save_check = function() {
 
 // 高速読み込み抜けデータがないかチェック
 webhid.file_data_check = function() {
-    if ((webhid.last_load_time + 300) > webhid.millis()) {
+    if ((webhid.last_load_time + 100) > webhid.millis()) {
         // 最後にデータ受け取ったのが300ミリ秒以内であれば送信が終わるまで待つ
         setTimeout(webhid.file_data_check, 50);
         return;
@@ -721,6 +721,7 @@ webhid.file_data_check = function() {
     }
     // 読み込みが全部終わっていればコールバックを実行
     webhid.save_file_path = "";
+    webhid.load_data_p = [];
     cmd = [webhid.command_id.fast_get_file_end];
     webhid.send_command(cmd);
     // webhid.get_file_cb_func(0, webhid.load_data);
