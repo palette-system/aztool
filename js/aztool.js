@@ -16,6 +16,9 @@ aztool.kle_all_json_path = "/kall.json";
 // 設定JSONファイルのパス
 aztool.setting_json_path = "/setting.json";
 
+// 設定JSONファイルのバックアップパス
+aztool.setting_json_backup_path = "/sb";
+
 // 子端末のアドレス保存キャッシュファイル
 aztool.child_addr_path = "/child";
 
@@ -368,6 +371,24 @@ aztool.edit_setting_json = function() {
     });
 };
 
+// 前の設定JSONをバックアップ
+aztool.setting_json_backup = function(cb_func) {
+    // 前のバックアップファイルがあれば削除
+    webhid.file_remove(
+        aztool.setting_json_backup_path,
+        function(remove_stat, remove_res) {
+            // 現在の設定ファイルのファイル名をバックアップ用に変更
+            webhid.file_rename(
+                aztool.setting_json_path,
+                aztool.setting_json_backup_path,
+                function(rename_stat, rename_res) {
+                    cb_func();
+                }
+            );
+        }
+    );
+};
+
 // 設定配列に反映した内容をJSONにして保存
 aztool.setting_json_save = function(all_kle_save_flag, cb_func) {
     // デフォルトフラグがあればフラグを削除
@@ -384,12 +405,16 @@ aztool.setting_json_save = function(all_kle_save_flag, cb_func) {
         }
         // kall.json の保存処理
         aztool.save_kle_all(cb_func);
-    }
-    // 保存
-    webhid.save_file(
-        aztool.setting_json_path, // 保存先
-        save_data, // 保存データ
-        all_kle_save_func);
+    };
+    // 現在の設定JSONをバックアップ
+    aztool.setting_json_backup(function() {
+        // 保存
+        webhid.save_file(
+            aztool.setting_json_path, // 保存先
+            save_data, // 保存データ
+            all_kle_save_func
+        );
+    });
 };
 
 // 設定を保存して再起動

@@ -271,14 +271,14 @@ webhid.handle_input_report = function(e) {
         // 最後にコマンドを投げた時間
         webhid.last_load_time = webhid.millis();
         // 高速読み込みが終わったか監視する
-        setTimeout(webhid.file_data_check(), 300);
+        webhid.file_data_check();
 
 
     } else if (cmd_type == webhid.command_id.fast_get_file_data) {
         // ファイル高速取得
         m = webhid.raw_report_id.in_size - 4; // 受け取ったデータのサイズ取得-4はコマンドと開始位置分
         p = (get_data[1] << 16) + (get_data[2] << 8) + get_data[3]; // 受け取ったデータの開始位置取得
-        webhid.load_data_p.push(p); // 受け取ったリストに追加
+        if (webhid.load_data_p.indexOf(p) < 0) webhid.load_data_p.push(p); // 受け取ったリストに追加
         // 受け取ったデータをバッファに入れる
         if ((p + i) >= webhid.load_length) m = webhid.load_length - p;
         for (i=0; i<m; i++) {
@@ -287,7 +287,7 @@ webhid.handle_input_report = function(e) {
         // 最後にコマンドを投げた時間
         webhid.last_load_time = webhid.millis();
         // ロード進捗を表示
-        webhid.view_info("loading...  "+(m + p)+" / "+webhid.load_length+" ");
+        webhid.view_info("loading...  "+(m * webhid.load_data_p.length)+" / "+webhid.load_length+" ");
 
 
     } else if (cmd_type == webhid.command_id.fast_get_file_data_one) {
@@ -295,14 +295,16 @@ webhid.handle_input_report = function(e) {
         // ファイルの容量取得
         m = webhid.raw_report_id.in_size - 4; // 受け取ったデータのサイズ取得-4はコマンドと開始位置分
         p = (get_data[1] << 16) + (get_data[2] << 8) + get_data[3]; // 受け取ったデータの開始位置取得
-        webhid.load_data_p.push(p); // 受け取ったリストに追加
+        if (webhid.load_data_p.indexOf(p) < 0) webhid.load_data_p.push(p); // 受け取ったリストに追加
         // 受け取ったデータをバッファに入れる
         if ((p + i) >= webhid.load_length) m = webhid.load_length - p;
         for (i=0; i<m; i++) {
             webhid.load_data[p + i] = get_data[4 + i];
         }
-        // 他に取りこぼしたデータがないかチェック
-        webhid.file_data_check();
+        // ロード進捗を表示
+        webhid.view_info("loading...  "+(m * webhid.load_data_p.length)+" / "+webhid.load_length+" ");
+        // 他に取りこぼしたデータがあればリクエストコマンドを飛ばす
+        webhid.get_fast_data_one();
 
 
     } else if (cmd_type == webhid.command_id.fast_get_file_end) {
@@ -693,18 +695,10 @@ webhid.file_save_check = function() {
     setTimeout(webhid.file_save_check, 1000);
 };
 
-// 高速読み込み抜けデータがないかチェック
-webhid.file_data_check = function() {
-    if ((webhid.last_load_time + 100) > webhid.millis()) {
-        // 最後にデータ受け取ったのが300ミリ秒以内であれば送信が終わるまで待つ
-        setTimeout(webhid.file_data_check, 50);
-        return;
-    }
-    let i, m;
-    let cmd;
+// 高速読み込みの抜けデータ要求を送信
+webhid.get_fast_data_one = function() {
+    let i, m, cmd;
     m = webhid.raw_report_id.in_size - 4; // 1回分のデータサイズ
-    // 受け取ったデータをバッファに入れる
-    // if ((p + i) >= webhid.load_length) m = webhid.load_length - p;
     for (i=0; i<webhid.load_length; i+=m) {
         // 1回分のデータ内にデータがあるか確認
         if (webhid.load_data_p.indexOf(i) < 0) { // データを受け取ってない
@@ -719,12 +713,32 @@ webhid.file_data_check = function() {
             return;
         }
     }
-    // 読み込みが全部終わっていればコールバックを実行
-    webhid.save_file_path = "";
-    webhid.load_data_p = [];
-    cmd = [webhid.command_id.fast_get_file_end];
-    webhid.send_command(cmd);
-    // webhid.get_file_cb_func(0, webhid.load_data);
+};
+
+// 高速読み込み抜けデータがないかチェック
+webhid.file_data_check = function() {
+    let i, m;
+    let cmd;
+    let n = webhid.millis();
+    if ((typeof webhid.load_data_p) != 'object') webhid.load_data_p = []; // 何かで取得データがおかしくなったらリセット
+    m = webhid.raw_report_id.in_size - 4; // 1回分のデータサイズ
+    if ((m * webhid.load_data_p.length) > webhid.load_length) {
+        // 全部取り終えたら、読み込み完了コマンドを送る
+        webhid.save_file_path = "";
+        webhid.load_data_p = [];
+        webhid.send_command([webhid.command_id.fast_get_file_end]);
+
+    } else if ((webhid.last_load_time + 500) > n) {
+        // データの取得が止まってたら続き送ってねを送る
+        webhid.get_fast_data_one();
+        // チェックを再実行
+        setTimeout(webhid.file_data_check, 50);
+
+    } else {
+        // チェックを再実行
+        setTimeout(webhid.file_data_check, 50);
+
+    }
 };
 
 
@@ -793,7 +807,7 @@ webhid.get_file = function(file_path, cb_func) {
     for (i=0; i<file_path_arr.length; i++) {
         cmd.push(file_path_arr[i]);
     }
-    if (cmd.length > 30) {
+    if (cmd.length > webhid.raw_report_id.out_size) {
         webhid.view_info("ファイル名が長すぎます。 [ "+file_path+" ]");
         webhid.get_file_cb_func(1, []);
         return;
@@ -830,7 +844,7 @@ webhid.save_file = function(file_path, file_data, cb_func) {
     for (i=0; i<file_path_arr.length; i++) {
         cmd.push(file_path_arr[i]);
     }
-    if (cmd.length > 30) {
+    if (cmd.length > webhid.raw_report_id.out_size) {
         webhid.view_info("ファイル名が長すぎます。 [ "+file_path+" ]");
         webhid.save_file_cb_func(1);
         return;
@@ -855,7 +869,7 @@ webhid.file_remove = function(file_path, cb_func) {
     for (i=0; i<file_path_arr.length; i++) {
         cmd.push(file_path_arr[i]);
     }
-    if (cmd.length > 30) {
+    if (cmd.length > webhid.raw_report_id.out_size) {
         webhid.view_info("ファイル名が長すぎます。 [ "+file_path+" ]");
         webhid.file_remove_cb_func(1, []);
         return;
@@ -898,7 +912,7 @@ webhid.file_rename = function(file_path, rename_path, cb_func) {
         cmd.push(rename_path_arr[i]);
     }
     cmd.push(0x00); // 区切り
-    if (cmd.length > 30) {
+    if (cmd.length > webhid.raw_report_id.out_size) {
         webhid.view_info("ファイル名が長すぎます。 [ "+file_path+" , "+rename_path+" ]");
         webhid.file_rename_cb_func(1, []);
         return;

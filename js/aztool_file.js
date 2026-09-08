@@ -4,6 +4,7 @@ if (!window.aztool) aztool = {};
 
 // インポートエクスポート時に無視するファイル
 aztool.skip_file_list = [
+    "/sb", // 設定JSONのバックアップファイル
     "/child", // 子端末のアドレスファイル
     "/boot_count", // 起動回数ファイル
     "/adafruit" // adafruit が初期化時に置いているファイル

@@ -16,7 +16,7 @@ webble.uart_tx_id = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"; // BLE UART TX
 // デバイス検索オプション
 webble.device_search_option = {
   filters: [
-    {services: [webble.custam_service_id] }, // AZK 
+    {"services": [webble.custam_service_id]}, // AZK 
     {"services": [webble.uart_service_id]} // BLE Uart
   ]
 };
