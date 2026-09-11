@@ -39,6 +39,9 @@ aztool.firm_info = {"version": "000000", "eep_data": "AZC000"};
 // キーボードのタイプ
 aztool.ble_type_list = ["シングル", "分割：親", "分割：子"];
 
+// マトリックスのスキャンタイプ
+aztool.scan_read_type_list = ["マトリックス","ダブルマトリックス"];
+
 // aztool初期化
 aztool.init = function(init_param) {
     aztool.init_param = init_param;
@@ -215,7 +218,11 @@ aztool.view_top_menu = function() {
     if (k.keyboard_pin.direct && k.keyboard_pin.direct.length) x.push("direct = " + k.keyboard_pin.direct.join(","));
     if (k.keyboard_pin.hall && k.keyboard_pin.hall.length) x.push("hall = " + k.keyboard_pin.hall.join(","));
     h += "<tr><th>キーピン</th><td>"+x.join("　")+"</td></tr>";
-    console.log(k);
+    if (k.keyboard_pin.row && k.keyboard_pin.row.length &&
+        k.keyboard_pin.col && k.keyboard_pin.col.length &&
+        "read_type" in aztool.setting_json_data.keyboard_pin) { // リードタイプ
+        h += "<tr><th>スキャンタイプ</th><td>"+aztool.scan_read_type_list[aztool.setting_json_data.keyboard_pin.read_type]+"</td></tr>";
+    }
     if (k.i2c_set && k.i2c_set.length == 3) {
         h += "<tr><th>I2Cピン</th><td>SDA= " + k.i2c_set[0] + " / SCL= " + k.i2c_set[1] + " / " + k.i2c_set[2].toLocaleString() + " Hz</td></tr>";
     } else {
@@ -290,7 +297,11 @@ aztool.view_top_menu_mobile = function() {
     if (k.keyboard_pin.direct && k.keyboard_pin.direct.length) x.push("direct = " + k.keyboard_pin.direct.join(","));
     if (k.keyboard_pin.hall && k.keyboard_pin.hall.length) x.push("hall = " + k.keyboard_pin.hall.join(","));
     h += "<tr><th>キーピン</th><td>"+x.join("　")+"</td></tr>";
-    console.log(k);
+    if (k.keyboard_pin.row && k.keyboard_pin.row.length &&
+        k.keyboard_pin.col && k.keyboard_pin.col.length &&
+        "read_type" in aztool.setting_json_data.keyboard_pin) { // リードタイプ
+        h += "<tr><th>スキャンタイプ</th><td>"+aztool.scan_read_type_list[aztool.setting_json_data.keyboard_pin.read_type]+"</td></tr>";
+    }
     if (k.i2c_set && k.i2c_set.length == 3) {
         h += "<tr><th>I2Cピン</th><td>SDA= " + k.i2c_set[0] + " / SCL= " + k.i2c_set[1] + " / " + k.i2c_set[2].toLocaleString() + " Hz</td></tr>";
     } else {

@@ -148,7 +148,7 @@ li {
     line-height: 50px;
     cursor: pointer;
     border-radius: 10px;
-    border: solid 1px #222;
+    border: solid 1px #aaa;
     display: inline-block;
 
 }
@@ -214,7 +214,7 @@ li {
     line-height: 50px;
     cursor: pointer;
     border-radius: 10px;
-    border: solid 1px #222;
+    border: solid 1px #aaa;
     display: inline-block;
 }
 
@@ -233,7 +233,7 @@ li {
     line-height: 50px;
     cursor: pointer;
     border-radius: 10px;
-    border: solid 1px #222;
+    border: solid 1px #aaa;
     display: inline-block;
     width: 194px;
     margin: 4px 0;
@@ -254,7 +254,7 @@ li {
     line-height: 50px;
     cursor: pointer;
     border-radius: 10px;
-    border: solid 1px #222;
+    border: solid 1px #aaa;
     display: inline-block;
 }
 
@@ -273,7 +273,7 @@ li {
     line-height: 50px;
     cursor: pointer;
     border-radius: 10px;
-    border: solid 1px #222;
+    border: solid 1px #aaa;
     display: inline-block;
     width: 194px;
     margin: 10px 0;
@@ -528,6 +528,7 @@ li {
     margin: 10px 10px;
     vertical-align: top;
     padding: 20px 0;
+    border: solid #aaa 1px;
 }
 
 .topmenu_btn:hover {
