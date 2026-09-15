@@ -722,7 +722,7 @@ webhid.file_data_check = function() {
     let n = webhid.millis();
     if ((typeof webhid.load_data_p) != 'object') webhid.load_data_p = []; // 何かで取得データがおかしくなったらリセット
     m = webhid.raw_report_id.in_size - 4; // 1回分のデータサイズ
-    if ((m * webhid.load_data_p.length) > webhid.load_length) {
+    if ((m * webhid.load_data_p.length) >= webhid.load_length) {
         // 全部取り終えたら、読み込み完了コマンドを送る
         webhid.save_file_path = "";
         webhid.load_data_p = [];
