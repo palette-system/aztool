@@ -7,7 +7,6 @@ aztool.firm_setup_enable = false;
 
 // キーボードリスト(デフォルト) GASからリスト取得失敗した場合表示される
 aztool.setup_keyboard_list = [
-    {"name": "AZPOCKET", "github": "https://github.com/palette-system/az-core/tree/main/azpocket"}
 ];
 
 // ファームセットアップ初期処理
