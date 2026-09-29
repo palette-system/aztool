@@ -118,7 +118,7 @@ aztool.file_drop_file_zip = function() {
         setTimeout(function() {
             aztool.remodal_close();
             aztool.keyboard_restart(0); // キーボードモードで再起動
-        }, 1000); // 一応 0.5 秒待ってから
+        }, 5000); // 一応 0.5 秒待ってから
         return;
     }
     // ファイルデータを取得

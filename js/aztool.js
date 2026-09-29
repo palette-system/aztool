@@ -441,7 +441,7 @@ aztool.save = function() {
         // ちょっと待ってからキーボード再起動
         setTimeout(function() {
             aztool.keyboard_restart(0); // キーボードモードで再起動
-        }, 500);
+        }, 5000);
     });
 };
 
@@ -492,7 +492,7 @@ aztool.setting_init = function() {
                     // ちょっと待ってからキーボード再起動
                     setTimeout(function() {
                         aztool.keyboard_restart(0); // キーボードモードで再起動
-                    }, 500);
+                    }, 5000);
                 });
             }
         },

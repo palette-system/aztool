@@ -818,7 +818,9 @@ aztool.option_add_complate = function() {
 // 再起動してオプションを反映
 aztool.option_add_restart = function () {
     aztool.option_add_added_flag = false; // オプション追加したよフラグリセット
-    aztool.keyboard_restart(0); // キーボードを再起動
+    setTimeout(function() {
+        aztool.keyboard_restart(0); // キーボードを再起動
+    }, 5000);
 };
 
 // kle JSONからキー配列を表示
