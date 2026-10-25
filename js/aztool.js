@@ -418,14 +418,14 @@ aztool.setting_json_save = function(all_kle_save_flag, cb_func) {
         aztool.save_kle_all(cb_func);
     };
     // 現在の設定JSONをバックアップ
-    aztool.setting_json_backup(function() {
+    // aztool.setting_json_backup(function() {
         // 保存
         webhid.save_file(
             aztool.setting_json_path, // 保存先
             save_data, // 保存データ
             all_kle_save_func
         );
-    });
+    // });
 };
 
 // 設定を保存して再起動

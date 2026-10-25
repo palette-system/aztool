@@ -301,6 +301,8 @@ webhid.handle_input_report = function(e) {
         for (i=0; i<m; i++) {
             webhid.load_data[p + i] = get_data[4 + i];
         }
+        // 最後にコマンドを送信した時間
+        webhid.last_load_time = webhid.millis();
         // ロード進捗を表示
         webhid.view_info("loading...  "+(m * webhid.load_data_p.length)+" / "+webhid.load_length+" ");
         // 他に取りこぼしたデータがあればリクエストコマンドを飛ばす
@@ -720,23 +722,27 @@ webhid.file_data_check = function() {
     let i, m;
     let cmd;
     let n = webhid.millis();
+        console.log("file_data_check: a ("+(webhid.load_data_p.length)+" / "+(webhid.load_length)+") ("+(webhid.last_load_time + 1000 - n)+")");
     if ((typeof webhid.load_data_p) != 'object') webhid.load_data_p = []; // 何かで取得データがおかしくなったらリセット
     m = webhid.raw_report_id.in_size - 4; // 1回分のデータサイズ
     if ((m * webhid.load_data_p.length) >= webhid.load_length) {
         // 全部取り終えたら、読み込み完了コマンドを送る
         webhid.save_file_path = "";
         webhid.load_data_p = [];
+        console.log("file_data_check: b");
         webhid.send_command([webhid.command_id.fast_get_file_end]);
 
-    } else if ((webhid.last_load_time + 500) > n) {
+    } else if ((webhid.last_load_time + 1000) < n) {
         // データの取得が止まってたら続き送ってねを送る
         webhid.get_fast_data_one();
         // チェックを再実行
-        setTimeout(webhid.file_data_check, 50);
+        console.log("file_data_check: c");
+        setTimeout(webhid.file_data_check, 100);
 
     } else {
         // チェックを再実行
-        setTimeout(webhid.file_data_check, 50);
+        console.log("file_data_check: d");
+        setTimeout(webhid.file_data_check, 100);
 
     }
 };

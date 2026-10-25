@@ -65,7 +65,7 @@ aztool.txtedit_setting_json_edit = function(cb_func) {
     aztool.txtedit_file_path = aztool.setting_json_path; // ファイルのパスは設定ファイル
     aztool.txtedit_text = aztool.setting_json_txt; // 編集前のデータは読み込んだ時の設定JSONデータ
     aztool.txtedit_text_edit = JSON.stringify(aztool.setting_json_data); // データは編集中のデータをjson化
-    aztool.txtedit_text_size = aztool.txtedit_text.length; // ファイルサイズはjsonのサイズ
+    aztool.txtedit_text_size = aztool.txtedit_text_edit.length; // ファイルサイズはjsonのサイズ
     aztool.txtedit_editpage_view(); // 編集画面表示
 };
 

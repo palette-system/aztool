@@ -107,12 +107,14 @@ aztool.set_firmware_status = function(firm_info) {
 // ディスク情報の取得
 aztool.load_disk_info = function() {
     // ディスクの空き容量取得
-    webhid.get_disk_info(function(disk_data) {
-        aztool.disk_data = disk_data;
-        // 読み込みが終わったらAZTOOLのメニューページを表示
-        aztool.view_top_menu();
-        // ファームウェアのバージョンやEEPROMの設定情報を取得（古いAZキーボードだとレスポンスが返ってこない場合がある）
-        webhid.get_firmware_status(aztool.set_firmware_status);
-    });
+    setTimeout(function() {
+        webhid.get_disk_info(function(disk_data) {
+            aztool.disk_data = disk_data;
+            // 読み込みが終わったらAZTOOLのメニューページを表示
+            aztool.view_top_menu();
+            // ファームウェアのバージョンやEEPROMの設定情報を取得（古いAZキーボードだとレスポンスが返ってこない場合がある）
+            webhid.get_firmware_status(aztool.set_firmware_status);
+        });
+    }, 100);
 };
 
