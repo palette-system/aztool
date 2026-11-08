@@ -375,7 +375,9 @@ aztool.edit_setting_json = function() {
     aztool.txtedit_setting_json_edit(function(stat, save_flag) {
         // 変更されていればキーボードを再起動
         if (save_flag) {
-            aztool.keyboard_restart(0); // キーボードモードで再起動
+            setTimeout(function() {
+                aztool.keyboard_restart(0); // キーボードモードで再起動
+            }, 3000);
             return;
         }
         aztool.view_top_menu();
