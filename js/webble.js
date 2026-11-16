@@ -107,8 +107,8 @@ webble.connect = function(cb_func) {
         return webble.ble_server.getPrimaryService(webble.custam_service_id).catch(error => {
             console.log("AZK サービスが無ければ BLE UART サービス");
             webble.ble_uart_flag = true;
-            webhid.raw_report_id.in_size = 20;
-            webhid.raw_report_id.out_size = 20;
+            webhid.raw_report_id.in_size = 32;
+            webhid.raw_report_id.out_size = 32;
             return webble.ble_server.getPrimaryService(webble.uart_service_id);
         });
     })
